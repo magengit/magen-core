@@ -15,7 +15,7 @@ cp magen_rest/dist/magen_rest_service-1.0a1-py3-none-any.whl ${path}
 cp magen_stats/dist/magen_statistics_service-1.0a1-py3-none-any.whl ${path}
 cp magen_mongo/dist/magen_mongo-1.0a1-py3-none-any.whl ${path}
 cp magen_id_client/dist/magen_id_client-1.0a1-py3-none-any.whl ${path}
-cp pip.conf ${path}
+# cp pip.conf ${path}
 
 cd ${path}
 

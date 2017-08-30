@@ -54,4 +54,4 @@ RUN pip3 install /tmp/magen_statistics_service-1.0a1-py3-none-any.whl
 ADD magen_id_client-1.0a1-py3-none-any.whl /tmp
 RUN pip3 install /tmp/magen_id_client-1.0a1-py3-none-any.whl
 
-ADD pip.conf /etc
+# ADD pip.conf /etc
