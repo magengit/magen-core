@@ -1,0 +1,89 @@
+dist: trusty
+sudo: required
+
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y apt-utils
+  - sudo apt-get install -y wget
+  - sudo apt-get install -y xz-utils
+  - sudo apt-get install -y build-essential
+  - sudo apt-get install -y libsqlite3-dev
+  - sudo apt-get install -y libreadline-dev
+  - sudo apt-get install -y libssl-dev
+  - sudo apt-get install -y libffi-dev
+  - sudo apt-get install -y openssl
+  - sudo apt-get install -y net-tools
+#  - sudo add-apt-repository -y ppa:jonathonf/python-3.6
+  - sudo apt-get -qq update
+  # Python
+#  - sudo apt-get -y install python3.6
+#  - sudo apt-get -y install python3.6-dev
+#  - sudo apt-get -y install python3-pip
+#  - sudo -H pip3 install -U pip setuptools
+#  - echo "alias python=python3.6" >> ~/.bashrc
+  # Mongo
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
+  - echo "deb [ arch=amd64 ] http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+  - sudo apt-get -qq update
+  - sudo apt-get install -y mongodb-org
+  - sudo chown -R mongodb:mongodb /var/lib/mongodb
+  # Allowing connections to other interfaces besides loopback
+  - sudo sed -i.bak '/bindIp/d' /etc/mongod.conf
+  - sudo service mongod start
+  # Docker compose
+  - sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)"
+  - sudo chmod +x /usr/local/bin/docker-compose
+  - docker-compose -v
+  # PIP
+#  - sudo cp pip.conf /etc/pip.conf
+#  - cp ./.pypirc ~/.pypirc
+  # Travis
+  - gem install travis -v 1.8.8 --no-rdoc --no-ri
+
+notifications:
+  email:
+    recipients:
+      - magen-build@cisco.com
+    on_success: always # default: change
+    on_failure: always # default: always
+
+services:
+  - docker
+language: python
+#python:
+#  - "3.6"
+#  - "3.6-dev" # 3.6 development branch
+# command to install dependencies
+matrix:
+  include:
+    - python: 3.6
+      env: TO_BUILD=NATIVE
+    - python: 3.6
+      env: TO_BUILD=DOCKER
+  fast_finish: true
+
+install:
+  - if [ "$TO_BUILD" = "NATIVE" ]; then make all; fi
+  - if [ "$TO_BUILD" = "DOCKER" ]; then make build_base_docker; fi
+
+before_script:
+  - if [ "$TO_BUILD" = "DOCKER" ]; then sudo docker images; fi
+  - printenv
+
+script:
+  - if [ "$TO_BUILD" = "NATIVE" ]; then make test; fi
+
+after_success:
+  - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then
+      make upload;
+      if [ "$TO_BUILD" = "DOCKER" ]; then lib/magen_helper/helper_scripts/trigger_builds.sh; fi;
+    else
+      echo $TRAVIS_BRANCH;
+    fi
+
+deploy:
+  provider: pypi
+  skip_cleanup: true
+  user: rapenno
+  password:
+    secure: hNGuzAoLPjjVvsphh5QVJW/3DGcRL/k5BpzvEJpdG0g9HfVkJe1ih9ipK+9kUFE+EfQ+ytWJT8gyjuB3EinaW7UKVkq7UxqXu3J1eoRCHGaKSTrQP5yJKMkAFsrBfA/QHnF2bLVpINnWFvPqslNrzF0B9O4Ehe1f3psWlghGUY28DyahUypzoSuU88C1kmZGzC7ayo/vwFY7jVmMhtAkXnTZcwKjw4vSpgUPaBKLB01i7jYm8838H45D2FDCXwZiACQRmcLKxjdBOescyFBXSos2la44zkphY2yt392XJ9TOWY5IWP41wr48iHV7T8DiSvmaf4uZwIvIfuO49kQzvWLC0n6JGodewmK4XMfJTrkN04UNR9x5BMGd2dxx/tfXFqW3WBkUagu+uQbn7l9Ad3qHDWZWU3qk9Q2/QFUZuH3NLoZjo6KvaNmLkQ+1ViAi90FSj9s0viggH2vtxwDblB1c6VkukKFoS4el1vEi1XUfujo55auSkcUAVoZusPPRUZwMk8r0LHNF0LAL125TdiWg+CqpVAwF1EDqBkOP2oxcUqlhc6v9ugPlszgMpPlN7PhRIRmPVIHKFNhGot46iq33/XnG2/DHSONGqb+ttqkMgKTjHCU/zo93C39l4LFlSt8Z26rUeic6/O+9XEdUH8M9pF5Ldz1m3Azqa7Jt4IU=
