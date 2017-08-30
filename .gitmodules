@@ -1,3 +1,0 @@
-[submodule "lib/magen_helper"]
-	path = lib/magen_helper
-	url = https://github.com/magengit/magen-helper.git
