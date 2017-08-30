@@ -85,5 +85,8 @@ deploy:
   provider: pypi
   skip_cleanup: true
   user: rapenno
+  distributions: "bdist_wheel"
   password:
     secure: hNGuzAoLPjjVvsphh5QVJW/3DGcRL/k5BpzvEJpdG0g9HfVkJe1ih9ipK+9kUFE+EfQ+ytWJT8gyjuB3EinaW7UKVkq7UxqXu3J1eoRCHGaKSTrQP5yJKMkAFsrBfA/QHnF2bLVpINnWFvPqslNrzF0B9O4Ehe1f3psWlghGUY28DyahUypzoSuU88C1kmZGzC7ayo/vwFY7jVmMhtAkXnTZcwKjw4vSpgUPaBKLB01i7jYm8838H45D2FDCXwZiACQRmcLKxjdBOescyFBXSos2la44zkphY2yt392XJ9TOWY5IWP41wr48iHV7T8DiSvmaf4uZwIvIfuO49kQzvWLC0n6JGodewmK4XMfJTrkN04UNR9x5BMGd2dxx/tfXFqW3WBkUagu+uQbn7l9Ad3qHDWZWU3qk9Q2/QFUZuH3NLoZjo6KvaNmLkQ+1ViAi90FSj9s0viggH2vtxwDblB1c6VkukKFoS4el1vEi1XUfujo55auSkcUAVoZusPPRUZwMk8r0LHNF0LAL125TdiWg+CqpVAwF1EDqBkOP2oxcUqlhc6v9ugPlszgMpPlN7PhRIRmPVIHKFNhGot46iq33/XnG2/DHSONGqb+ttqkMgKTjHCU/zo93C39l4LFlSt8Z26rUeic6/O+9XEdUH8M9pF5Ldz1m3Azqa7Jt4IU=
+  on:
+    condition: "$TOXENV = py35"
