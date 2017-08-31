@@ -37,7 +37,7 @@ setup(
         #   3 - Alpha
         #   4 - Beta
         #   5 - Production/Stable
-        'Development Status :: 2 - Alpha',
+        'Development Status :: 2 - Pre-Alpha',
         'Environment :: MacOS X',
         'Framework :: Flask',
         # Indicate who your project is intended for
