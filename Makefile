@@ -1,7 +1,7 @@
 MAKE=make
-BASE_IMAGE=base_docker_image
-DOCKER_SRC_TAG=magen_base:17.02
-DOCKER_IMAGE=magen-core
+export BASE_IMAGE=base_docker_image
+export DOCKER_SRC_TAG=magen_base:17.02
+export DOCKER_IMAGE=magen-core
 DOCKER_DIR=base_docker_image
 
 PACKAGES = magen_id_client magen_logaru magen_utils magen_test_utils magen_rest magen_stats magen_datastore magen_mongo
