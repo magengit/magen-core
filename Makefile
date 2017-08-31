@@ -1,7 +1,5 @@
 MAKE=make
 BASE_IMAGE=base_docker_image
-magen_base
-SERVER_NAME=ingestion_server.py
 DOCKER_SRC_TAG=magen_base:17.02
 DOCKER_IMAGE=magen-core
 DOCKER_DIR=base_docker_image
