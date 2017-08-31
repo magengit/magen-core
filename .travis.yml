@@ -77,7 +77,7 @@ script:
 after_success:
   - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then
       make upload;
-      if [ "$TO_BUILD" = "DOCKER" ]; then helper_scripts/travis_trigger_dependent_builds.sh; fi;
+      if [ "$TO_BUILD" = "DOCKER" ]; then lib/helper_scripts/travis_trigger_dependent_builds.sh; fi;
     else
       echo $TRAVIS_BRANCH;
     fi
