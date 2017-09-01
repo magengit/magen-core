@@ -22,11 +22,15 @@ package: common_package
 
 install: common_install
 
+uninstall: common_uninstall
+
 all: common_all
 
 list: common_list
 
-uninstall: common_uninstall
+update: common_update
+
+test_docker: common_test_docker
 
 stop_docker: common_stop_docker
 
@@ -34,10 +38,19 @@ clean_docker: common_clean_docker
 
 rm_docker: common_rm_docker
 
+test_travis: common_test_travis
+
 upload: common_upload
+
+run_unit_test: common_run_unit_test
+
+pre_test: common_pre_test
+
+coverage_report: common_coverage_report
 
 doc: common_doc_api common_doc
 
-test_travis: common_test_travis
-
 check: common_check
+
+
+
