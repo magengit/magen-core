@@ -1,4 +1,7 @@
 # Magen-Core
+
+[![Build Status](https://travis-ci.org/magengit/magen-core.svg?branch=master)](https://travis-ci.org/magengit/magen-core)
+
 This repo containes infrastructure Magen Packages.
 
 Current List of Packages under **Magen-Core**:
