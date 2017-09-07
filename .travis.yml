@@ -59,6 +59,7 @@ before_install:
   # Travis
   - gem install travis -v 1.8.8 --no-rdoc --no-ri
   - pip3 install twine
+  - pip3 install codecov
 
 install:
   - if [ "$TO_BUILD" = "NATIVE" ]; then make all; fi
@@ -75,6 +76,7 @@ after_success:
   - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then
       make upload;
       if [ "$TO_BUILD" = "DOCKER" ]; then lib/magen_helper/helper_scripts/travis_trigger_dependent_builds.sh; fi;
+      codecov;
     else
       echo $TRAVIS_BRANCH;
     fi

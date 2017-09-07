@@ -1,6 +1,7 @@
 # Magen-Core
 
 [![Build Status](https://travis-ci.org/magengit/magen-core.svg?branch=master)](https://travis-ci.org/magengit/magen-core)
+[![codecov](https://codecov.io/gh/magengit/magen-core/branch/master/graph/badge.svg)](https://codecov.io/gh/magengit/magen-core)
 [![Code Health](https://landscape.io/github/magengit/magen-core/master/landscape.svg?style=flat)](https://landscape.io/github/magengit/magen-core/master)
 
 
