@@ -9,7 +9,7 @@ class MongoReturn(object):
     This class encapsulates API return to clients.
     """
 
-    def __init__(self, success=False, message=None, code=0, count=0, matched_count=0, documents=[],
+    def __init__(self, success=False, message=None, code=0, count=0, matched_count=0, documents=None,
                  response_object=None, db_exception=None):
         super().__init__()
         self.__success = success
@@ -17,7 +17,7 @@ class MongoReturn(object):
         self.__code = code
         self.__count = count
         self.__matched_count = matched_count
-        self.__documents = documents
+        self.__documents = documents or list()
         self.__response_object = response_object
         self.__db_exception = db_exception
 

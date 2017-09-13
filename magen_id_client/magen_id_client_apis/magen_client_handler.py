@@ -20,6 +20,7 @@ __status__ = "alpha"
 
 
 class MagenClientAppHandler(object):
+    DEFAULT_RESPONSE_TYPES = ['code', 'id_token', 'id_token token', 'token']
     state_key = 'oauthlib.client'
 
     def __init__(
@@ -29,7 +30,7 @@ class MagenClientAppHandler(object):
             callback_uri=None,
             client_id=None,
             client_secret=None,
-            response_type=['code', 'id_token', 'id_token token', 'token'],
+            response_type=None,
             default_scopes=None,
             jwt_alg=None,
     ):
@@ -40,7 +41,7 @@ class MagenClientAppHandler(object):
         self._client_id = client_id
         self._client_secret = client_secret
         self._redirect_uris = redirect_uris
-        self._response_type = response_type
+        self._response_type = response_type or MagenClientAppHandler.DEFAULT_RESPONSE_TYPES
         self._default_scopes = default_scopes
         self._jwt_alg = jwt_alg
 
