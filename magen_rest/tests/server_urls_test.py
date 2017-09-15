@@ -1,11 +1,8 @@
 #! /bin/usr/python3
-from magen_rest.magen_rest_apis.server_urls import ServerUrls
-
+"""Server Urls Test Suite"""
 import unittest
-
 from unittest.mock import patch
-
-import magen_core_test_env
+from magen_rest.magen_rest_apis.server_urls import ServerUrls
 
 __author__ = "Alena Lifar"
 __copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
@@ -16,6 +13,7 @@ __status__ = "alpha"
 
 
 class TestServerUrls(unittest.TestCase):
+    """Server Urls Test"""
     services = ['ingestion', 'key', 'identity', 'policy']
     server_names = ['is', 'ks', 'id', 'ps']
     pattern = 'server_url_host_port'

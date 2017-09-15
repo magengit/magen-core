@@ -1,3 +1,4 @@
+"""Mongo Return Class for structural Response"""
 __author__ = "repennor@cisco.com"
 __copyright__ = "Copyright(c) 2016, Cisco Systems, Inc."
 __version__ = "0.1"
@@ -126,7 +127,7 @@ class MongoReturn(object):
     def db_exception(self, value):
         self.__db_exception = value
 
-    @staticmethod
     def to_dict(self):
+        """Cast Object to Dictionary"""
         return {"success": self.success, "message": self.message, "code": self.code, "count": self.count,
                 "matched_count": self.matched_count, "json": self.documents, "response": self.response_object}

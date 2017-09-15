@@ -1,4 +1,4 @@
-# noinspection PyUnresolvedReferences
+"""Rest Client APIs"""
 import json
 from http import HTTPStatus
 
@@ -7,7 +7,7 @@ import requests.exceptions
 
 from magen_test_utils_apis.test_magen_object_apis import TestMagenObjectApis
 
-from .rest_exception_apis import RestExceptionApis
+from .rest_exception_apis import handle_specific_exception
 from .rest_exception_apis import RestReturn
 
 __author__ = "repenno@cisco.com"
@@ -17,6 +17,7 @@ __status__ = "alpha"
 
 
 class RestClientApis(object):
+    """APIs for handling REST Requests"""
     put_json_headers = {'content-type': 'application/json', 'Accept': 'application/json'}
     get_json_headers = {'Accept': 'application/json'}
 
@@ -32,9 +33,9 @@ class RestClientApis(object):
 
         :return: Rest Respond Object
         """
-        s = requests.Session()
+        session = requests.Session()
         try:
-            get_response = s.get(url, verify=verify, stream=False, timeout=2.0)
+            get_response = session.get(url, verify=verify, stream=False, timeout=2.0)
             get_response.raise_for_status()
             if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
                 get_resp_json = get_response.json()
@@ -51,8 +52,8 @@ class RestClientApis(object):
                                          json_body=get_resp_json,
                                          response_object=get_response)
             return rest_return_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_delete_and_check_success(url, my_function=None, verify=True):
@@ -67,8 +68,8 @@ class RestClientApis(object):
         :return: Rest Respond Object
         """
         try:
-            s = requests.Session()
-            delete_resp = s.delete(
+            session = requests.Session()
+            delete_resp = session.delete(
                 url,
                 verify=verify,
                 stream=False,
@@ -88,8 +89,8 @@ class RestClientApis(object):
                                          json_body=delete_resp_json,
                                          response_object=delete_resp)
             return rest_return_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_post_and_check_success(url, json_req, my_function=None, timeout=2.0, verify=True):
@@ -107,8 +108,8 @@ class RestClientApis(object):
         :return: Rest Respond Object
         """
         try:
-            s = requests.Session()
-            post_resp = s.post(
+            session = requests.Session()
+            post_resp = session.post(
                 url,
                 verify=verify,
                 data=json_req,
@@ -139,8 +140,8 @@ class RestClientApis(object):
                                          json_body=post_resp_json,
                                          response_object=post_resp)
             return rest_return_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_put_and_check_success(url, json_req, my_function=None, verify=True):
@@ -157,8 +158,8 @@ class RestClientApis(object):
         :return: Rest Respond Object
         """
         try:
-            s = requests.Session()
-            put_resp = s.put(
+            session = requests.Session()
+            put_resp = session.put(
                 url,
                 verify=verify,
                 data=json_req,
@@ -181,12 +182,13 @@ class RestClientApis(object):
                                          http_status=return_code,
                                          message=message, json_body=post_resp_json)
             return rest_return_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     # The remaining methods in this class are for testing purposes.
     @staticmethod
     def http_get_location_header(response_obj):
+        """Get Location Header for a recource"""
         return response_obj.response_object.headers['Location']
 
     @staticmethod
@@ -221,21 +223,17 @@ class RestClientApis(object):
                                                      response_object=get_response_obj.response_object)
                         return rest_return_obj
 
-                    else:
-                        # No JSON body in server response. From the API client perspective this is a 500.
-                        rest_return_obj = RestReturn(success=False,
-                                                     http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                                     message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-                                                     response_object=get_response_obj.response_object)
-                        return rest_return_obj
-                else:
-                    # Get failed
-                    return get_response_obj
-            else:
-                # POST failed
-                return post_resp_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+                    # No JSON body in server response. From the API client perspective this is a 500.
+                    rest_return_obj = RestReturn(success=False,
+                                                 message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+                                                 response_object=get_response_obj.response_object)
+                    return rest_return_obj
+                # Get failed
+                return get_response_obj
+            # POST failed
+            return post_resp_obj
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_post_and_compare_resp(url, json_req, expected_post_json_resp,
@@ -256,18 +254,19 @@ class RestClientApis(object):
         try:
             post_resp_obj = RestClientApis.http_post_and_check_success(url, json_req)
             if post_resp_obj.success:
-                success, message, return_code = my_function(json.loads(expected_post_json_resp),
-                                                                post_resp_obj.json_body)
+                success, message, return_code = my_function(
+                    json.loads(expected_post_json_resp),
+                    post_resp_obj.json_body
+                )
                 rest_return_obj = RestReturn(success=success,
                                              http_status=return_code,
                                              message=message,
                                              response_object=post_resp_obj.response_object)
                 return rest_return_obj
-            else:
-                # Post failed
-                return post_resp_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+            # Post failed
+            return post_resp_obj
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_get_and_compare_resp(url, expected_get_json_resp, my_function=TestMagenObjectApis.compare_json):
@@ -295,8 +294,8 @@ class RestClientApis(object):
                                          json_body=get_resp_json,
                                          response_object=get_resp_obj.response_object)
             return rest_return_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_delete_and_get_check(url):
@@ -334,8 +333,8 @@ class RestClientApis(object):
             rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
                                          json_body=json_body, response_object=response_object)
             return rest_return_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_put_and_compare_get_resp(url, json_req, json_resp, my_function=TestMagenObjectApis.compare_json):
@@ -367,21 +366,17 @@ class RestClientApis(object):
                                                      response_object=get_response_obj.response_object)
                         return rest_return_obj
 
-                    else:
-                        # No JSON body in server response. From the API client perspective this is a 500.
-                        rest_return_obj = RestReturn(success=False,
-                                                     http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                                     message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-                                                     response_object=get_response_obj.response_object)
-                        return rest_return_obj
-                else:
-                    # Get failed
-                    return get_response_obj
-            else:
-                # POST failed
-                return put_resp_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+                    # No JSON body in server response. From the API client perspective this is a 500.
+                    rest_return_obj = RestReturn(success=False,
+                                                 message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
+                                                 response_object=get_response_obj.response_object)
+                    return rest_return_obj
+                # Get failed
+                return get_response_obj
+            # POST failed
+            return put_resp_obj
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)
 
     @staticmethod
     def http_put_and_compare_resp(url, json_req, json_resp, my_function=TestMagenObjectApis.compare_json):
@@ -401,25 +396,20 @@ class RestClientApis(object):
         try:
             put_resp_obj = RestClientApis.http_put_and_check_success(url, json_req)
             if put_resp_obj.success:
-                    json_put_resp = put_resp_obj.json_body
-                    if json_put_resp:
-                        success, message, return_code = my_function(json.loads(json_resp), json_put_resp)
-                        rest_return_obj = RestReturn(success=success,
-                                                     http_status=return_code,
-                                                     message=message,
-                                                     response_object=put_resp_obj.response_object)
-                        return rest_return_obj
+                json_put_resp = put_resp_obj.json_body
+                if json_put_resp:
+                    success, message, return_code = my_function(json.loads(json_resp), json_put_resp)
+                    rest_return_obj = RestReturn(success=success,
+                                                 http_status=return_code,
+                                                 message=message,
+                                                 response_object=put_resp_obj.response_object)
+                    return rest_return_obj
 
-                    else:
-                        # No JSON body in server response. From the API client perspective this is a 500.
-                        rest_return_obj = RestReturn(success=False,
-                                                     http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
-                                                     message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase,
-                                                     response_object=json_put_resp.response_object)
-                        return rest_return_obj
-
-            else:
-                # PUT failed
-                return put_resp_obj
-        except Exception as e:
-            return RestExceptionApis.handle_specific_exception(e)
+                # No JSON body in server response. From the API client perspective this is a 500.
+                rest_return_obj = RestReturn(success=False,
+                                             message=HTTPStatus.INTERNAL_SERVER_ERROR.phrase)
+                return rest_return_obj
+            # PUT failed
+            return put_resp_obj
+        except (requests.exceptions.RequestException, json.JSONDecodeError) as err:
+            return handle_specific_exception(err)

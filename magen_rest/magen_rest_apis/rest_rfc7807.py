@@ -54,6 +54,7 @@ class RestRfc7807(object):
 
     @property
     def type_uri(self):
+        """URI Type"""
         return self.__type_uri
 
     @type_uri.setter
@@ -62,6 +63,7 @@ class RestRfc7807(object):
 
     @property
     def title(self):
+        """Title"""
         return self.__title
 
     @title.setter
@@ -70,6 +72,7 @@ class RestRfc7807(object):
 
     @property
     def status(self):
+        """Status"""
         return self.__status
 
     @status.setter
@@ -78,6 +81,7 @@ class RestRfc7807(object):
 
     @property
     def detail(self):
+        """Detail"""
         return self.__detail
 
     @detail.setter
@@ -86,6 +90,7 @@ class RestRfc7807(object):
 
     @property
     def instance(self):
+        """Singleton instance"""
         return self.__instance
 
     @instance.setter

@@ -1,11 +1,8 @@
+"""Test Database"""
 import os
 from pymongo import MongoClient
 
 from magen_datastore_apis.main_db import MainDb
-
-#
-# Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
-#
 
 __copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
 __version__ = "0.1"
@@ -15,7 +12,7 @@ MONGO_PORT = 27017
 
 
 class MagenTestDb(MainDb):
-
+    """Test DB"""
     __instance = None
 
     def __init__(self):
@@ -43,6 +40,7 @@ class MagenTestDb(MainDb):
 
     @property
     def mongo_client(self):
+        """Mongo Client"""
         return self.__mongo_client
 
     @mongo_client.setter
@@ -51,6 +49,7 @@ class MagenTestDb(MainDb):
 
     @property
     def magen_test_db(self):
+        """Test Database"""
         return self.__magen_test_db
 
     @magen_test_db.setter
@@ -59,6 +58,7 @@ class MagenTestDb(MainDb):
 
     @property
     def magen_test_collection(self):
+        """Test Collection"""
         return self.__magen_test_collection
 
     @magen_test_collection.setter
@@ -70,5 +70,3 @@ class MagenTestDb(MainDb):
         if cls.__instance is None:
             cls.__instance = cls()
         return cls.__instance
-
-

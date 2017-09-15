@@ -1,25 +1,24 @@
 #! /usr/bin/python3
+"""Rest Client GET API Test Suite"""
 import json
-import os
-import sys
 import unittest
 from http import HTTPStatus
 
 import responses
 
-import magen_core_test_env
-
-from .rest_client_apis_test_messages import MAGEN_SINGLE_ASSET_FINANCE_GET_RESP
 from magen_rest_apis.rest_client_apis import RestClientApis
+from .rest_client_apis_test_messages import MAGEN_SINGLE_ASSET_FINANCE_GET_RESP
+
 
 __author__ = "Reinaldo Penno"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __license__ = "New-style BSD"
 __version__ = "0.1"
 __email__ = "rapenno@gmail.com"
 
 
 class RestClientGetApisTest(unittest.TestCase):
+    """Rest Client GET API Test"""
     UNREACHABLE_HOST = "http://127.0.0.2"
     NO_WEB_SERVER_RUNNING_HOST = "http://127.0.0.1"
     INVALID_URL = "https://httpb  in.org/"
@@ -41,10 +40,20 @@ class RestClientGetApisTest(unittest.TestCase):
 
     @staticmethod
     def my_func_test_ok(*args, **kwargs):
+        """
+        Function indicates custom function for check all Client API
+        :param args: any type of parameters that this funtion works with
+        :param kwargs: any type of parameters that this funtion works with
+        """
         return True, HTTPStatus.OK.phrase, HTTPStatus.OK
 
     @staticmethod
     def my_func_test_fail(*args, **kwargs):
+        """
+        Function indicates custom function for check all Client API
+        :param args: any type of parameters that this funtion works with
+        :param kwargs: any type of parameters that this funtion works with
+        """
         return False, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, HTTPStatus.INTERNAL_SERVER_ERROR
 
     @responses.activate

@@ -1,13 +1,9 @@
+"""REST Server API Test Suite"""
 import json
-import os
-import sys
 import unittest
 from http import HTTPStatus
 
 from flask import Flask
-
-import magen_core_test_env
-
 from magen_rest_apis.rest_server_apis import RestServerApis
 
 
@@ -17,7 +13,7 @@ __license__ = "New-style BSD"
 __version__ = "0.1"
 __email__ = "rapenno@gmail.com"
 
-rest_response = """
+REST_RESPONSE = """
 {
   "response": {
     "cause": "Test Successful",
@@ -30,6 +26,7 @@ rest_response = """
 
 
 class RestServerApisTest(unittest.TestCase):
+    """REST Server API Test"""
     TEST_UUID = "74c1c6ff-c266-43a6-9d14-82dca05cb6df"
     app = None
 
@@ -54,7 +51,7 @@ class RestServerApisTest(unittest.TestCase):
         }
         with self.__class__.app.test_request_context():
             http_response = RestServerApis.respond(HTTPStatus.GATEWAY_TIMEOUT, "test_RestRespondOK", result)
-            self.assertEqual(json.loads(http_response.response[0]), json.loads(rest_response))
+            self.assertEqual(json.loads(http_response.response[0]), json.loads(REST_RESPONSE))
 
     def test_RestRespondNotOK(self):
         result = {

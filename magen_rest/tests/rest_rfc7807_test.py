@@ -1,22 +1,20 @@
 #! /usr/bin/python3
+"""Rest RFC7807 Test Suite"""
 import json
-import os
-import sys
 import unittest
-
-import magen_core_test_env
 
 from magen_rest_apis.rest_rfc7807 import RestRfc7807
 
 
 __author__ = "Reinaldo Penno"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __license__ = "New-style BSD"
 __version__ = "0.1"
 __email__ = "rapenno@gmail.com"
 
 
 class RestRfc7807Test(unittest.TestCase):
+    """Rest RFC7807 Test"""
     error_report_exp = {"title": "e", "instance": "s", "status": "s", "detail": "t", "type_uri": "t"}
     error_report_json_str_exp = """{"detail": "t", "instance": "s", "status": "s", "title": "e", "type_uri": "t"}"""
 

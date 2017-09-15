@@ -1,17 +1,19 @@
+"""Magen Client Handler handles authorization requests to Magen ID service"""
 from functools import wraps
-
-from flask import redirect, session
 from urllib.parse import urlencode
+import logging
 import json
-from flask import request
+import flask
 import requests
 import requests.auth
-import logging.config
+from http import HTTPStatus
 
-from magen_id_client_apis.utilities import Utilities
+from magen_id_client_apis import utilities
+from magen_rest_apis.rest_exception_apis import handle_specific_exception
+from magen_rest_apis.rest_return_api import RestReturn
 from magen_logger.logger_config import LogDefaults
 
-logger = logging.getLogger(LogDefaults.default_log_name)
+LOGGER = logging.getLogger(LogDefaults.default_log_name)
 
 __author__ = "michowdh@cisco.com"
 __copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
@@ -20,6 +22,7 @@ __status__ = "alpha"
 
 
 class MagenClientAppHandler(object):
+    """Magen Client Application Handler. Performs authorization requests to Magen ID Service"""
     DEFAULT_RESPONSE_TYPES = ['code', 'id_token', 'id_token token', 'token']
     state_key = 'oauthlib.client'
 
@@ -35,7 +38,7 @@ class MagenClientAppHandler(object):
             jwt_alg=None,
     ):
         self.name = name
-        self.issuer = issuer  # call setter
+        self._issuer = issuer  # call setter
         self._callback_uri = callback_uri
         self._client_name = name
         self._client_id = client_id
@@ -44,6 +47,9 @@ class MagenClientAppHandler(object):
         self._response_type = response_type or MagenClientAppHandler.DEFAULT_RESPONSE_TYPES
         self._default_scopes = default_scopes
         self._jwt_alg = jwt_alg
+        self._authorize_url = self._issuer + '/oauth/authorize'
+        self._request_id_token_url = self._issuer + '/oauth/token'
+        self._tokeninfo_url = self._issuer + '/oauth/tokeninfo'
 
     @property
     def callback_uri(self):
@@ -56,14 +62,14 @@ class MagenClientAppHandler(object):
         return self._callback_uri
 
     @callback_uri.setter
-    def callback_uri(self, x):
+    def callback_uri(self, url_string):
         """
         This function sets the callback url
 
-        :param x: This parameter contains the callback url
-        :type x: string
-        """        
-        self._callback_uri = x
+        :param url_string: This parameter contains the callback url
+        :type url_string: string
+        """
+        self._callback_uri = url_string
 
     @property
     def client_id(self):
@@ -72,18 +78,18 @@ class MagenClientAppHandler(object):
 
         :return: client_id as string
         :rtype: string
-        """        
+        """
         return self._client_id
 
     @client_id.setter
-    def client_id(self, x):
+    def client_id(self, new_id):
         """
         This function sets the client id
 
-        :param x: This parameter contains the client id
-        :type x: string
-        """       
-        self._client_id = x
+        :param new_id: This parameter contains the client id
+        :type new_id: string
+        """
+        self._client_id = new_id
 
     @property
     def client_secret(self):
@@ -92,18 +98,18 @@ class MagenClientAppHandler(object):
 
         :return: client_secret as string
         :rtype: string
-        """ 
+        """
         return self._client_secret
 
     @client_secret.setter
-    def client_secret(self, x):
+    def client_secret(self, new_secret):
         """
         This function sets the client secret
 
-        :param x: this parameter contains the client secret
-        :type x: string
-        """      
-        self._client_secret = x
+        :param new_secret: this parameter contains the client secret
+        :type new_secret: string
+        """
+        self._client_secret = new_secret
 
     @property
     def issuer(self):
@@ -112,18 +118,18 @@ class MagenClientAppHandler(object):
 
         :return: issuer address as string
         :rtype: string
-        """ 
+        """
         return self._issuer
 
     @issuer.setter
-    def issuer(self, x):
+    def issuer(self, new_issuer):
         """
         This function sets the issuer
 
-        :param x: This parameter contains the issuer
-        :type x: string
-        """          
-        self._issuer = x
+        :param new_issuer: This parameter contains the issuer
+        :type new_issuer: string
+        """
+        self._issuer = new_issuer
         self._authorize_url = self._issuer + '/oauth/authorize'
         self._request_id_token_url = self._issuer + '/oauth/token'
         self._tokeninfo_url = self._issuer + '/oauth/tokeninfo'
@@ -135,22 +141,21 @@ class MagenClientAppHandler(object):
 
         :return: response_type as string
         :rtype: string
-        """         
+        """
         return self._response_type
 
     @response_type.setter
-    def response_type(self, x):
+    def response_type(self, new_response_type):
         """
         This function sets the response_type
 
-        :param x: This parameter contains response_type
-        :type x: string
-        """         
-        self._response_type = x
-
-    def authorize(self, username=None, access_token=None, scopes='openid,profile,address', dynamic=False, **kwargs):
+        :param new_response_type: This parameter contains response_type
+        :type new_response_type: string
         """
+        self._response_type = new_response_type
 
+    def authorize(self, username=None, access_token=None, scopes='openid,profile,address', dynamic=False):
+        """
         This function takes five parameters and redirects the client request to the magen_id service.
 
         :param username: This parameter contains the username of the user
@@ -163,104 +168,136 @@ class MagenClientAppHandler(object):
         :type dynamic: boolean
         """
         try:
-            logger.debug("_authorize_url===" + self._authorize_url)
-            logger.debug("username===" + username)
-            logger.debug("self.client_id===" + self._client_id)
-            logger.debug("self._callback_uri===" + self._callback_uri)
-            logger.debug("scopes===" + scopes)
+            LOGGER.debug("_authorize_url===" + self._authorize_url)
+            LOGGER.debug("username===" + username)
+            LOGGER.debug("self.client_id===" + self._client_id)
+            LOGGER.debug("self._callback_uri===" + self._callback_uri)
+            LOGGER.debug("scopes===" + scopes)
+            LOGGER.debug("dynamic mode=== " + str(dynamic))
 
-            state = Utilities.randomstr()
-            nonce = Utilities.randomstr()
-            session['state'] = state
-            session['nonce'] = nonce
+            state = utilities.randomstr()
+            nonce = utilities.randomstr()
+            flask.session['state'] = state
+            flask.session['nonce'] = nonce
 
-            url = Utilities.get_the_encoded_url(
+            url = utilities.get_the_encoded_url(
                 self._authorize_url + '?username=' + username + '&access_token=' + access_token +
-                '&response_type=code' + '&redirect_uri=' + self._callback_uri + '&scope=' + scopes + '&nonce=' + nonce + '&state=' + state)
+                '&response_type=code' + '&redirect_uri=' + self._callback_uri + '&scope=' + scopes +
+                '&nonce=' + flask.session['nonce'] + '&state=' + flask.session['state'])
             url = url + '&client_id=' + self._client_id
-            logger.debug("encoded url====" + url)
-            return redirect(url)
-        except Exception as e:
-            logger.error("ERROR: Problem in redirecting.")
-            return '/error'
+            LOGGER.debug("encoded url====" + url)
+            # result = send_request(flask.redirect, url=url)
+            try:
+                response = flask.redirect(url)
+            except requests.exceptions.RequestException as err:
+                return handle_specific_exception(err)
+            return RestReturn(
+                success=True,
+                message="Authorization Request",
+                http_status=HTTPStatus.OK,
+                json_body=response.json(),
+                response_object=response
+            )
+        except ValueError as error:
+            LOGGER.error("ERROR: invalid url encoding: %s", error)
+            return RestReturn(
+                success=False,
+                message="Invalid URL encoding",
+                json_body={"error": "Invalid url encoding"}
+            )
 
     def process_auth_code(self):
         """
 
         This function does the following tasks:
             1. checkes the code and state parameter in the returned url
-            2. POST submit to the magen_id service with the code, client_id, client_secret, redirect_uri, and grant type
+            2. POST submit to the magen_id service with the code, client_id,
+               client_secret, redirect_uri, and grant type
             3. returns the response as json format
-        
+
         :return: json data as an object
         :rtype: json object
         """
-        state = request.args.get('state')
-        code = request.args.get('code')
+        state = flask.request.args.get('state', None)
+        code = flask.request.args.get('code', None)
 
-        if 'state' is None:
+        if state is None:
             return {"error": "State is missing"}
-        if 'code' is None:
+        if code is None:
             return {"error": "Authorization code is missing"}
 
-        if "state" in session:
-            state_session = session["state"]
-            # state_session=state
-            if state == state_session:
-                code = request.args.get('code')
-                access_token_req = {
-                    "code": code,
-                    "client_id": self._client_id,
-                    "client_secret": self._client_secret,
-                    "redirect_uri": self._callback_uri,
-                    "grant_type": "authorization_code",
-                }
-                headers = {}
-                content_length = len(urlencode(access_token_req))
-                access_token_req['content-length'] = str(content_length)
-                r = requests.post(
-                    self._request_id_token_url, params=access_token_req, headers=headers, verify=False)
-                data = json.loads(r.text)
+        if state == flask.session.get("state", None):
+            access_token_req = {
+                "code": code,
+                "client_id": self._client_id,
+                "client_secret": self._client_secret,
+                "redirect_uri": self._callback_uri,
+                "grant_type": "authorization_code",
+            }
+            headers = {}
+            content_length = len(urlencode(access_token_req))
+            access_token_req['content-length'] = str(content_length)
+            try:
+                response = requests.post(
+                    url=self._request_id_token_url,
+                    params=access_token_req,
+                    headers=headers,
+                    verify=False
+                )
+            except requests.exceptions.RequestException as err:
+                return handle_specific_exception(err)
 
-                return data
-            else:
-                return {"error": "You are not authorizaed. Please try again."}
-        else:
-            return {"error": "You are not authorizaed. Please try again."}
+            return RestReturn(
+                success=True,
+                message="Process Authorization Code",
+                http_status=HTTPStatus.OK,
+                json_body=json.loads(response.text),
+                response_object=response
+            )
+        return RestReturn(
+            success=False,
+            message="Authorization Failed",
+            http_status=HTTPStatus.UNAUTHORIZED,
+            json_body={"error": "You are not authorizaed. Please try again."}
+        )
 
-    def authorized_handler(self, f):
+    def authorized_handler(self, func):
         """
-
         This is the decorator function for authorized handler
- 
         """
 
-        @wraps(f)
+        @wraps(func)
         def decorated(*args, **kwargs):
             data = self.process_auth_code()
-            return f(*((data,) + args), **kwargs)
+            return func(*((data,) + args), **kwargs)
 
         return decorated
 
-    def validate_mid_token_against_id_service(self, id_token, **kwargs):
+    def validate_mid_token_against_id_service(self, id_token):
         """
-
         This function validates the magen_id_token against the magen_id service and receives
         the detail information of the client and user
 
-        :param id_token: This contains the magen id token 
+        :param id_token: This contains the magen id token
         :type: string
 
         return: json data as an object
-        rtype: json object 
+        rtype: json object
         """
-        logger.debug('======= id_token ========%s ', id_token)
+        LOGGER.debug('======= id_token ========%s ', id_token)
+        headers = {'content-type': 'application/json'}
         try:
-            headers = {'content-type': 'application/json'}
             response = requests.get(
-                self._tokeninfo_url + '?id_token=' + id_token, headers=headers, verify=False)
-            me_json = response.json()
-        except Exception as e:
-            logger.error("ERROR: %s", e)
-            return {"error": "token validation is failed"}
-        return me_json
+                url=self._tokeninfo_url + '?id_token=' + id_token,
+                headers=headers,
+                verify=False
+            )
+        except requests.exceptions.RequestException as err:
+            return handle_specific_exception(err)
+        return RestReturn(
+            success=True,
+            message="Validate MID token",
+            http_status=HTTPStatus.OK,
+            json_body=response.json(),
+            response_object=response
+        )

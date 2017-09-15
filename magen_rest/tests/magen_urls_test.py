@@ -1,14 +1,8 @@
-import os
+"""Magen Urls Test Suite"""
 import sys
 import unittest
-
 from flask import Flask
-
-import magen_core_test_env
-
 from magen_rest_apis.magen_urls import MagenUrls
-
-print(sys.path)
 
 __author__ = "Reinaldo Penno"
 __copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
@@ -18,6 +12,7 @@ __email__ = "rapenno@gmail.com"
 
 
 class MagenUrlsTest(unittest.TestCase):
+    """Magen Urls Test Class"""
     TEST_UUID = "74c1c6ff-c266-43a6-9d14-82dca05cb6df"
     app = None
 
