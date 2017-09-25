@@ -27,9 +27,13 @@ class RestClientApis(object):
         This function will send a GET request and check if the response is OK.
 
         :param url: HTTP URL
+        :type url: str
         :param my_function: An optional function that performs specific application level checks. The function
             needs to returns the tuple success(boolean), message(string), return_code(int).
             The signature should be my_function(json_received as dict)
+        :type my_function: Callable
+        :param verify: Flag to provide SSL certificate verification or not
+        :type verify: bool
 
         :return: Rest Respond Object
         """

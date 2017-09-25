@@ -1,3 +1,4 @@
+"""Magen Test Utils that are used for checks across all Microservices"""
 import itertools
 import re
 from datetime import datetime
@@ -63,6 +64,8 @@ class TestMagenObjectApis:
                     tlist.append((k, "dynamic iv"))
                 elif k == "key_id":
                     tlist.append((k, "dynamic key"))
+                elif k == "metric_uuid":
+                    tlist.append((k, "metric_uuid will match"))
                 elif re.search("timestamp", k):
                     # checking that timestamps are < now
                     now = datetime.utcnow().replace(tzinfo=SimpleUtc())
@@ -163,4 +166,3 @@ class TestMagenObjectApis:
             print("\n Received \n")
             print(json_received_magen_ordered)
             return False, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, HTTPStatus.INTERNAL_SERVER_ERROR
-

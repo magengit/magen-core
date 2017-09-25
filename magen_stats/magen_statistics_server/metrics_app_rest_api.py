@@ -93,8 +93,8 @@ def get_counters_by_flavor(flavor):
     return RestServerApis.respond(http_status=HTTPStatus.OK, title="Get Flavored Counters", response=counters)
 
 
-@metrics.route("/magen/v2/counters/<uuid>/", methods=["GET"])
-def get_counter_detailed(uuid):
+@metrics.route("/magen/v2/counters/<metric_uuid>/", methods=["GET"])
+def get_counter_detailed(metric_uuid):
     """
     Get a counter full info
 
@@ -102,13 +102,13 @@ def get_counter_detailed(uuid):
     :return: JSON with counter dict
     :rtype: RestServerApis obj
     """
-    counter = CounterAPI.get_counter(uuid)
+    counter = CounterAPI.get_counter(metric_uuid)
     counter_response = wrap_response(counter)
     return RestServerApis.respond(http_status=HTTPStatus.OK, title="Get Detailed Counter", response=counter_response)
 
 
 @metrics.route("/magen/v2/counters/<uuid>/", methods=["DELETE"])
-def delete_one_counter(uuid):
+def delete_one_counter(metric_uuid):
     """
     Delete one counter
 
@@ -116,16 +116,16 @@ def delete_one_counter(uuid):
     :return: JSON response
     :rtype: RestServerApis obj
     """
-    CounterAPI.delete_counter(uuid)
+    CounterAPI.delete_counter(metric_uuid)
     return RestServerApis.respond(http_status=HTTPStatus.OK, title="Delete One Counter", response={"acknowledged": True})
 
 
 @metrics.route("/magen/v2/counters/<uuid>/", methods=["PUT"])
-def update_one_counter(uuid):
+def update_one_counter(metric_uuid):
     """
     Update one counter
 
-    :param uuid: string uuid of counter
+    :param metric_uuid: string uuid of counter
     :return: JSON response
     :rtype: RestServerApis obj
     """

@@ -111,11 +111,11 @@ class TestCounterApi(unittest.TestCase):
         print("Created counter: ", self.single_counter_instance.to_dict())
         value_to_increment = 5
         cur_value = self.single_counter_instance.abs_value
-        CounterAPI.update_counter(self.single_counter_instance.uuid)
+        CounterAPI.update_counter(self.single_counter_instance.metric_uuid)
         print("Update Counter by Default ", self.single_counter_instance.abs_value)
         self.assertEqual(self.single_counter_instance.abs_value, cur_value + 1)
         cur_value += 1
-        CounterAPI.update_counter(self.single_counter_instance.uuid, value_to_increment)
+        CounterAPI.update_counter(self.single_counter_instance.metric_uuid, value_to_increment)
         print("Update Counter With Given Value ", self.single_counter_instance.abs_value)
         self.assertEqual(self.single_counter_instance.abs_value, cur_value + value_to_increment)
 
@@ -128,7 +128,7 @@ class TestCounterApi(unittest.TestCase):
         print()
         print("+++++++++Single Counter Reset Test+++++++++")
         print("Created counter: ", self.single_counter_instance.to_dict())
-        CounterAPI.reset_counter(self.single_counter_instance.uuid)
+        CounterAPI.reset_counter(self.single_counter_instance.metric_uuid)
         self.assertEqual(self.single_counter_instance.abs_value, 0)
         print("Reset value: ", self.single_counter_instance.abs_value)
 
@@ -141,10 +141,10 @@ class TestCounterApi(unittest.TestCase):
         print()
         print("+++++++++Single Counter Remove Test+++++++++")
         print("Created counter: ", self.single_counter_instance.to_dict())
-        CounterAPI.delete_counter(self.single_counter_instance.uuid)
+        CounterAPI.delete_counter(self.single_counter_instance.metric_uuid)
         self.assertIsNone(TestCounterApi.metrics_collections.get_metric_by_uuid(
             Counter.__name__,
-            self.single_counter_instance.uuid
+            self.single_counter_instance.metric_uuid
         ))
 
     def test_SingleFlavoredUnnamedCounterDetailedCreate(self):
@@ -175,7 +175,7 @@ class TestCounterApi(unittest.TestCase):
         )
         counter_dict = unnamed_counter_instance.to_dict()
         print("Created counter: ", counter_dict)
-        counter_dict.pop("uuid")
+        counter_dict.pop("metric_uuid")
         self.assertEqual(counter_dict, SINGLE_FLAVORED_COUNTER_UNNAMED_CREATED_DICT)
 
     def test_CounterSetters(self):
@@ -211,8 +211,8 @@ class TestCounterApi(unittest.TestCase):
         self.assertFalse(CounterAPI.reset_counter("not_real_uuid"))
 
     def test_CounterAccess(self):
-        single_counter_dict = CounterAPI.get_counter(self.single_counter_instance.uuid)
-        single_counter_dict.pop("uuid")
+        single_counter_dict = CounterAPI.get_counter(self.single_counter_instance.metric_uuid)
+        single_counter_dict.pop("metric_uuid")
         self.assertEqual(
             single_counter_dict,
             SINGLE_COUNTER_CREATED_DETAILED_DICT
@@ -226,7 +226,7 @@ class TestCounterApi(unittest.TestCase):
         """
         CounterAPI.delete_flavored_counter(self.single_restresponse_counter_instance.flavor)
         self.assertFalse(CounterAPI.get_counter(
-            self.single_restresponse_counter_instance.uuid
+            self.single_restresponse_counter_instance.metric_uuid
         ))
 
     def test_FlavoredCounterAccess(self):
@@ -239,7 +239,7 @@ class TestCounterApi(unittest.TestCase):
             FLAVOR_REST_RESPONSE_TYPE,
             FLAVOR_REST_RESPONSE_OPT
         )
-        restresponse_single_counter_dict.pop("uuid")
+        restresponse_single_counter_dict.pop("metric_uuid")
         self.assertEqual(restresponse_single_counter_dict, SINGLE_REST_RESPONSE_COUNTER_CREATED_DETAILED_DICT)
 
         not_created_flavor_opt = "RESET_CONTENT"
@@ -253,7 +253,7 @@ class TestCounterApi(unittest.TestCase):
             FLAVOR_REST_REQUEST_TYPE,
             FLAVOR_REST_REQUEST_OPT
         )
-        restrequest_single_counter_dict.pop("uuid")
+        restrequest_single_counter_dict.pop("metric_uuid")
         self.assertEqual(restrequest_single_counter_dict, SINGLE_REST_REQUEST_COUNTER_CREATED_DETAILED_DICT)
 
         kwargs = {"flavor_type": "not_real_type", "flavor_opt": FLAVOR_REST_REQUEST_OPT}
@@ -277,7 +277,7 @@ class TestCounterApi(unittest.TestCase):
         counters = CounterAPI.get_all_counters()
         counters_copy = counters
         for index, item in enumerate(counters_copy):
-            counters[index].pop("uuid")
+            counters[index].pop("metric_uuid")
         actual = sorted(counters, key=lambda k: k['name'])
         expected = sorted(MULTIPLE_COUNTERS_CREATED_LIST, key=lambda k: k['name'])
         self.assertEqual(expected, actual)
@@ -312,7 +312,7 @@ class TestCounterApi(unittest.TestCase):
         counters = CounterAPI.get_flavored_counters(FLAVOR_REST_REQUEST_TYPE)
         self.assertEqual(len(counters), 1)
         counter_dict = counters[0]
-        counter_dict.pop("uuid")
+        counter_dict.pop("metric_uuid")
         self.assertEqual(counter_dict, SINGLE_REST_REQUEST_COUNTER_CREATED_DICT)
 
     def test_CreateFlavoredCounterFromStr(self):
@@ -322,14 +322,14 @@ class TestCounterApi(unittest.TestCase):
         :rtype: void
         """
         flavor_opt = "Delete"
-        success, uuid = CounterAPI.create_flavored_counter(
+        success, metric_uuid = CounterAPI.create_flavored_counter(
             FLAVOR_REST_REQUEST_TYPE,
             TestCounterApi.source,
             flavor_opt,
             **SINGLE_COUNTER_DICT
         )
         self.assertTrue(success)
-        self.assertIsNotNone(uuid)
+        self.assertIsNotNone(metric_uuid)
 
         kwargs = {
             "flavor_type": "not_real_flavor",
