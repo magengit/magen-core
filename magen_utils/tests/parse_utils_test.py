@@ -4,7 +4,7 @@
 import unittest
 import typing
 
-from ..magen_utils_apis.parse_utils import truncate_keys, flatten_dict
+from magen_utils_apis.parse_utils import truncate_keys, flatten_dict, flatten_dict_except_keys
 
 __author__ = "Alena Lifar"
 __email__ = "alifar_at_cisco.com"
@@ -92,6 +92,19 @@ class TestFlattenDict(unittest.TestCase):
                 )
             )
         )
+        self.dict_with_nested2 = dict(
+            key1='value1',
+            key2=dict(
+                key3='value2',
+                key4='value3'
+            ),
+            key5=dict(
+                key7=dict(
+                    key8='value5'
+                ),
+                key6='value4'
+            )
+        )
         self.dict_with_lists = dict(
             key1='value1',
             key2=[
@@ -110,34 +123,44 @@ class TestFlattenDict(unittest.TestCase):
     def test_one_level_dict(self):
         """Simple Dictionary gets flattened"""
         result = flatten_dict(self.one_level_dict)
-        self.assertEqual(len(result), 4)
-        for entry in result:
-            # Each entry in result is Tuple
-            self.assertIsInstance(entry, typing.Tuple)
+        print("\nFlat Dictionary:", result)
+        self.assertEqual(self.one_level_dict, result)
 
     def test_dict_with_nested(self):
         """Flat Dict with nested dicts"""
         result = flatten_dict(self.dict_with_nested)
-        self.assertEqual(len(result), 5)  # len always equals to number of values
-        for entry in result:
-            # Each entry in result is Tuple
-            self.assertIsInstance(entry, typing.Tuple)
-            # Verify that every second entry in tuples is a value
-            self.assertIn('value', entry[1])
-        # Verify that parent keys were collceted correctly
-        self.assertEqual(result[4][0], ('key5', 'key7', 'key8'))
+        print("\nFlat Dictionary:", result)
+        # Flat dictionary length equals number of values
+        self.assertEqual(len(result), 5)
+        for key in result:
+            # verify that every value is value from original dict
+            self.assertIn('value', result[key])
+            if key == 'key1':  # key1 is on first level
+                continue
+            # verify that nested dictionary keys are now stored as Tuples
+            self.assertIsInstance(key, typing.Tuple)
 
     def test_dict_with_list(self):
         """Flat Dict with list of dicts"""
         result = flatten_dict(self.dict_with_lists)
-        print(result)
+        print("\nFlat Dictionary:", result)
+        # Flat dictionary length equals number of values
         self.assertEqual(len(result), 6)
-        # Iterate through all values except the last one which is list
-        for index in range(len(result)-1):
-            # Each entry in result is Tuple
-            self.assertIsInstance(result[index], typing.Tuple)
-            # Verify that every second entry in tuples is a value
-            self.assertIn('value', result[index][1])
-        # Check last entry in result
-        self.assertIsInstance(result[len(result)-1][1], typing.List)
-        self.assertEqual(len(result[len(result)-1][1]), 2) # key3=['value6', 'value7']
+        # verify key3 entry has List value like in original dictionary
+        self.assertIsInstance(result['key3'], typing.List)
+
+        for key in result:
+            # verify that every value is value from original dict
+            if key == 'key1' or 'key3':  # key1 and key3 is on first level
+                continue
+            # verify that nested dictionary keys are now stored as Tuples
+            self.assertIsInstance(key, typing.Tuple)
+            self.assertIn('value', result[key])
+
+    def test_flatten_dict_partial(self):
+        """Creation of Partial function"""
+        flatten_dict_partial = flatten_dict_except_keys(['key1', 'key2'])
+        result = flatten_dict_partial(self.one_level_dict)
+        self.assertEqual(len(result), 2)
+        self.assertIn('key3', result)
+        self.assertIn('key4', result)

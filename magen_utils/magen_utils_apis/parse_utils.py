@@ -2,12 +2,13 @@
 """Parsing Util functions of Core"""
 
 import typing
+import functools
 
-__author__ = "alifar@cisco.com"
+__author__ = "alifar_at_cisco.com"
 __copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __version__ = "0.1"
 __status__ = "alpha"
-__date__ = "10/24/2016"
+__date__ = "09/27/2017"
 
 
 def truncate_keys(dictionary: dict, pattern: str, split_char: str, include_keys=None):
@@ -72,14 +73,14 @@ def flatten_dict(data, exclude_keys=None):
     :return: flatten data
     :rtype: list
     """
-    result = list()
+    result = dict()
 
     def add_to_result(data_dict, key, parent_key):
         """Add to Result list flat items of a dictionary"""
         if exclude_keys and key in exclude_keys:
             return
         cur_key = key if not parent_key else parent_key+(key,)
-        result.append((cur_key, data_dict[key]))
+        result[cur_key] = data_dict[key]
 
     def visit(data_dict, parent_key=()):
         """
@@ -110,3 +111,32 @@ def flatten_dict(data, exclude_keys=None):
 
     visit(data_dict=data)
     return result
+
+
+def flatten_dict_except_keys(exclude_keys):
+    """
+    Create a partial from flatten_dict() function
+
+    :param exclude_keys: keys that must be excluded from the result
+    :type exclude_keys: list
+
+    return partial of flatten_dict
+    rtype: Callable
+    """
+    return functools.partial(flatten_dict, exclude_keys=exclude_keys)
+
+
+def flatten_dict_result_partial(data, exclude_keys=None):
+    """
+    Create flat dict from given data and return partial with exclude_keys
+
+    :param data: data to flat
+    :type data: dict
+    :param exclude_keys: keys to be excluded from the result
+    :type exclude_keys: list
+
+    :return: flat result and partial function
+    :rtype: tuple
+    """
+    result = flatten_dict(data, exclude_keys)
+    return result, flatten_dict_except_keys(exclude_keys)
