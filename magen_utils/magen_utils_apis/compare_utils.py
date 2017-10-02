@@ -44,6 +44,9 @@ def default_full_compare(*args):
     Singled Dispatch function that is overloaded by registered type of first argument.
     If unregistered type is passed to this function TypeError is raised.
     Make default full compare for 2 dictionaries, accepts ignored keys.
+
+    First argument may vary as expected value for comparison
+    may be stored in different formats
     """
     raise TypeError("type {} is not acceptable".format(type(args[0])))
 
