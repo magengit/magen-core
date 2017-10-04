@@ -13,7 +13,6 @@ Current List of Packages under **Magen-Core**:
 | ---------------------:|:------------------------------------------------|
 | magen_logaru          | magen_logger-1.0a1-py3-none-any.whl             |
 | magen_utils           | magen_utils-1.0a1-py3-none-any.whl              |
-| magen_test_utils      | magen_test_utils-1.0a1-py3-none-any.whl         |
 | magen_datastore       | magen_datastore-1.0a1-py3-none-any.whl          |
 | magen_rest            | magen_rest_service-1.0a1-py3-none-any.whl       |
 | magen_stats           | magen_statistics_service-1.0a1-py3-none-any.whl |

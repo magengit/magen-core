@@ -6,7 +6,6 @@ import requests
 import requests.exceptions
 import simplejson
 
-from magen_test_utils_apis.test_magen_object_apis import TestMagenObjectApis
 from magen_utils_apis.compare_utils import default_full_compare
 
 from .rest_exception_apis import handle_specific_exception
@@ -39,7 +38,7 @@ def known_exceptions(func):
             return handle_specific_exception(err)
         except TypeError as err:
             success = False
-            return RestReturn(success=success, message=err.args[0], http_status=HTTPStatus.INTERNAL_SERVER_ERROR)
+            return RestReturn(success=success, message=err.args[0])
     return helper
 
 
