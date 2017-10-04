@@ -1,3 +1,4 @@
+"""Magen Mongo Core Database"""
 from magen_datastore_apis.dao_interface import IDao
 from magen_datastore_apis.main_db import MainDb
 from magen_datastore_apis.utils_db import IUtils
@@ -5,17 +6,14 @@ from pymongo import MongoClient
 
 from magen_utils_apis.domain_resolver import LOCAL_MONGO_LOCATOR
 
-#
-# Copyright (c) 2015 Cisco Systems, Inc. and others.  All rights reserved.
-#
-
 __author__ = "repennor@cisco.com"
-__copyright__ = "Copyright(c) 2016, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __version__ = "0.1"
 __status__ = "alpha"
 
 
 class MongoCore(MainDb):
+    """Magen Mongo Core Database Class"""
 
     mongo_client = None
     magen_mdb = None
@@ -50,9 +48,9 @@ class MongoCore(MainDb):
         self.__mis_session_strategy = IDao
         self.__asset_strategy = IDao
 
-    # ASSET
     @property
     def asset_strategy(self):
+        """DB Element Strategy"""
         return self.__asset_strategy
 
     @asset_strategy.setter
@@ -115,6 +113,7 @@ class MongoCore(MainDb):
 
     @property
     def policy_template_strategy(self):
+        """DB Element Strategy"""
         return self.__policy_template_strategy
 
     @policy_template_strategy.setter
@@ -123,6 +122,7 @@ class MongoCore(MainDb):
 
     @property
     def policy_instance_strategy(self):
+        """DB Element Strategy"""
         return self.__policy_instance_strategy
 
     @policy_instance_strategy.setter
@@ -131,6 +131,7 @@ class MongoCore(MainDb):
 
     @property
     def policy_session_strategy(self):
+        """DB Element Strategy"""
         return self.__policy_session_strategy
 
     @policy_session_strategy.setter
@@ -139,6 +140,7 @@ class MongoCore(MainDb):
 
     @property
     def policy_contract_strategy(self):
+        """DB Element Strategy"""
         return self.__policy_contract_strategy
 
     @policy_contract_strategy.setter
@@ -156,6 +158,7 @@ class MongoCore(MainDb):
 
     @property
     def mis_session_strategy(self):
+        """DB Element Strategy"""
         return self.__mis_session_strategy
 
     @mis_session_strategy.setter
@@ -163,43 +166,55 @@ class MongoCore(MainDb):
         self.__mis_session_strategy = value
 
     def get_mongo_client(self):
+        """Mongo Client Get"""
         return self.mongo_client
 
     def get_magen_mdb(self):
+        """Get Magen Main Db Instance"""
         return self.magen_mdb
 
-    # ASSETS
     def get_assets(self):
+        """Get Assets Colleciton"""
         return self.assets
 
     def get_policy_templates(self):
+        """Get Policy Templates Colleciton"""
         return self.policy_templates
 
     def get_policy_contracts(self):
+        """Get Policy Contracts Colleciton"""
         return self.policy_contracts
 
     def get_policy_sessions(self):
+        """Get Policy Sessions Colleciton"""
         return self.policy_sessions
 
     def get_policy_instances(self):
+        """Get Policy Instances Colleciton"""
         return self.policy_instances
 
     def get_users(self):
+        """Get Users Colleciton"""
         return self.users
 
     def get_u_groups(self):
+        """Get User Groups Colleciton"""
         return self.u_groups
 
     def get_clients(self):
+        """Get Clients Colleciton"""
         return self.clients
 
     def get_settings(self):
+        """Get Settings Colleciton"""
         return self.settings
 
     def get_resource_documents(self):
+        """Get Resource Documents Colleciton"""
         return self.resource_documents
 
     def get_mis_sessions(self):
+        """Get Magen Identity Service Sessions Colleciton"""
         return self.mis_sessions
 
     @classmethod

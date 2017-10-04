@@ -1,21 +1,18 @@
-import os
-import sys
+"""Test Magen Flask App"""
+
 import unittest
-
 from flask import Flask
-
-import magen_core_test_env
-
 from magen_rest_apis.magen_app import MagenApp
 
 __author__ = "Reinaldo Penno"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __license__ = "New-style BSD"
 __version__ = "0.1"
 __email__ = "rapenno@gmail.com"
 
 
 class MagenAppTest(unittest.TestCase):
+    """Test Magen Flask App"""
     app = None
 
     @classmethod
@@ -32,7 +29,6 @@ class MagenAppTest(unittest.TestCase):
         pass
 
     def test_MagenApp(self):
+        """Check that Magen App is a Flask instance"""
         magen_app = MagenApp.get_instance().magen
         self.assertIs(magen_app.__class__, Flask)
-
-

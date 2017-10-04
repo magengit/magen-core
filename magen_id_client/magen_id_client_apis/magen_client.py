@@ -1,3 +1,4 @@
+"""Magen Client creates a Flask instance in order to perform authorization requests to Magen ID Service"""
 from magen_id_client_apis.magen_client_handler import MagenClientAppHandler
 
 __author__ = "michowdh@cisco.com"

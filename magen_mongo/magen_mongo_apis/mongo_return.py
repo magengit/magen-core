@@ -1,3 +1,4 @@
+"""Mongo Return Class for structural Response"""
 __author__ = "repennor@cisco.com"
 __copyright__ = "Copyright(c) 2016, Cisco Systems, Inc."
 __version__ = "0.1"
@@ -9,7 +10,7 @@ class MongoReturn(object):
     This class encapsulates API return to clients.
     """
 
-    def __init__(self, success=False, message=None, code=0, count=0, matched_count=0, documents=[],
+    def __init__(self, success=False, message=None, code=0, count=0, matched_count=0, documents=None,
                  response_object=None, db_exception=None):
         super().__init__()
         self.__success = success
@@ -17,7 +18,7 @@ class MongoReturn(object):
         self.__code = code
         self.__count = count
         self.__matched_count = matched_count
-        self.__documents = documents
+        self.__documents = documents or list()
         self.__response_object = response_object
         self.__db_exception = db_exception
 
@@ -126,7 +127,7 @@ class MongoReturn(object):
     def db_exception(self, value):
         self.__db_exception = value
 
-    @staticmethod
     def to_dict(self):
+        """Cast Object to Dictionary"""
         return {"success": self.success, "message": self.message, "code": self.code, "count": self.count,
                 "matched_count": self.matched_count, "json": self.documents, "response": self.response_object}

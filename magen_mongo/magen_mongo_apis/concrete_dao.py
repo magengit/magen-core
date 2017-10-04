@@ -1,22 +1,32 @@
+"""Concrete Base Abstract Class implemenation of Dao Interface from magen-datastore"""
 import logging
 from abc import ABCMeta, abstractmethod
 
 import pymongo
-from magen_utils_apis.datetime_api import SimpleUtc
 from pymongo import ReturnDocument
-from pymongo.errors import BulkWriteError
-
+from magen_utils_apis.datetime_api import SimpleUtc
 from magen_logger.logger_config import LogDefaults
 from magen_datastore_apis.dao_interface import IDao
 
-from .mongo_exception_apis import MongoExceptionApis
+from .mongo_exception_apis import handle_specific_exception
 from .mongo_return import MongoReturn
 from .mongo_utils import MongoUtils
 
 __author__ = "alifar@cisco.com"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __version__ = "0.1"
 __status__ = "alpha"
+
+
+def _cursor_helper(cursor):
+    """Returns processed list"""
+    result = list()
+    for cur in cursor:
+        if cur.get("creation_timestamp"):
+            cur["creation_timestamp"] = cur["creation_timestamp"].replace(
+                tzinfo=SimpleUtc()).isoformat()
+        result.append(cur)
+    return result
 
 
 class Dao(IDao, metaclass=ABCMeta):
@@ -36,12 +46,14 @@ class Dao(IDao, metaclass=ABCMeta):
 
     @classmethod
     def get_instance(cls, magen_logger=None):
+        """Get Singleton Instance"""
         if cls.__instance is None:
             cls.__instance = cls(magen_logger or logging.getLogger(LogDefaults.default_log_name))
         return cls.__instance
 
     @abstractmethod
     def get_collection(self):
+        """Get Collection from the database"""
         pass
 
     def initialize_bulk_operation(self):
@@ -64,14 +76,14 @@ class Dao(IDao, metaclass=ABCMeta):
         try:
             bulk_result = bulk_obj.execute()
             return MongoUtils.check_bulk_operation_result(bulk_result)
-        except pymongo.errors.InvalidOperation as e:
+        except pymongo.errors.InvalidOperation as error:
             # This is not really an error but just an indication
             # that the bulk operation was empty.
             mongo_return.success = True
-            mongo_return.db_exception = e
+            mongo_return.db_exception = error
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def bulk_insert(self, bulk_obj, data):
         """
@@ -107,7 +119,7 @@ class Dao(IDao, metaclass=ABCMeta):
         return new_bulk_obj
 
     def add_to_set(self, dict_seed, action_dict):
-        # TODO this function needs to be MongoREturn
+        # FIXME this function needs to be MongoREturn
         """
         Adds a element to an array of an existing document
 
@@ -116,15 +128,12 @@ class Dao(IDao, metaclass=ABCMeta):
         :rtype: boolean
         """
         try:
-            update_result = self.get_collection().update_one(dict_seed,
-                                                             {"$addToSet": action_dict}
-                                                             )
+            update_result = self.get_collection().update_one(dict_seed, {"$addToSet": action_dict})
             if update_result.acknowledged and update_result.modified_count:
                 return True
-            else:
-                return False
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+            return False
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def update(self, dict_seed, action_dict):
         """
@@ -145,8 +154,8 @@ class Dao(IDao, metaclass=ABCMeta):
             else:
                 mongo_return.message = "Update failed"
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def update_many(self, dict_seed, action_dict):
         """
@@ -167,8 +176,8 @@ class Dao(IDao, metaclass=ABCMeta):
             else:
                 mongo_return.message = "Update failed"
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def select_by_condition(self, seed, projection=None):
         """
@@ -184,18 +193,13 @@ class Dao(IDao, metaclass=ABCMeta):
                 projection = dict()
             projection['_id'] = False
             cursor = self.get_collection().find(seed, projection)
-            result = list()
-            for c in cursor:
-                if c.get("creation_timestamp"):
-                    c["creation_timestamp"] = c["creation_timestamp"].replace(
-                        tzinfo=SimpleUtc()).isoformat()
-                result.append(c)
+            result = _cursor_helper(cursor)
             mongo_return.success = True
             mongo_return.documents = result
             mongo_return.count = len(result)
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def insert(self, data, additional_data=None):
         """
@@ -220,8 +224,8 @@ class Dao(IDao, metaclass=ABCMeta):
                 mongo_return.message = "Failed to insert document"
                 self.logger.error("Failed to insert document")
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def insert_many(self, data_list):
         """
@@ -243,8 +247,8 @@ class Dao(IDao, metaclass=ABCMeta):
                 mongo_return.message = "Failed to insert some records"
                 # return False
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def select_all(self, projection=None):
         """
@@ -259,19 +263,14 @@ class Dao(IDao, metaclass=ABCMeta):
                 projection = dict()
             projection['_id'] = False
             cursor = self.get_collection().find({}, projection)
-            result = list()
-            for c in cursor:
-                if c.get("creation_timestamp"):
-                    c["creation_timestamp"] = c["creation_timestamp"].replace(
-                        tzinfo=SimpleUtc()).isoformat()
-                result.append(c)
+            result = _cursor_helper(cursor)
             mongo_return.count = len(result)
             mongo_return.success = True
             mongo_return.message = "Query successful"
             mongo_return.documents = result
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def delete(self, seed):
         """
@@ -291,8 +290,8 @@ class Dao(IDao, metaclass=ABCMeta):
             else:
                 mongo_return.message = "Failed to delete document"
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def delete_all(self):
         """
@@ -310,8 +309,8 @@ class Dao(IDao, metaclass=ABCMeta):
             else:
                 mongo_return.message = "Failed to delete documents"
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def find_one_filter(self, seed, projection=None):
         """
@@ -335,8 +334,8 @@ class Dao(IDao, metaclass=ABCMeta):
                 mongo_return.success = False
                 mongo_return.message = "Document not found"
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def replace(self, document_filter, replacement):
         """
@@ -355,8 +354,8 @@ class Dao(IDao, metaclass=ABCMeta):
             else:
                 mongo_return = MongoReturn(success=False, message="Failed to replace document")
             return mongo_return
-        except Exception as e:
-            return MongoExceptionApis.handle_specific_exception(e)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
 
     def count_documents(self, document_filter=None):
         """
@@ -366,7 +365,10 @@ class Dao(IDao, metaclass=ABCMeta):
         :rtype: MongoReturn obj
         """
         mongo_return = MongoReturn()
-        mongo_return.count = self.get_collection().count(document_filter)
+        try:
+            mongo_return.count = self.get_collection().count(document_filter)
+        except pymongo.errors.PyMongoError as error:
+            return handle_specific_exception(error)
         if mongo_return.count:
             mongo_return.message = "Document found"
             mongo_return.success = True
@@ -374,4 +376,3 @@ class Dao(IDao, metaclass=ABCMeta):
             mongo_return.message = "No Documents found"
             mongo_return.success = False
         return mongo_return
-

@@ -1,6 +1,4 @@
-#
-# Copyright (c) 2016 Cisco Systems, Inc. and others.  All rights reserved.
-#
+"""API for REST Server"""
 
 import sys
 import logging
@@ -11,12 +9,13 @@ from flask.json import jsonify
 from magen_logger.logger_config import LogDefaults
 
 __author__ = "Reinaldo Penno"
-__copyright__ = "Copyright(c) 2016, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __version__ = "0.2"
 __status__ = "alpha"
 
 
 class RestServerApis(object):
+    """Rest Server API for Respond and Logging"""
     @staticmethod
     def respond(http_status=HTTPStatus.OK, title="Title", response=None):
         """
@@ -30,13 +29,13 @@ class RestServerApis(object):
         :return: Flask HTTP Response object
         """
         try:
-            assert type(http_status) is HTTPStatus  # pass HTTPStatus, not int
+            assert isinstance(http_status, HTTPStatus)  # pass HTTPStatus, not int
             resp = jsonify({'status': http_status, "title": title, "response": response})
             resp.status_code = int(http_status)
             return resp
-        except Exception as e:
-            print("Unexpected error: {} \n Stack Trace: {}".format(e, sys.exc_info()[0]))
-            raise e
+        except Exception as err:
+            print("Unexpected error: {} \n Stack Trace: {}".format(err, sys.exc_info()[0]))
+            raise err
 
     @staticmethod
     def rest_api_log_all(app, *, logger=None, log_level=logging.DEBUG):

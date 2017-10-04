@@ -1,3 +1,4 @@
+"""Rest Return Class"""
 from http import HTTPStatus
 
 __author__ = "repennor@cisco.com"
@@ -11,7 +12,8 @@ class RestReturn(object):
     This class encapsulates API return to clients.
     """
 
-    def __init__(self, success=False, message=None, http_status=HTTPStatus.INTERNAL_SERVER_ERROR, json_body=None,
+    def __init__(self, success=False, message=None,
+                 http_status=HTTPStatus.INTERNAL_SERVER_ERROR, json_body=None,
                  response_object=None):
         super().__init__()
         self.__success = success
@@ -85,7 +87,7 @@ class RestReturn(object):
     def response_object(self, value):
         self.__response_object = value
 
-    @staticmethod
     def to_dict(self):
+        """Cast Object to Dictionary"""
         return {"success": self.success, "message": self.message, "http_status": self.http_status,
                 "json": self.json_body, "response": self.response_object}

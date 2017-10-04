@@ -1,9 +1,11 @@
+"""Magen Logger Configuration"""
 import logging
 import os
 import time
 
 
 class LogDefaults:
+    """Log Default Configurations"""
     DEFAULT_LOG_IP_PORT = "localhost:5000"
     default_log_name = "Magen_Logger"
     default_dir = os.getcwd() + "/magen_logs/"
@@ -22,16 +24,17 @@ class MyFormatter(logging.Formatter):
     converter = time.gmtime
 
     def formatTime(self, record, datefmt=None):
-        ct = self.converter(record.created)
+        converted = self.converter(record.created)
         if datefmt:
-            s = time.strftime(datefmt, ct)
+            time_string = time.strftime(datefmt, converted)
         else:
-            t = time.strftime("%Y-%m-%dT%H:%M:%S", ct)
-            s = "%s.%03d" % (t, record.msecs)
-        return s
+            formatted_time = time.strftime("%Y-%m-%dT%H:%M:%S", converted)
+            time_string = "%s.%03d" % (formatted_time, record.msecs)
+        return time_string
 
 
 def get_log_level(inputt):
+    """Get Log Level"""
     if inputt == 'debug':
         log_level = logging.DEBUG
     elif inputt == 'info':
@@ -63,8 +66,8 @@ def initialize_logger(console_level="error",
         print("Creating custom logging directory is: %s" % output_dir)
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
-    except PermissionError as e:
-        print("No rights to create logging directory: %s. Using default dir: %s" % (e, LogDefaults.default_dir))
+    except PermissionError as error:
+        print("No rights to create logging directory: %s. Using default dir: %s" % (error, LogDefaults.default_dir))
         if os.access(LogDefaults.default_dir, os.W_OK):
             if not os.path.exists(LogDefaults.default_dir):
                 os.makedirs(output_dir)

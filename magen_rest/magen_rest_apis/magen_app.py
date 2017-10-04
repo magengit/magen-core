@@ -1,27 +1,31 @@
+"""Magen Flask Application"""
 import datetime
 import sys
 import importlib.util
 
 from flask import Flask
-from flask_cors import CORS
 from flask.json import JSONEncoder
+from flask_cors import CORS
 
 
 class CustomJSONEncoder(JSONEncoder):
-        def default(self, obj):
-            try:
-                if isinstance(obj, datetime.datetime):
-                    # print(str(obj))
-                    return str(obj)
-                iterable = iter(obj)
-            except TypeError:
-                pass
-            else:
-                return list(iterable)
-            return JSONEncoder.default(self, obj)
+    """Custom JSON Encoder"""
+    def default(self, obj):
+        """Overriting defalt Encoding"""
+        try:
+            if isinstance(obj, datetime.datetime):
+                # print(str(obj))
+                return str(obj)
+            iterable = iter(obj)
+        except TypeError:
+            pass
+        else:
+            return list(iterable)
+        return JSONEncoder.default(self, obj)
 
 
 class MagenApp(object):
+    """Magen Flask Application using CustomJSONEncoder"""
     __instance = None
 
     def __init__(self, template_path):
@@ -31,20 +35,22 @@ class MagenApp(object):
 
     @classmethod
     def get_instance(cls, template_path='templates'):
+        """Singleton get instance"""
         if cls.__instance is None:
             cls.__instance = cls(template_path)
         return cls.__instance
 
-    def app_source_version(main_fname, dir="dev", file="magen_env"):
+    @staticmethod
+    def app_source_version(main_fname, s_dir="dev", s_file="magen_env"):
         """
         Is this main file being run from a workspace?
 
         :param main_fname: __fname__ for service main file
-        :param dir: directory containing workspace-only (not installed) file
-        :param file: workspace-only (not installed) file
+        :param s_dir: directory containing workspace-only (not installed) file
+        :param s_file: workspace-only (not installed) file
         :type main_fname: __fname__ string
-        :type dir: string
-        :type file: string
+        :type s_dir: string
+        :type s_file: string
         :return: true if running from workspace
         :rtype: bool
 
@@ -56,18 +62,20 @@ class MagenApp(object):
         - is this file being run directly (name is __main__)?
         - if so, is file being run from workspace vs installed (e.g. /usr/local/bin?)
 
-        Implementation is to check for presence of a file (dev/magen_env.py by default) that is in the workspace but is not installed.
+        Implementation is to check for presence of a file (dev/magen_env.py by default)
+        that is in the workspace but is not installed.
         """
         if main_fname != "__main__":
             return False
         path_save = sys.path
-        sys.path = [sys.path[0] + "/" + dir]
-        src_ver = importlib.util.find_spec(file)
+        sys.path = [sys.path[0] + "/" + s_dir]
+        src_ver = importlib.util.find_spec(s_file)
         sys.path = path_save
         return src_ver
 
     @property
     def magen(self):
+        """Connected Flask app"""
         return self.__magen
 
     @magen.setter

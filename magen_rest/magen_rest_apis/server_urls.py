@@ -1,3 +1,4 @@
+"""Server Urls Class"""
 import logging
 
 from magen_utils_apis import domain_resolver
@@ -10,7 +11,7 @@ __version__ = "0.1"
 __status__ = "alpha"
 
 
-default_domain = 'localhost'
+DEFAULT_DOMAIN = 'localhost'
 
 
 class ServerUrls(object):
@@ -108,6 +109,7 @@ class ServerUrls(object):
         self.__location_server_url_host_port = None
         self.__location_server_base_url = None
         self.__location_stores_url = None
+        self.__location_server_host_base_url = None
 
         self.set_domain_ports()
 
@@ -155,13 +157,14 @@ class ServerUrls(object):
 
         :rtype: void
         """
-        if self.domain_name == default_domain:
+        if self.domain_name == DEFAULT_DOMAIN:
             self._set_domain_ports_docker() if domain_resolver.inside_docker() else self._set_domain_ports_default()
         else:
             self._set_domain_ports_aws()
 
     @property
     def domain_name(self):
+        """Domain Name"""
         return self.__domain_name
 
     @domain_name.setter
@@ -171,6 +174,7 @@ class ServerUrls(object):
 
     @property
     def disable_url_host_port(self):
+        """Default Disabled URL Host Port"""
         return self.__disable_url_host_port
 
     @property
@@ -183,6 +187,7 @@ class ServerUrls(object):
 
     @property
     def get_json_headers(self):
+        """GET JSON Headers"""
         return self.__get_json_headers
 
     @get_json_headers.setter

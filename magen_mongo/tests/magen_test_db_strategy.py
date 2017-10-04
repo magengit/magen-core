@@ -1,5 +1,5 @@
 # !/bin/usr/python3
-
+"""Test Database Strategy"""
 from magen_mongo_apis.concrete_dao import Dao
 from .magen_test_db import MagenTestDb
 
@@ -10,8 +10,7 @@ __status__ = "alpha"
 
 
 class MagenTestDbStrategy(Dao):
-
+    """Test DB Strategy Class"""
     def get_collection(self):
         mongo_test_db = MagenTestDb.get_instance()
         return mongo_test_db.magen_test_collection
-
