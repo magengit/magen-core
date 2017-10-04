@@ -67,8 +67,25 @@ def flatten_dict(data, exclude_keys=None):
 
     :param data: data to be flatten
     :type data: dict
-    :param exclude_keys: keys to be excluded
+    :param exclude_keys: keys to be excluded.
+    [Note] dict structure is not evaluated for exluded keys.
+    All keys named as passed to excluded_keys will be excluded
     :type exclude_keys: list
+
+    Example::
+
+    self.actual_dict = dict(
+        key1='value2',
+        key2=dict(
+            key3='value3',  # key3
+            key4='value4'
+        ),
+        key5=['value5', 'value6'],
+        key3='value7'  # key3 again here
+    )
+
+    # This will exclude both key3 keys from flatten dict result
+    flatten_dict(self.actual_dict, excluded_keys=['key3'])
 
     :return: flatten data
     :rtype: list
