@@ -10,9 +10,9 @@ from magen_utils_apis.dd_events_wrapper import EventsSubmitError
 from magen_utils_apis.dd_events_wrapper import DDEventsWrapper
 
 __author__ = "Alena Lifar"
-__email__ = "alifar@cisco.com"
+__email__ = "alifar_at_cisco.com"
 __version__ = "0.1"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __status__ = "alpha"
 
 

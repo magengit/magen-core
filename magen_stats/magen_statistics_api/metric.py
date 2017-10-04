@@ -1,6 +1,6 @@
 #! /usr/bin/python3
 
-from magen_utils_apis.parse_utils import replace_keys
+from magen_utils_apis.parse_utils import truncate_keys
 from magen_utils_apis.singleton_meta import Singleton
 
 __author__ = "alifar@cisco.com"
@@ -29,7 +29,7 @@ class Metric(object):
         self.__source = source
         self.__abs_value = abs_value
         self.__namespace = __class__.__name__
-        self.__uuid = None
+        self.__metric_uuid = None
         self.__provide_detailed_info = False
         self.__metrics_collections = MetricsCollections()
 
@@ -66,12 +66,12 @@ class Metric(object):
         self.__namespace = self.__namespace + "." + new_entity
 
     @property
-    def uuid(self):
-        return self.__uuid
+    def metric_uuid(self):
+        return self.__metric_uuid
 
-    @uuid.setter
-    def uuid(self, value):
-        self.__uuid = value
+    @metric_uuid.setter
+    def metric_uuid(self, value):
+        self.__metric_uuid = value
 
     @property
     def provide_detailed_info(self):
@@ -95,10 +95,10 @@ class Metric(object):
         split_str = "__"
         include_keys = []  # by default all keys are included
         if not self.provide_detailed_info:
-            include_keys.append("uuid")
+            include_keys.append("metric_uuid")
             include_keys.append("name")
             include_keys.append("abs_value")
-        return replace_keys(properties, pattern, split_str, include_keys)
+        return truncate_keys(properties, pattern, split_str, include_keys)
 
 
 class MetricsCollections(metaclass=Singleton):
@@ -129,16 +129,14 @@ class MetricsCollections(metaclass=Singleton):
         :param metric_instance: instance of class type of Metric (Counter, Gauge etc.)
         :rtype: void
         """
-        # stack = inspect.stack()
-        # class_caller_name = stack[1][0].f_locals["self"].__class__.__name__
         if collection_name not in self.__collections.keys():
             self.__collections[collection_name] = dict()
         if metric_instance.flavor:
             # FIXME: have to store duplicates in order to provide easy access and full functionality for API
             self.__collections[collection_name][metric_instance.flavor] = metric_instance
-            self.__collections[collection_name][metric_instance.uuid] = metric_instance
+            self.__collections[collection_name][metric_instance.metric_uuid] = metric_instance
         else:
-            self.__collections[collection_name][metric_instance.uuid] = metric_instance
+            self.__collections[collection_name][metric_instance.metric_uuid] = metric_instance
 
     def get_collection(self, name):
         """
@@ -191,7 +189,7 @@ class MetricsCollections(metaclass=Singleton):
         if collection:
             try:
                 metric = collection[flavor]
-                del collection[metric.uuid]
+                del collection[metric.metric_uuid]
                 del collection[flavor]
             except KeyError:
                 pass

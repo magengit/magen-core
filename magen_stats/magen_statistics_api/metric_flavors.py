@@ -22,6 +22,7 @@ class Flavor(object):
 
     @property
     def flavor_name(self):
+        """Flavor Name (RestRequest|RestResponse)"""
         return self.__flavor_name
 
     @flavor_name.setter
@@ -30,33 +31,12 @@ class Flavor(object):
 
     @property
     def title(self):
+        """Flavor Title (additional options)"""
         return self.__title
 
     @title.setter
     def title(self, value):
         self.__title = value
-
-
-# class RestResponse(Flavor, metaclass=Singleton):
-#     """
-#     Rest Response Flavor class for Counters and other Metrics.
-#     This class provide additional fields and might provide additional functionality to Counter
-#     """
-#     # FIXME: Need to use RestResponse as an enum, not a singleton. need to look into this
-#
-#     def __init__(self, http_status_code):
-#         super().__init__()
-#         self.__status = HTTPStatus(http_status_code)
-#         self.flavor_name = __class__.__name__
-#         self.title = self.__status.name
-#
-#     @property
-#     def status(self):
-#         return self.__status
-#
-#     @status.setter
-#     def status(self, value):
-#         self.__status = value
 
 class RestResponse(Flavor, Enum):
     """
@@ -73,7 +53,7 @@ class RestResponse(Flavor, Enum):
         obj.description = description
         return obj
 
-    def __init__(self, *argc):
+    def __init__(self, *args):
         Flavor.__init__(self)
         self.flavor_name = self.__class__.__name__
         self.title = self.phrase
