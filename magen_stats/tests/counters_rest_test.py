@@ -1,13 +1,12 @@
 #! /usr/bin/python3
+"""Test Suit for Rest API of Magen Metrics"""
 import unittest
 
 from flask import Flask
 from http import HTTPStatus
 import json
 
-import magen_core_test_env
-from magen_rest_apis.rest_client_apis import RestClientApis
-from magen_utils_apis.compare_utils import default_full_compare, default_full_compare_dict
+from magen_utils_apis.compare_utils import default_full_compare
 
 from magen_statistics_server.source_counter_rest_api import sourced_counters
 from magen_statistics_server.counter_urls import CounterUrls
@@ -29,12 +28,6 @@ __date__ = "10/24/2016"
 
 TEST_HOST = "0.0.0.0"
 TEST_PORT = 9999
-
-
-def url_routes(app):
-    endpoints = [rule.rule for rule in app.url_map.iter_rules()
-                 if rule.endpoint != 'static']
-    return dict(api_endpoints=endpoints)
 
 
 class TestCounterRESTApi(unittest.TestCase):
@@ -191,41 +184,50 @@ class TestCounterRESTApi(unittest.TestCase):
         self.assertTrue(
             default_full_compare(MULTIPLE_COUNTERS_GET, get_resp_json, excluded_keys=['metric_uuid']))
 
-    # TODO:
-    # def test_FlavoredCounterDetailedGet(self):
-    #     """
-    #     Get details for unflavored counter
-    #
-    #     :rtype: void
-    #     """
-    #     print()
-    #     print("+++++++++Counter Get Test+++++++++")
-    #     post_resp = RestClientApis.http_post_and_check_success(
-    #         TestCounterRESTApi.counter_urls.restresponse_ok_counter_url,
-    #         SINGLE_COUNTER_DATA
-    #     )
-    #     self.assertTrue(post_resp.success)
-    #     get_resp = RestClientApis.http_get_and_compare_resp(
-    #         TestCounterRESTApi.counter_urls.restresponse_ok_counter_url,
-    #         DETAILED_SINGLE_COUNTER_RESPONSE
-    #     )
-    #     self.assertTrue(get_resp.success)
-    #
-    # def test_RestRequestCountersSummaryGet(self):
-    #     """
-    #     Get Summarized info about RestResponse counters
-    #
-    #     :rtype: void
-    #     """
-    #     print()
-    #     print("+++++++++RestRequest Counters Get Test+++++++++")
-    #     post_resp = RestClientApis.http_post_and_check_success(
-    #         TestCounterRESTApi.counter_urls.counters_url,
-    #         MULTIPLE_COUNTERS_DATA
-    #     )
-    #     self.assertTrue(post_resp.success)
-    #     get_resp = RestClientApis.http_get_and_compare_resp(
-    #         TestCounterRESTApi.counter_urls.restrequest_counters_url,
-    #         REST_REQUEST_COUNTERS_RESPONSE
-    #     )
-    #     self.assertTrue(get_resp.success)
+    def test_FlavoredCounterDetailedGet(self):
+        """
+        Get details for unflavored counter
+
+        :rtype: void
+        """
+        print()
+        print("+++++++++Counter Get Test+++++++++")
+        post_resp = self.app.post(
+            TestCounterRESTApi.counter_urls.restresponse_ok_counter_url,
+            data=SINGLE_COUNTER_DATA,
+            headers=type(self).counter_urls.put_json_headers
+        )
+        self.assertEqual(post_resp.status_code, HTTPStatus.CREATED)
+        post_resp_json = json.loads(post_resp.data.decode("utf-8"))  # decode resp obj - extra step for test_client
+        # Verify that resource was created and uuid was assigned
+        self.assertIn('metric_uuid', post_resp_json['response'])
+        # GET TEST
+        get_resp = self.app.get(TestCounterRESTApi.counter_urls.restresponse_ok_counter_url)
+        get_resp_json = json.loads(get_resp.data.decode("utf-8"))  # decode resp obj - extra step for test_client
+        # Verify returned response skipping dynamic generated fields (metric_uuid)
+        self.assertTrue(
+            default_full_compare(DETAILED_SINGLE_COUNTER_RESPONSE, get_resp_json, excluded_keys=['metric_uuid']))
+
+    def test_RestRequestCountersSummaryGet(self):
+        """
+        Get Summarized info about RestResponse counters
+
+        :rtype: void
+        """
+        print()
+        print("+++++++++RestRequest Counters Get Test+++++++++")
+        post_resp = self.app.post(
+            TestCounterRESTApi.counter_urls.counters_url,
+            data=MULTIPLE_COUNTERS_DATA,
+            headers=type(self).counter_urls.put_json_headers
+        )
+        self.assertEqual(post_resp.status_code, HTTPStatus.CREATED)
+        post_resp_json = json.loads(post_resp.data.decode("utf-8"))  # decode resp obj - extra step for test_client
+        # Verify that resource was created and uuid was assigned
+        self.assertIn('metric_uuid', post_resp_json['response'])
+        get_resp = self.app.get(TestCounterRESTApi.counter_urls.restrequest_counters_url)
+        get_resp_json = json.loads(get_resp.data.decode("utf-8"))  # decode resp obj - extra step for test_client
+        # Verify returned response skipping dynamic generated fields (metric_uuid)
+        self.assertTrue(
+            default_full_compare(REST_REQUEST_COUNTERS_RESPONSE, get_resp_json, excluded_keys=['metric_uuid']))
+
