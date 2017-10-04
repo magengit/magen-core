@@ -3,7 +3,7 @@
 import unittest
 import flask
 from flask import Flask
-from mock import patch, MagicMock, Mock
+from unittest.mock import Mock, patch, MagicMock
 from http import HTTPStatus
 
 from ..magen_id_client_apis.magen_client import MagenClient

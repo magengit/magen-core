@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='magen_id_client',
-    version='1.0a1',
+    version='1.1a1',
     packages=find_packages(exclude=['tests*']),
     # packages=['container_test', 'ingestion_apis',
     #          'ingestion_server'],
@@ -10,10 +10,11 @@ setup(
         'flake8>=3.2.1',
         'pytest>=3.0.2',
         'requests>=2.13.0',
-        'responses==0.5.1',
+        'responses>=0.5.1',
         'Sphinx>=1.5.1',
-        'wheel==0.30.0a0'
-      ],
+        'wheel>=0.30.0a0',
+        'magen_rest_service>=1.2a1',
+    ],
     include_package_data=True,
     package_data={
         # If any package contains *.txt or *.rst files, include them:
