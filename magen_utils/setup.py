@@ -11,7 +11,7 @@ if pip_version < 901:
 
 setup(
     name='magen_utils',
-    version='1.0a1',
+    version='1.1a1',
     packages=find_packages(exclude=['tests*']),
     # packages=['container_test', 'ingestion_apis',
     #          'ingestion_server'],
