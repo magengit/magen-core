@@ -25,8 +25,8 @@ setup(
         'netifaces>=0.10.6',
         'pytest>=3.1.3',
         'Sphinx>=1.6.3',
-        'wheel==0.30.0a0',
-        'datadog==0.16.0'
+        'wheel>=0.30.0a0',
+        'datadog>=0.16.0'
       ],
     include_package_data=True,
     package_data={

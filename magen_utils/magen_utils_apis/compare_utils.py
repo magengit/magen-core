@@ -4,7 +4,7 @@
 import functools
 import json
 
-from magen_utils_apis.parse_utils import flatten_dict_except_keys
+from magen_utils.magen_utils_apis.parse_utils import flatten_dict_except_keys
 
 __author__ = "alifar_at_cisco.com"
 __copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."

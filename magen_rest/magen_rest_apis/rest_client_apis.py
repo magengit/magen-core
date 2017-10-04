@@ -6,7 +6,7 @@ import requests
 import requests.exceptions
 import simplejson
 
-from magen_utils_apis.compare_utils import default_full_compare
+from magen_utils.magen_utils_apis.compare_utils import default_full_compare
 
 from .rest_exception_apis import handle_specific_exception
 from .rest_exception_apis import RestReturn
