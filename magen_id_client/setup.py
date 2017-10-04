@@ -10,7 +10,7 @@ setup(
         'flake8>=3.2.1',
         'pytest>=3.0.2',
         'requests>=2.13.0',
-        'responses>=0.5.1',
+        'responses>=0.8.1',
         'Sphinx>=1.5.1',
         'wheel>=0.30.0a0',
         'magen_rest_service>=1.2a1',

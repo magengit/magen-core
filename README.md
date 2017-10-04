@@ -18,7 +18,7 @@ Current List of Packages under **Magen-Core**:
 | magen_rest            | magen_rest_service-1.2a1-py3-none-any.whl       |
 | magen_stats           | magen_statistics_service-1.0a1-py3-none-any.whl |
 | magen_mongo           | magen_mongo-1.0a1-py3-none-any.whl              |
-| magen_id_client       | magen_id_client-1.0a1-py3-none-any.whl          |
+| magen_id_client       | magen_id_client-1.1a1-py3-none-any.whl          |
  
  
 For This Service there are available ```make``` commands. Makefile is located in a ```root``` directory. You can execute ```make``` targets only in a directory where Makefile is located.
