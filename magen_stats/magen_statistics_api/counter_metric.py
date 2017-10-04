@@ -1,14 +1,15 @@
 #! /usr/bin/python3
+"""Counter Metric Class"""
 import uuid
 
-from magen_utils_apis.parse_utils import replace_keys
+from magen_utils_apis.parse_utils import truncate_keys
 from magen_statistics_api.metric import Metric
 
 __author__ = "alifar@cisco.com"
-__copyright__ = "Copyright(c) 2015, Cisco Systems, Inc."
+__copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
 __version__ = "0.1"
 __status__ = "alpha"
-__date__ = "10/24/2016"
+__date__ = "09/23/2017"
 
 
 class Counter(Metric):
@@ -33,8 +34,6 @@ class Counter(Metric):
         if not flavor and not name:
             raise SyntaxError("flavor or name must be provided")
         self.__flavor = flavor
-        # if self.__flavor:
-        #     name = self.__flavor.title
         super().__init__(name, source, abs_value)
         if not name:
             self.name = source + "." + flavor.flavor_name + "." + flavor.title
@@ -42,11 +41,15 @@ class Counter(Metric):
         self.namespace = class_name  # Metric.Counter
         self.__period = period
         self.__alerts = alerts
-        self.uuid = str(uuid.uuid4())
+        self.metric_uuid = str(uuid.uuid4())
         super().metrics_collections.add_to_collection(class_name, self)  # adding new instance to counter collection
 
     @property
     def flavor(self):
+        """
+        Flavor for Counter. Flavor assigns additional details to Counter.
+        Flavors known: RestResponse, RestRequest
+        """
         return self.__flavor
 
     @flavor.setter
@@ -55,6 +58,7 @@ class Counter(Metric):
 
     @property
     def period(self):
+        """Period in seconds for update alerts"""
         return self.__period
 
     @period.setter
@@ -63,6 +67,7 @@ class Counter(Metric):
 
     @property
     def alerts(self):
+        """Alerts property to initiate alerts to the User"""
         return self.__alerts
 
     @alerts.setter
@@ -94,15 +99,14 @@ class Counter(Metric):
         if not self.provide_detailed_info:
             if not self.flavor:
                 return data_dict
-            else:
-                data_dict["flavor"] = self.flavor.flavor_name
-                data_dict["flavor_opt"] = self.flavor.title
-                return data_dict
+            data_dict["flavor"] = self.flavor.flavor_name
+            data_dict["flavor_opt"] = self.flavor.title
+            return data_dict
         else:
             pattern = '_' + __class__.__name__ + '__'
             split_str = "__"
             exclude_keys = ["metrics_collections", "provide_detailed_info"]
-            data_dict = replace_keys(data_dict, pattern, split_str)
+            data_dict = truncate_keys(data_dict, pattern, split_str)
             for key in exclude_keys:
                 del data_dict[key]
             if self.flavor:

@@ -17,6 +17,47 @@ SINGLE_COUNTER_DATA = """{
     }
 }"""
 
+SINGLE_COUNTER_POST_RESP = """{
+    "response": {
+        "metric_uuid": [
+            "dd1908ed-378c-464c-8557-df331c06bf79"
+        ]
+    },
+    "status": 201,
+    "title": "Post Counters for Source"
+}"""
+
+SINGLE_COUNTER_RESTRESP_POST_RESP = """{
+    "response": {
+        "metric_uuid": [
+            "19fb449a-a62f-40ea-82ea-cd984b02e929"
+        ]
+    },
+    "status": 201,
+    "title": "Post Flavored Counters for Source"
+}"""
+
+SINGLE_COUNTER_FLAVORED_POST_RESP = """{
+    "response": {
+    "metric_uuid": [
+        "1e5ca0da-47d5-42bb-8cf6-2ece162edb79"
+        ]
+    },
+    "status": 201,
+    "title": "Post Counters for Source"
+}"""
+
+MULTIPLE_COUNTERS_POST_RESP = """{
+    "response": {
+    "metric_uuid": [
+        "986fd851-8ef0-49b5-8466-4a585015dc9c",
+        "2e808077-e3cf-4369-8cdf-11d1ecb2b108"
+        ]
+    },
+    "status": 201,
+    "title": "Post Counters for Source"
+}"""
+
 SINGLE_COUNTER_GET_RESP = """{
   "response": {
     "counters": {
@@ -24,7 +65,7 @@ SINGLE_COUNTER_GET_RESP = """{
         {
           "abs_value": 0,
           "name": "asset_creation",
-          "uuid": "547534e1-e606-44bb-a15a-71e82a947dad"
+          "metric_uuid": "547534e1-e606-44bb-a15a-71e82a947dad"
         }
       ]
     }
@@ -46,7 +87,7 @@ SINGLE_OK_COUNTER_GET_RESP = """{
           "namespace": "Metric.Counter",
           "period": 60,
           "source": "ingestion",
-          "uuid": "895859fc-d26b-4215-88e0-e2805a6ef134"
+          "metric_uuid": "895859fc-d26b-4215-88e0-e2805a6ef134"
         }
       ]
     }
@@ -73,7 +114,7 @@ SINGLE_NOT_FOUND_COUNTER_GET_RESP = """{
           "flavor": "RestResponse",
           "flavor_opt": "Not Found",
           "name": "asset_access",
-          "uuid": "14931f38-aa13-46bc-a962-d477b5a8c4fc"
+          "metric_uuid": "14931f38-aa13-46bc-a962-d477b5a8c4fc"
         }
       ]
     }
@@ -99,15 +140,15 @@ MULTIPLE_COUNTERS_GET = """{
       "counter": [
         {
           "abs_value": 0,
-          "flavor": "RestRequest",
-          "flavor_opt": "DELETE",
-          "name": "asset_deletion",
-          "uuid": "e959ae3b-d2be-40f5-99b6-2503745b419a"
+          "name": "asset_creation",
+          "metric_uuid": "d9056542-ea33-40c9-8028-5e7f6eba1ff2"
         },
         {
           "abs_value": 0,
-          "name": "asset_creation",
-          "uuid": "d9056542-ea33-40c9-8028-5e7f6eba1ff2"
+          "flavor": "RestRequest",
+          "flavor_opt": "DELETE",
+          "name": "asset_deletion",
+          "metric_uuid": "e959ae3b-d2be-40f5-99b6-2503745b419a"
         }
       ]
     }
@@ -129,7 +170,7 @@ DETAILED_SINGLE_COUNTER_RESPONSE = """{
           "namespace": "Metric.Counter",
           "period": 60,
           "source": "ingestion",
-          "uuid": "412bd442-4e4a-49fa-b191-ef326cdfbdb7"
+          "metric_uuid": "412bd442-4e4a-49fa-b191-ef326cdfbdb7"
         }
       ]
     }
@@ -147,7 +188,7 @@ REST_REQUEST_COUNTERS_RESPONSE = """{
           "flavor": "RestRequest",
           "flavor_opt": "DELETE",
           "name": "asset_deletion",
-          "uuid": "a9c9d7d9-ea10-455a-bc6e-ba5ebf17d5d5"
+          "metric_uuid": "a9c9d7d9-ea10-455a-bc6e-ba5ebf17d5d5"
         }
       ]
     }
