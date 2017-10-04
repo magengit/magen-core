@@ -6,7 +6,7 @@ from http import HTTPStatus
 
 import responses
 
-from magen_rest.magen_rest_apis.rest_client_apis import RestClientApis
+from ..magen_rest_apis.rest_client_apis import RestClientApis
 from .rest_client_apis_test_messages import MAGEN_SINGLE_ASSET_FINANCE_DELETE_RESPONSE, \
     MAGEN_SINGLE_ASSET_FINANCE_GET_RESP
 
@@ -45,7 +45,7 @@ class RestClientDeleteApisTest(unittest.TestCase):
         :param args: any type of parameters that this funtion works with
         :param kwargs: any type of parameters that this funtion works with
         """
-        return True, HTTPStatus.OK.phrase, HTTPStatus.OK
+        return True
 
     @staticmethod
     def my_func_test_fail(*args, **kwargs):
@@ -54,7 +54,7 @@ class RestClientDeleteApisTest(unittest.TestCase):
         :param args: any type of parameters that this funtion works with
         :param kwargs: any type of parameters that this funtion works with
         """
-        return False, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, HTTPStatus.INTERNAL_SERVER_ERROR
+        return False
 
     @responses.activate
     def test_Http_delete_ok(self):

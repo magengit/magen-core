@@ -6,7 +6,7 @@ from http import HTTPStatus
 
 import responses
 
-from magen_rest_apis.rest_client_apis import RestClientApis
+from ..magen_rest_apis.rest_client_apis import RestClientApis
 from .rest_client_apis_test_messages import MAGEN_SINGLE_ASSET_FINANCE_GET_RESP
 
 
@@ -45,7 +45,7 @@ class RestClientGetApisTest(unittest.TestCase):
         :param args: any type of parameters that this funtion works with
         :param kwargs: any type of parameters that this funtion works with
         """
-        return True, HTTPStatus.OK.phrase, HTTPStatus.OK
+        return True
 
     @staticmethod
     def my_func_test_fail(*args, **kwargs):
@@ -54,7 +54,7 @@ class RestClientGetApisTest(unittest.TestCase):
         :param args: any type of parameters that this funtion works with
         :param kwargs: any type of parameters that this funtion works with
         """
-        return False, HTTPStatus.INTERNAL_SERVER_ERROR.phrase, HTTPStatus.INTERNAL_SERVER_ERROR
+        return False
 
     @responses.activate
     def test_Http_get_and_check_ok(self):
@@ -126,6 +126,15 @@ class RestClientGetApisTest(unittest.TestCase):
         self.assertEqual(resp_obj.http_status, HTTPStatus.OK, "Status code does not match")
 
     @responses.activate
+    def test_http_get_and_compare_resp_ok_default_compare(self):
+        responses.add(responses.GET, RestClientGetApisTest.LOCATION_URL,
+                      json=json.loads(MAGEN_SINGLE_ASSET_FINANCE_GET_RESP), status=200)
+        resp_obj = RestClientApis.http_get_and_compare_resp(RestClientGetApisTest.LOCATION_URL,
+                                                            MAGEN_SINGLE_ASSET_FINANCE_GET_RESP)
+        self.assertTrue(resp_obj.success)
+        self.assertEqual(resp_obj.http_status, HTTPStatus.OK, "Status code does not match")
+
+    @responses.activate
     def test_http_get_and_compare_resp_fail_500(self):
         responses.add(responses.GET, RestClientGetApisTest.LOCATION_URL,
                       json=json.loads(MAGEN_SINGLE_ASSET_FINANCE_GET_RESP), status=500)
@@ -142,5 +151,23 @@ class RestClientGetApisTest(unittest.TestCase):
         resp_obj = RestClientApis.http_get_and_compare_resp(RestClientGetApisTest.LOCATION_URL,
                                                             MAGEN_SINGLE_ASSET_FINANCE_GET_RESP,
                                                             RestClientGetApisTest.my_func_test_fail)
+        self.assertFalse(resp_obj.success)
+        self.assertEqual(resp_obj.http_status, HTTPStatus.INTERNAL_SERVER_ERROR, "Status code does not match")
+
+    @responses.activate
+    def test_http_get_and_compare_resp_fail_default_compare(self):
+        responses.add(responses.GET, RestClientGetApisTest.LOCATION_URL,
+                      json=json.loads(MAGEN_SINGLE_ASSET_FINANCE_GET_RESP), status=200)
+        resp_obj = RestClientApis.http_get_and_compare_resp(RestClientGetApisTest.LOCATION_URL,
+                                                            {"response": "will not match"})
+        self.assertFalse(resp_obj.success)
+        self.assertEqual(resp_obj.http_status, HTTPStatus.INTERNAL_SERVER_ERROR, "Status code does not match")
+
+    @responses.activate
+    def test_http_get_and_compare_resp_fail_default_compare_bad_data(self):
+        responses.add(responses.GET, RestClientGetApisTest.LOCATION_URL,
+                      json=json.loads(MAGEN_SINGLE_ASSET_FINANCE_GET_RESP), status=200)
+        resp_obj = RestClientApis.http_get_and_compare_resp(RestClientGetApisTest.LOCATION_URL,
+                                                            '333')
         self.assertFalse(resp_obj.success)
         self.assertEqual(resp_obj.http_status, HTTPStatus.INTERNAL_SERVER_ERROR, "Status code does not match")
