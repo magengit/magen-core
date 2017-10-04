@@ -44,10 +44,12 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_get_and_check_success(url, my_function=None, verify=True):
+    def http_get_and_check_success(url, my_function=None, verify=True, stream=False):
         """
         This function will send a GET request and check if the response is OK.
 
+        :param stream: Whether to keep connection open in order to stream large files
+        :param verify: Verify certs
         :param url: HTTP URL
         :param my_function: An optional function that performs specific application level checks. The function
             needs to returns the tuple success(boolean), message(string), return_code(int).
@@ -56,7 +58,7 @@ class RestClientApis(object):
         :return: Rest Respond Object
         """
         session = requests.Session()
-        get_response = session.get(url, verify=verify, stream=False, timeout=2.0)
+        get_response = session.get(url, verify=verify, stream=stream, timeout=2.0)
         get_response.raise_for_status()
         if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
             get_resp_json = get_response.json()
