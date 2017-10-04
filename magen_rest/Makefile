@@ -1,4 +1,4 @@
-WHEEL := magen_rest_service-1.1a1-py3-none-any.whl
+WHEEL := magen_rest_service-1.2a1-py3-none-any.whl
 PACKAGE_NAME = magen_rest_service
 SPHINX_DIR=docs
 

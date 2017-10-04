@@ -13,7 +13,7 @@ setup(
         'responses>=0.8.1',
         'Sphinx>=1.5.1',
         'wheel>=0.30.0a0',
-        'magen_rest_service>=1.2a1',
+        'magen_rest_service>=1.1a1',
     ],
     include_package_data=True,
     package_data={
