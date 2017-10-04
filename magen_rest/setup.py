@@ -26,7 +26,7 @@ setup(
         'Sphinx>=1.6.3',
         'wheel>=0.30.0a0',
         'magen_logger>=1.0a1',
-        'magen_utils>=1.0a1',
+        'magen_utils>=1.1a1',
       ],
     include_package_data=True,
     package_data={

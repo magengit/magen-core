@@ -1,4 +1,4 @@
-WHEEL := magen_utils-1.0a1-py3-none-any.whl
+WHEEL := magen_utils-1.1a1-py3-none-any.whl
 PACKAGE_NAME=magen_utils
 SPHINX_DIR=docs
 

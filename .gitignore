@@ -125,5 +125,5 @@ base_docker_image/magen_mongo-1.0a1-py3-none-any.whl
 base_docker_image/magen_rest_service-1.2a1-py3-none-any.whl
 base_docker_image/magen_statistics_service-1.0a1-py3-none-any.whl
 base_docker_image/magen_test_utils-1.0a1-py3-none-any.whl
-base_docker_image/magen_utils-1.0a1-py3-none-any.whl
+base_docker_image/magen_utils-1.1a1-py3-none-any.whl
 base_docker_image/pip.conf
