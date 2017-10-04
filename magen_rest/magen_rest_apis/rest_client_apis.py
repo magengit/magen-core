@@ -21,10 +21,12 @@ class RestClientApis(object):
     get_json_headers = {'Accept': 'application/json'}
 
     @staticmethod
-    def http_get_and_check_success(url, my_function=None, verify=True):
+    def http_get_and_check_success(url, my_function=None, verify=True, stream=False):
         """
         This function will send a GET request and check if the response is OK.
 
+        :param stream: Whether to keep connection open in order to stream large files.
+        :param verify: Whether to verify certs
         :param url: HTTP URL
         :param my_function: An optional function that performs specific application level checks. The function
             needs to returns the tuple success(boolean), message(string), return_code(int).
@@ -34,7 +36,7 @@ class RestClientApis(object):
         """
         s = requests.Session()
         try:
-            get_response = s.get(url, verify=verify, stream=False, timeout=2.0)
+            get_response = s.get(url, verify=verify, stream=stream, timeout=2.0)
             get_response.raise_for_status()
             if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
                 get_resp_json = get_response.json()
