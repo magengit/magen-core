@@ -32,8 +32,8 @@ def truncate_keys(dictionary: dict, pattern: str, split_char: str, include_keys=
         truncate_keys(test_dict, 'test', '_')
 
     Result::
-    >>> print(test_dict)
-    >>> {'key1': 'test_value1', 'key2': 'test_value2', 'key_3': 'test_value3', 'key4': 'test_value4'}
+        print(test_dict)
+        {'key1': 'test_value1', 'key2': 'test_value2', 'key_3': 'test_value3', 'key4': 'test_value4'}
 
     :param dictionary: dictionary for iteration
     :type dictionary: dict
@@ -92,12 +92,13 @@ def flatten_dict(data, exclude_keys=None):
     """
     result = dict()
 
-    def add_to_result(data_dict, key, parent_key):
+    def add_to_result(data_dict, key, parent_key, i=None):
         """Add to Result list flat items of a dictionary"""
         if exclude_keys and key in exclude_keys:
             return
-        cur_key = key if not parent_key else parent_key+(key,)
-        result[cur_key] = data_dict[key]
+        cur_key = (key, i) if i is not None else (key,)
+        cur_key = cur_key if not parent_key else parent_key+cur_key
+        result[cur_key] = data_dict[key][i] if i is not None else data_dict[key]
 
     def visit(data_dict, parent_key=()):
         """
@@ -117,12 +118,12 @@ def flatten_dict(data, exclude_keys=None):
             if isinstance(data_dict[key], typing.Dict):
                 visit(data_dict[key], parent_key+(key,))
             elif isinstance(data_dict[key], typing.List):
-                for item in data_dict[key]:
+                for i, item in enumerate(data_dict[key]):
                     if isinstance(item, typing.Dict):
-                        visit(item, parent_key+(key,))
+                        visit(item, parent_key+(key, i))
                     else:
-                        add_to_result(data_dict, key, parent_key)
-                        break
+                        add_to_result(data_dict, key, parent_key, i)
+                        # break
             else:
                 add_to_result(data_dict, key, parent_key)
 

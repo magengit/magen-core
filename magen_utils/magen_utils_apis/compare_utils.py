@@ -15,7 +15,12 @@ __date__ = "09/27/2017"
 DEFAULT_IGNORED_KEYS = ['timestamp', 'uuid']
 
 
-def compare_dicts(expected: dict, actual: dict, transform_f=None):
+def identity(param):
+    """Identity returns parameter that passed to it"""
+    return param
+
+
+def compare_dicts(expected: dict, actual: dict, transform_f=identity):
     """
     Check equality of 2 dictionaries. It can only compare flat dictionaries
     The user can pass transform_f that will do any necessary transformations
@@ -31,15 +36,13 @@ def compare_dicts(expected: dict, actual: dict, transform_f=None):
     :return: compare result
     :rtype: bool
     """
-    if transform_f:
-        expected_transformed = transform_f(expected)
-        actual_transformed = transform_f(actual)
-        return expected_transformed == actual_transformed
-    return expected == actual
+    expected_transformed = transform_f(expected)
+    actual_transformed = transform_f(actual)
+    return expected_transformed == actual_transformed
 
 
 @functools.singledispatch
-def default_full_compare(*args):
+def default_full_compare(*args, **kwargs):
     """
     Singled Dispatch function that is overloaded by registered type of first argument.
     If unregistered type is passed to this function TypeError is raised.

@@ -4,7 +4,7 @@
 import unittest
 import typing
 
-from magen_utils_apis.parse_utils import truncate_keys, flatten_dict, flatten_dict_except_keys
+from ..magen_utils_apis.parse_utils import truncate_keys, flatten_dict, flatten_dict_except_keys
 
 __author__ = "Alena Lifar"
 __email__ = "alifar_at_cisco.com"
@@ -124,7 +124,11 @@ class TestFlattenDict(unittest.TestCase):
         """Simple Dictionary gets flattened"""
         result = flatten_dict(self.one_level_dict)
         print("\nFlat Dictionary:", result)
-        self.assertEqual(self.one_level_dict, result)
+        # All keys are transformed into Tuples
+        for key in result:
+            self.assertIsInstance(key, typing.Tuple)
+            # verify values
+            self.assertIn('value', result[key])
 
     def test_dict_with_nested(self):
         """Flat Dict with nested dicts"""
@@ -145,22 +149,19 @@ class TestFlattenDict(unittest.TestCase):
         result = flatten_dict(self.dict_with_lists)
         print("\nFlat Dictionary:", result)
         # Flat dictionary length equals number of values
-        self.assertEqual(len(result), 6)
-        # verify key3 entry has List value like in original dictionary
-        self.assertIsInstance(result['key3'], typing.List)
+        self.assertEqual(len(result), 7)
 
         for key in result:
             # verify that every value is value from original dict
-            if key == 'key1' or 'key3':  # key1 and key3 is on first level
-                continue
+            self.assertIn('value', result[key])
             # verify that nested dictionary keys are now stored as Tuples
             self.assertIsInstance(key, typing.Tuple)
-            self.assertIn('value', result[key])
 
     def test_flatten_dict_partial(self):
         """Creation of Partial function"""
         flatten_dict_partial = flatten_dict_except_keys(['key1', 'key2'])
         result = flatten_dict_partial(self.one_level_dict)
         self.assertEqual(len(result), 2)
-        self.assertIn('key3', result)
-        self.assertIn('key4', result)
+        for key in result:
+            self.assertIsInstance(key, typing.Tuple)
+            self.assertIn('value', result[key])
