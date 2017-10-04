@@ -11,7 +11,7 @@ if pip_version < 901:
 
 setup(
     name='magen_rest_service',
-    version='1.0a1',
+    version='1.2a1',
     packages=find_packages(exclude=['tests*']),
     # packages=['container_test', 'ingestion_apis',
     #          'ingestion_server'],
@@ -22,7 +22,7 @@ setup(
         'Flask>=0.12.2',
         'pytest>=3.1.3',
         'requests>=2.13.0',
-        'responses==0.5.1',
+        'responses>=0.8.1',
         'Sphinx>=1.6.3',
         'wheel==0.30.0a0',
         'magen_logger==1.0a1',
