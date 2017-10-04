@@ -63,7 +63,7 @@ def push_counters_for_source(source):
         http_response = RestServerApis.respond(
             http_status=HTTPStatus.CREATED,
             title="Post Counters for Source",
-            response={"uuid": uuid_list}
+            response={"metric_uuid": uuid_list}
         )
         http_response.headers["location"] = request.url
         return http_response
@@ -147,7 +147,7 @@ def create_flavored_counters(source, flavor_type, flavor_opt):
         http_response = RestServerApis.respond(
             http_status=HTTPStatus.CREATED,
             title="Post Flavored Counters for Source",
-            response={"uuid": uuid_list}
+            response={"metric_uuid": uuid_list}
         )
         http_response.headers["location"] = request.url
         return http_response

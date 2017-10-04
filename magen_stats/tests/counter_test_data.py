@@ -17,6 +17,47 @@ SINGLE_COUNTER_DATA = """{
     }
 }"""
 
+SINGLE_COUNTER_POST_RESP = """{
+    "response": {
+        "metric_uuid": [
+            "dd1908ed-378c-464c-8557-df331c06bf79"
+        ]
+    },
+    "status": 201,
+    "title": "Post Counters for Source"
+}"""
+
+SINGLE_COUNTER_RESTRESP_POST_RESP = """{
+    "response": {
+        "metric_uuid": [
+            "19fb449a-a62f-40ea-82ea-cd984b02e929"
+        ]
+    },
+    "status": 201,
+    "title": "Post Flavored Counters for Source"
+}"""
+
+SINGLE_COUNTER_FLAVORED_POST_RESP = """{
+    "response": {
+    "metric_uuid": [
+        "1e5ca0da-47d5-42bb-8cf6-2ece162edb79"
+        ]
+    },
+    "status": 201,
+    "title": "Post Counters for Source"
+}"""
+
+MULTIPLE_COUNTERS_POST_RESP = """{
+    "response": {
+    "metric_uuid": [
+        "986fd851-8ef0-49b5-8466-4a585015dc9c",
+        "2e808077-e3cf-4369-8cdf-11d1ecb2b108"
+        ]
+    },
+    "status": 201,
+    "title": "Post Counters for Source"
+}"""
+
 SINGLE_COUNTER_GET_RESP = """{
   "response": {
     "counters": {
@@ -99,15 +140,15 @@ MULTIPLE_COUNTERS_GET = """{
       "counter": [
         {
           "abs_value": 0,
+          "name": "asset_creation",
+          "metric_uuid": "d9056542-ea33-40c9-8028-5e7f6eba1ff2"
+        },
+        {
+          "abs_value": 0,
           "flavor": "RestRequest",
           "flavor_opt": "DELETE",
           "name": "asset_deletion",
           "metric_uuid": "e959ae3b-d2be-40f5-99b6-2503745b419a"
-        },
-        {
-          "abs_value": 0,
-          "name": "asset_creation",
-          "metric_uuid": "d9056542-ea33-40c9-8028-5e7f6eba1ff2"
         }
       ]
     }
