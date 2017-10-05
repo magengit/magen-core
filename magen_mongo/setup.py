@@ -24,7 +24,7 @@ setup(
         'wheel>=0.30.0a0',
         'magen_datastore==1.0a1',
         'magen_logger==1.0a1',
-        'magen_utils>=1.1a1'
+        'magen_utils>=1.1a2'
       ],
     include_package_data=True,
     package_data={

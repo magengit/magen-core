@@ -4,7 +4,7 @@
 import functools
 import json
 
-from magen_utils.magen_utils_apis.parse_utils import flatten_dict_except_keys
+from magen_utils_apis.parse_utils import flatten_dict_except_keys
 
 __author__ = "alifar_at_cisco.com"
 __copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
@@ -12,7 +12,8 @@ __version__ = "0.1"
 __status__ = "alpha"
 __date__ = "09/27/2017"
 
-DEFAULT_IGNORED_KEYS = ['timestamp', 'uuid']
+DEFAULT_IGNORED_KEYS = ['PI_list', 'creation_timestamp', 'uuid', 'policy_template_uuid', 'renewal',
+                        'revision', 'expiration']
 
 
 def identity(param):

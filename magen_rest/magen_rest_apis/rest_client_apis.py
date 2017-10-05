@@ -259,7 +259,7 @@ class RestClientApis(object):
             if get_response_obj.success:
                 json_get_resp = get_response_obj.json_body
                 if json_get_resp:
-                    success = check_util(json_resp, json_get_resp)
+                    success = check_util(json.loads(json_resp), json_get_resp)
                     message, return_code = assign_message_code(success)
                     rest_return_obj = RestReturn(success=success, http_status=return_code, message=message,
                                                  response_object=get_response_obj.response_object)
@@ -295,7 +295,7 @@ class RestClientApis(object):
         """
         post_resp_obj = RestClientApis.http_post_and_check_success(url, json_req)
         if post_resp_obj.success:
-            success = check_util(expected_post_json_resp, post_resp_obj.json_body)
+            success = check_util(json.loads(expected_post_json_resp), post_resp_obj.json_body)
             message, return_code = assign_message_code(success)
             rest_return_obj = RestReturn(success=success,
                                          http_status=return_code,
@@ -324,7 +324,7 @@ class RestClientApis(object):
         get_resp_obj = RestClientApis.http_get_and_check_success(url)
         if get_resp_obj.success:
             get_resp_json = get_resp_obj.json_body
-            success = check_util(expected_get_json_resp, get_resp_json)
+            success = check_util(json.loads(expected_get_json_resp), get_resp_json)
             message, return_code = assign_message_code(success)
         else:
             return get_resp_obj
@@ -395,7 +395,7 @@ class RestClientApis(object):
             if get_response_obj.success:
                 json_get_resp = get_response_obj.json_body
                 if json_get_resp:
-                    success = check_util(json_resp, json_get_resp)
+                    success = check_util(json.loads(json_resp), json_get_resp)
                     message, return_code = assign_message_code(success)
                     rest_return_obj = RestReturn(success=success,
                                                  http_status=return_code,
@@ -434,7 +434,7 @@ class RestClientApis(object):
         if put_resp_obj.success:
             json_put_resp = put_resp_obj.json_body
             if json_put_resp:
-                success = check_util(json_resp, json_put_resp)
+                success = check_util(json.loads(json_resp), json_put_resp)
                 message, return_code = assign_message_code(success)
                 rest_return_obj = RestReturn(success=success,
                                              http_status=return_code,
