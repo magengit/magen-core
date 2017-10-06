@@ -12,8 +12,7 @@ __version__ = "0.1"
 __status__ = "alpha"
 __date__ = "09/27/2017"
 
-DEFAULT_IGNORED_KEYS = ['PI_list', 'creation_timestamp', 'uuid', 'policy_template_uuid', 'renewal',
-                        'revision', 'expiration']
+DEFAULT_IGNORED_KEYS = ['creation_timestamp', 'uuid', 'renewal', 'revision', 'expiration']
 
 
 def identity(param):
@@ -101,7 +100,7 @@ def full_compare_except_keys(excluded_keys):
     :param excluded_keys: keys to be excluded from the dict
     :type excluded_keys: list
 
-    :return: patiral function
+    :return: partial function
     :rtype: Callable
     """
     return functools.partial(default_full_compare, excluded_keys=excluded_keys)

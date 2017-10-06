@@ -230,4 +230,3 @@ class TestCounterRESTApi(unittest.TestCase):
         # Verify returned response skipping dynamic generated fields (metric_uuid)
         self.assertTrue(
             default_full_compare(REST_REQUEST_COUNTERS_RESPONSE, get_resp_json, excluded_keys=['metric_uuid']))
-

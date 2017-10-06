@@ -92,7 +92,7 @@ class RestClientApis(object):
         :type url: str
         :param check_util: An optional function that performs specific application level checks. The function
             must return boolean and take response object as an argument
-        :type my_function: Callable
+        :type check_util: Callable
         :param verify: Flag to provide SSL certificate verification or not
         :type verify: bool
 
