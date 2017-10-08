@@ -36,8 +36,8 @@ RUN pip3 install /tmp/magen_logger-1.0a1-py3-none-any.whl
 ADD magen_datastore-1.0a1-py3-none-any.whl /tmp
 RUN pip3 install /tmp/magen_datastore-1.0a1-py3-none-any.whl
 
-ADD magen_utils-1.1a2-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_utils-1.1a2-py3-none-any.whl
+ADD magen_utils-1.2a2-py3-none-any.whl /tmp
+RUN pip3 install /tmp/magen_utils-1.2a2-py3-none-any.whl
 
 ADD magen_mongo-1.0a1-py3-none-any.whl /tmp
 RUN pip3 install /tmp/magen_mongo-1.0a1-py3-none-any.whl
