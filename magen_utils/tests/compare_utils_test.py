@@ -124,7 +124,17 @@ class TestDefaultFullCompare(unittest.TestCase):
                 key3='value3',
                 key4=True
             ),
-            key5=['value5', 'value6']
+            key5=['value5', 'value6'],
+            key6=[
+                dict(
+                    key7='value7',
+                    key8='value8'
+                ),
+                dict(
+                    key7='value9',
+                    key8='value10'
+                )
+            ]
         )
         # Must be a JSON format
         self.expected_str = """{
@@ -134,7 +144,14 @@ class TestDefaultFullCompare(unittest.TestCase):
                 "key3": "value3",
                 "key4": true
             },
-            "key5": ["value5", "value6"]
+            "key5": ["value5", "value6"],
+            "key6": [{
+                "key7": "value7",
+                "key8": "value8"
+            }, {
+                "key7": "value9",
+                "key8": "value10"
+            }]
         }"""
 
         self.actual_dict = dict(
@@ -144,7 +161,37 @@ class TestDefaultFullCompare(unittest.TestCase):
                 key3='value3',
                 key4=True
             ),
-            key5=['value5', 'value6']
+            key5=['value5', 'value6'],
+            key6=[
+                dict(
+                    key7='value7',
+                    key8='value8'
+                ),
+                dict(
+                    key7='value9',
+                    key8='value10'
+                )
+            ]
+        )
+
+        self.dict_unordered = dict(
+            uuid='value1_different',  # excluded from comparison by default
+            key1='value2',
+            key2=dict(
+                key3='value3',
+                key4=True
+            ),
+            key5=['value5', 'value6'],
+            key6=[
+                dict(
+                    key7='value9',
+                    key8='value10'
+                ),
+                dict(
+                    key7='value7',
+                    key8='value8'
+                )
+            ]
         )
 
     def test_single_dispatch(self):
@@ -156,45 +203,69 @@ class TestDefaultFullCompare(unittest.TestCase):
         self.assertIn(dict, singledispatch_registry.keys())
         self.assertIn(str, singledispatch_registry.keys())
 
-    def test_dict_no_exclude_keys(self):
+    def test_ordered_dict_no_exclude_keys(self):
         """Test Dict type for single discpatch. No excluded keys passed"""
         # Verify dictionary comparison, 'uuid' key is excluded form comparison by default
-        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict))
+        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict, order=True))
         # Change actual_dict value:
         self.actual_dict['key1'] = 'value2_different'
         # Verify default_full_compare returns False
-        self.assertFalse(default_full_compare(self.expected_dict, self.actual_dict))
+        self.assertFalse(default_full_compare(self.expected_dict, self.actual_dict, order=True))
         # Roll back correct value
         self.actual_dict['key1'] = self.expected_dict['key1']
         # Equal again
-        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict))
+        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict, order=True))
 
-    def test_dict_exclude_keys(self):
+    def test_ordered_dict_exclude_keys(self):
         """Test Dict type for single dispatch. Excluded keys test"""
         # Change actual_dict value:
         self.actual_dict['key1'] = 'value2_different'
         # Verify that default excluded keys and passed excluded keys get united
-        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict, ['key1']))
+        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict, ['key1'], order=True))
         # Change value of nested dict
         self.actual_dict['key2']['key3'] = 'value3_different'
         # Verify check fails without passing appropriate exclude key
-        self.assertFalse(default_full_compare(self.expected_dict, self.actual_dict, ['key1']))
+        self.assertFalse(default_full_compare(self.expected_dict, self.actual_dict, ['key1'], order=True))
         # Verify check passed if appropriate exclude key passed
         # Note that 'key3' is passed as a raw name without evaluating dict structure (ex. key2.key3)
         # All of keys named 'key3' will be excluded from comparison
-        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict, ['key1', 'key3']))
+        self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict, ['key1', 'key3'], order=True))
         # Roll back correct values
         self.actual_dict['key1'] = self.expected_dict['key1']
         self.actual_dict['key2'] = self.expected_dict['key2']
         # Equal again
         self.assertTrue(default_full_compare(self.expected_dict, self.actual_dict))
 
-    def test_string_exclude_keys(self):
+    def test_dict_exclude_keys(self):
+        """Test Dict type for single dispatch. Excluded keys test. Not ordered nested lists"""
+        # Change actual_dict value:
+        # self.actual_dict['key1'] = 'value2_different'
+        # Verify dictionary with different order of nested list is not equal expected
+        self.assertFalse(default_full_compare(self.expected_dict, self.dict_unordered, order=True))
+
+        # Verify compare without preserving order return True
+        self.assertTrue(default_full_compare(self.expected_dict, self.dict_unordered))
+
+        # Change value of nested dict
+        self.dict_unordered['key2']['key3'] = 'value3_different'
+        # Verify check fails without passing appropriate exclude key
+        self.assertFalse(default_full_compare(self.expected_dict, self.dict_unordered, ['key1']))
+        # Verify check passed if appropriate exclude key passed
+        # Note that 'key3' is passed as a raw name without evaluating dict structure (ex. key2.key3)
+        # All of keys named 'key3' will be excluded from comparison
+        self.assertTrue(default_full_compare(self.expected_dict, self.dict_unordered, ['key1', 'key3']))
+        # Roll back correct values
+        self.dict_unordered['key1'] = self.expected_dict['key1']
+        self.dict_unordered['key2'] = self.expected_dict['key2']
+        # Equal again
+        self.assertTrue(default_full_compare(self.expected_dict, self.dict_unordered))
+
+    def test_ordered_string_exclude_keys(self):
         """Test Str type for single discpatch. Excluded keys passed"""
         # Verify dictionary comparison, 'uuid' key is excluded form comparison by default
         # All other features of comparison are available for default_full_compare_str as well
         # And behave the same as tests above
-        self.assertTrue(default_full_compare(self.expected_str, self.actual_dict, ['key1']))
+        self.assertTrue(default_full_compare(self.expected_str, self.actual_dict, ['key1'], order=True))
 
     def test_type_error(self):
         """If no dict or str (str must be JSON str) passed Type error raised"""
@@ -210,3 +281,4 @@ class TestDefaultFullCompare(unittest.TestCase):
         self.assertIsInstance(partial_full_compare, typing.Callable)
         # Verify that check passes
         self.assertTrue(partial_full_compare(self.expected_dict, self.actual_dict))
+

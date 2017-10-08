@@ -120,9 +120,9 @@ class TestFlattenDict(unittest.TestCase):
             key3=['value6', 'value7']  # 6 values in total
         )
 
-    def test_one_level_dict(self):
+    def test_ordered_one_level(self):
         """Simple Dictionary gets flattened"""
-        result = flatten_dict(self.one_level_dict)
+        result = flatten_dict(self.one_level_dict, order=True)
         print("\nFlat Dictionary:", result)
         # All keys are transformed into Tuples
         for key in result:
@@ -130,9 +130,9 @@ class TestFlattenDict(unittest.TestCase):
             # verify values
             self.assertIn('value', result[key])
 
-    def test_dict_with_nested(self):
+    def test_ordered_with_nested(self):
         """Flat Dict with nested dicts"""
-        result = flatten_dict(self.dict_with_nested)
+        result = flatten_dict(self.dict_with_nested, order=True)
         print("\nFlat Dictionary:", result)
         # Flat dictionary length equals number of values
         self.assertEqual(len(result), 5)
@@ -144,9 +144,9 @@ class TestFlattenDict(unittest.TestCase):
             # verify that nested dictionary keys are now stored as Tuples
             self.assertIsInstance(key, typing.Tuple)
 
-    def test_dict_with_list(self):
+    def test_ordered_with_list(self):
         """Flat Dict with list of dicts"""
-        result = flatten_dict(self.dict_with_lists)
+        result = flatten_dict(self.dict_with_lists, order=True)
         print("\nFlat Dictionary:", result)
         # Flat dictionary length equals number of values
         self.assertEqual(len(result), 7)
@@ -157,11 +157,49 @@ class TestFlattenDict(unittest.TestCase):
             # verify that nested dictionary keys are now stored as Tuples
             self.assertIsInstance(key, typing.Tuple)
 
-    def test_flatten_dict_partial(self):
+    def test_flatten_ordered_partial(self):
         """Creation of Partial function"""
-        flatten_dict_partial = flatten_dict_except_keys(['key1', 'key2'])
+        flatten_dict_partial = flatten_dict_except_keys(['key1', 'key2'], order=True)
         result = flatten_dict_partial(self.one_level_dict)
         self.assertEqual(len(result), 2)
         for key in result:
             self.assertIsInstance(key, typing.Tuple)
             self.assertIn('value', result[key])
+
+    def test_one_level_dict(self):
+        """Simple Dictionary gets flattened"""
+        result = flatten_dict(self.one_level_dict)
+        print("\nFlat Dictionary:", result)
+        # All keys are transformed into Tuples
+        for key in result:
+            self.assertIsInstance(key, typing.Tuple)
+            # verify all values are sets
+            self.assertIsInstance(result[key], typing.Set)
+
+    def test_dict_with_nested(self):
+        """Flat Dict with nested dicts. Not ordered nested lists"""
+        result = flatten_dict(self.dict_with_nested)
+        print("\nFlat Dictionary:", result)
+        # Flat dictionary length equals number of values
+        self.assertEqual(len(result), 5)
+        for key in result:
+            # verify that every value is transformed into a set
+            self.assertIsInstance(result[key], typing.Set)
+            if key == 'key1':  # key1 is on first level
+                continue
+            # verify that nested dictionary keys are now stored as Tuples
+            self.assertIsInstance(key, typing.Tuple)
+
+    def test_dict_with_list(self):
+        """Flat Dict with list of dicts. Not ordered nested lists"""
+        result = flatten_dict(self.dict_with_lists)
+        print("\nFlat Dictionary:", result)
+
+        for key in result:
+            # verify that every value is transformed into a set
+            self.assertIsInstance(result[key], typing.Set)
+            # verify that nested dictionary keys are now stored as Tuples
+            self.assertIsInstance(key, typing.Tuple)
+
+        # verify that values are packed as set under single key3
+        self.assertEqual(len(result[('key3',)]), 2)
