@@ -108,22 +108,11 @@ htmlcov
 
 *.egg-info
 
-Dockerfile-e
-Makefile-e
-.!*
-requirements.txt
-coverage_html_report
 dist
 _static/
 _templates/
 mongo/
 
-magen-py.tgz
-base_docker_image/magen_datastore-*.whl
-base_docker_image/magen_logger-*.whl
-base_docker_image/magen_mongo-*.whl
-base_docker_image/magen_rest_service-*.whl
-base_docker_image/magen_statistics_service-*.whl
-base_docker_image/magen_utils-*.whl
-base_docker_image/magen_id_client-*.whl
+base_docker_image/*.whl
+base_docker_image/magen_requirements.txt
 base_docker_image/pip.conf

@@ -1,6 +1,10 @@
 from setuptools import setup, find_packages
 import sys
 import pip
+import os
+
+with open(os.path.join(os.path.dirname(__file__), '__init__.py')) as version_file:
+    exec(version_file.read())
 
 if sys.version_info < (3, 5, 2):
     sys.exit("Sorry, you need Python 3.5.2+")
@@ -11,7 +15,7 @@ if pip_version < 901:
 
 setup(
     name='magen_datastore',
-    version='1.0a1',
+    version=__version__,
     packages=find_packages(exclude=['tests*']),
     # packages=['container_test', 'ingestion_apis',
     #          'ingestion_server'],
