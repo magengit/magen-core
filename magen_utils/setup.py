@@ -1,6 +1,9 @@
 from setuptools import setup, find_packages
-import sys
+import sys, os
 import pip
+
+with open(os.path.join(os.path.dirname(__file__), '__init__.py')) as version_file:
+    exec(version_file.read())
 
 if sys.version_info < (3, 5, 2):
     sys.exit("Sorry, you need Python 3.5.2+")
@@ -11,10 +14,8 @@ if pip_version < 901:
 
 setup(
     name='magen_utils',
-    version='1.2a2',
+    version=__version__,
     packages=find_packages(exclude=['tests*']),
-    # packages=['container_test', 'ingestion_apis',
-    #          'ingestion_server'],
     install_requires=[
         'aniso8601>=1.2.1',
         'coverage>=4.4.1',

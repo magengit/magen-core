@@ -30,25 +30,8 @@ RUN pip install --upgrade pip
 
 WORKDIR /tmp
 
-ADD magen_logger-1.0a1-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_logger-1.0a1-py3-none-any.whl
-
-ADD magen_datastore-1.0a1-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_datastore-1.0a1-py3-none-any.whl
-
-ADD magen_utils-1.2a2-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_utils-1.2a2-py3-none-any.whl
-
-ADD magen_mongo-1.0a1-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_mongo-1.0a1-py3-none-any.whl
-
-ADD magen_rest_service-1.2a2-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_rest_service-1.2a2-py3-none-any.whl
-
-ADD magen_statistics_service-1.0a1-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_statistics_service-1.0a1-py3-none-any.whl
-
-ADD magen_id_client-1.1a1-py3-none-any.whl /tmp
-RUN pip3 install /tmp/magen_id_client-1.1a1-py3-none-any.whl
+ADD magen*.whl /tmp/
+COPY magen_requirements.txt /tmp
+RUN pip3 install -r magen_requirements.txt
 
 # ADD pip.conf /etc

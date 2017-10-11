@@ -1,6 +1,10 @@
 import sys
 from setuptools import setup, find_packages
 import pip
+import os
+
+with open(os.path.join(os.path.dirname(__file__), '__init__.py')) as version_file:
+    exec(version_file.read())
 
 if sys.version_info < (3, 5, 2):
     sys.exit("Sorry, you need Python 3.5.2+")
@@ -11,7 +15,7 @@ if pip_version < 901:
 
 setup(
     name='magen_mongo',
-    version='1.0a1',
+    version=__version__,
     packages=find_packages(exclude=['tests*']),
     # packages=['container_test', 'ingestion_apis',
     #          'ingestion_server'],
@@ -22,9 +26,9 @@ setup(
         'pytest>=3.1.3',
         'Sphinx>=1.6.3',
         'wheel>=0.30.0a0',
-        'magen_datastore==1.0a1',
-        'magen_logger==1.0a1',
-        'magen_utils>=1.1a2'
+        'magen_datastore>=1.0a',
+        'magen_logger>=1.0a',
+        'magen_utils>=1.2a'
       ],
     include_package_data=True,
     package_data={

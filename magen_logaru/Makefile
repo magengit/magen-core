@@ -1,4 +1,5 @@
-WHEEL := magen_logger-1.0a1-py3-none-any.whl
+wheel_version := $(shell python3 -c 'import __init__ as version; print(version.__version__)')
+WHEEL := magen_logger-$(wheel_version)-py3-none-any.whl
 PACKAGE_NAME = magen_logger
 
 include ../common.mk
