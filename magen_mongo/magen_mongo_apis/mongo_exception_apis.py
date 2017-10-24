@@ -36,7 +36,7 @@ def operation_failure(err):
     """Handles specific exception pymongo.errors.OperationFailure"""
     success = False
     message = err.details
-    mongo_return_obj = MongoReturn(success=success, message=message, db_exception=err)
+    mongo_return_obj = MongoReturn(success=success, message=message, db_exception=err, code=err.code)
     return mongo_return_obj
 
 

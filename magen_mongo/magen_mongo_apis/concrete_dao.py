@@ -141,6 +141,20 @@ class Dao(IDao, metaclass=ABCMeta):
 
         :param dict_seed: Dict representing a filter query
         :param action_dict: Dict representing element to be updated
+        [Note] action_dict must contain a Mongo Update Operator that represents an action for update:
+
+        Name	        Description
+        $currentDate	Sets the value of a field to current date, either as a Date or a Timestamp.
+        $inc	        Increments the value of the field by the specified amount.
+        $min	        Only updates the field if the specified value is less than the existing field value.
+        $max	        Only updates the field if the specified value is greater than the existing field value.
+        $mul	        Multiplies the value of the field by the specified amount.
+        $rename	        Renames a field.
+        $set	        Sets the value of a field in a document.
+        $setOnInsert	Sets the value of a field if an update results in an insert of a document.
+                        Has no effect on update operations that modify existing documents.
+        $unset	        Removes the specified field from a document.
+
         :rtype: MongoReturn obj
         """
         mongo_return = MongoReturn()
@@ -214,7 +228,7 @@ class Dao(IDao, metaclass=ABCMeta):
         """
         mongo_return = MongoReturn()
         try:
-            result = self.get_collection().insert_one(data)
+            result = self.get_collection().insert_one(data.copy())
             if result.acknowledged and result.inserted_id:
                 mongo_return.success = True
                 mongo_return.message = "Document inserted successfully"
@@ -236,7 +250,7 @@ class Dao(IDao, metaclass=ABCMeta):
         """
         mongo_return = MongoReturn()
         try:
-            result = self.get_collection().insert_many(data_list)
+            result = self.get_collection().insert_many(data_list.copy())
             mongo_return.count = len(result.inserted_ids)
             if result.acknowledged and (len(result.inserted_ids) == len(data_list)):
                 mongo_return.success = True
