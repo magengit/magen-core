@@ -111,7 +111,7 @@ htmlcov
 dist
 _static/
 _templates/
-mongo/
+coverage_html_report
 
 base_docker_image/*.whl
 base_docker_image/magen_requirements.txt

@@ -195,7 +195,7 @@ class MagenClientAppHandler(object):
                 success=True,
                 message="Authorization Request",
                 http_status=HTTPStatus.OK,
-                json_body=response.json(),
+                json_body=response,
                 response_object=response
             )
         except ValueError as error:
