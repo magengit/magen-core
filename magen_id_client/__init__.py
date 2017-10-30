@@ -1,3 +1,3 @@
 # coding=utf-8
 """Init for magen-id-client"""
-__version__ = '1.1a1'
+__version__ = '2.0a0'
