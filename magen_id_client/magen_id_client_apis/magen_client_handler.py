@@ -302,7 +302,7 @@ class MagenClientAppHandler(object):
             json_body=response.json(),
             response_object=response
         ) if response.status_code == HTTPStatus.OK else partial_return(
-            success=True,
+            success=False,
             http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
             json_body={"error": "token validation is failed"},
             response_object=None
