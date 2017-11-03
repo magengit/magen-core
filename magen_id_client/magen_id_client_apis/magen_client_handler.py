@@ -6,6 +6,7 @@ import json
 import flask
 import requests
 import requests.auth
+import functools
 from http import HTTPStatus
 
 from magen_id_client_apis import utilities
@@ -187,24 +188,25 @@ class MagenClientAppHandler(object):
             url = url + '&client_id=' + self._client_id
             LOGGER.debug("encoded url====" + url)
             # result = send_request(flask.redirect, url=url)
-            try:
-                response = flask.redirect(url)
-            except requests.exceptions.RequestException as err:
-                return handle_specific_exception(err)
-            return RestReturn(
-                success=True,
-                message="Authorization Request",
-                http_status=HTTPStatus.OK,
-                json_body=response,
-                response_object=response
-            )
-        except ValueError as error:
+            # try:
+            return flask.redirect(url)
+            # except requests.exceptions.RequestException as err:
+            #     return handle_specific_exception(err)
+            # return RestReturn(
+            #     success=True,
+            #     message="Authorization Request",
+            #     http_status=HTTPStatus.OK,
+            #     json_body=response,
+            #     response_object=response
+            # )
+        except Exception as error:
             LOGGER.error("ERROR: invalid url encoding: %s", error)
-            return RestReturn(
-                success=False,
-                message="Invalid URL encoding",
-                json_body={"error": "Invalid url encoding"}
-            )
+            # return RestReturn(
+            #     success=False,
+            #     message="Invalid URL encoding",
+            #     json_body={"error": "Invalid url encoding"}
+            # )
+            return '/error'
 
     def process_auth_code(self):
         """
@@ -246,7 +248,6 @@ class MagenClientAppHandler(object):
                 )
             except requests.exceptions.RequestException as err:
                 return handle_specific_exception(err)
-
             return RestReturn(
                 success=True,
                 message="Process Authorization Code",
@@ -286,6 +287,7 @@ class MagenClientAppHandler(object):
         """
         LOGGER.debug('======= id_token ========%s ', id_token)
         headers = {'content-type': 'application/json'}
+        partial_return = functools.partial(RestReturn, message='Validate MID token')
         try:
             response = requests.get(
                 url=self._tokeninfo_url + '?id_token=' + id_token,
@@ -294,10 +296,14 @@ class MagenClientAppHandler(object):
             )
         except requests.exceptions.RequestException as err:
             return handle_specific_exception(err)
-        return RestReturn(
+        return partial_return(
             success=True,
-            message="Validate MID token",
             http_status=HTTPStatus.OK,
             json_body=response.json(),
             response_object=response
+        ) if response.status_code == HTTPStatus.OK else partial_return(
+            success=True,
+            http_status=HTTPStatus.INTERNAL_SERVER_ERROR,
+            json_body={"error": "token validation is failed"},
+            response_object=None
         )
