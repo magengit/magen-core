@@ -89,12 +89,19 @@ class MagenIdClientTestCase(unittest.TestCase):
 
         # Verifying the whole scenario was executed correctly
         self.assertTrue(redirect_response.success)
-        self.assertEqual(redirect_response.http_status, HTTPStatus.OK)
-        # self.assertEqual(redirect_response.json_body, requests_mock.return_value.json.return_value)
         # Assertion of expected url passed to flask.redirect()
         redirect_mock.assert_called_once_with(expected_url)
 
         # Executing validate_mid_token method
+        requests_mock.return_value.status_code = HTTPStatus.INTERNAL_SERVER_ERROR
+        validation_response = self.connected_app.validate_mid_token_against_id_service(
+            MagenIdClientTestCase.CONST_ID_TOKEN
+        )
+        # Validation request failure
+        self.assertFalse(validation_response.success)
+        self.assertEqual(validation_response.http_status, HTTPStatus.INTERNAL_SERVER_ERROR)
+        # Validate request success
+        requests_mock.return_value.status_code = HTTPStatus.OK
         validation_response = self.connected_app.validate_mid_token_against_id_service(
             MagenIdClientTestCase.CONST_ID_TOKEN
         )
@@ -106,7 +113,7 @@ class MagenIdClientTestCase(unittest.TestCase):
         expected_token_url = self.issuer + '/oauth/tokeninfo' + '?id_token=' + MagenIdClientTestCase.CONST_ID_TOKEN
         expected_headers = {'content-type': 'application/json'}
         expected_verify = False
-        requests_mock.assert_called_once_with(
+        requests_mock.assert_called_with(
             headers=expected_headers,
             url=expected_token_url,
             verify=expected_verify
