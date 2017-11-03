@@ -89,8 +89,6 @@ class MagenIdClientTestCase(unittest.TestCase):
 
         # Verifying the whole scenario was executed correctly
         self.assertTrue(redirect_response.success)
-        # self.assertEqual(redirect_response.http_status, HTTPStatus.OK)
-        # self.assertEqual(redirect_response.json_body, requests_mock.return_value.json.return_value)
         # Assertion of expected url passed to flask.redirect()
         redirect_mock.assert_called_once_with(expected_url)
 
