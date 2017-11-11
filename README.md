@@ -5,7 +5,16 @@
 [![Code Health](https://landscape.io/github/magengit/magen-core/master/landscape.svg?style=flat)](https://landscape.io/github/magengit/magen-core/master)
 
 
-This repo containes infrastructure Magen Packages.
+This repo contains infrastructure Magen Packages.
+
+## Git clone
+
+All of Magen services depend on an operations git submodule [**magen_helper**](https://github.com/magengit/magen-helper).
+When cloning this repo, make sure to provide ```--recursive``` flag or after the clone execute a command to update ```magen-helpers``` git submodule:
+
+```
+git submodule update --init --recursive
+```
 
 Current List of Packages under **Magen-Core**:
 
@@ -18,8 +27,8 @@ Current List of Packages under **Magen-Core**:
 | magen_stats           | magen_statistics_service-1.0a1-py3-none-any.whl |
 | magen_mongo           | magen_mongo-1.0a1-py3-none-any.whl              |
 | magen_id_client       | magen_id_client-1.1a1-py3-none-any.whl          |
- 
- 
+
+
 For This Service there are available ```make``` commands. Makefile is located in a ```root``` directory. You can execute ```make``` targets only in a directory where Makefile is located.
 
 Make Default Target: ```make default```. Here is the list of targets available for policy
@@ -40,4 +49,3 @@ default:
         @echo
 ```
 Before running target ```make build_base_docker``` and ```make clean_docker``` make sure to have Docker Machine running
-
