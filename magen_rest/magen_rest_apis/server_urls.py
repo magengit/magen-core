@@ -75,6 +75,7 @@ class ServerUrls(object):
         self.__ingestion_server_asset_url = None
         self.__ingestion_server_single_asset_url = None
         self.__ingestion_server_upload_url = None
+        self.__ingestion_server_check_url = None
 
         # KEY Server
         self.__key_server_url_host_port = None
@@ -201,6 +202,7 @@ class ServerUrls(object):
         self.__ingestion_server_asset_url = self.__ingestion_server_assets_url + "asset/"
         self.__ingestion_server_single_asset_url = self.__ingestion_server_asset_url + "{}/"
         self.__ingestion_server_upload_url = self.__ingestion_server_base_url + "upload/"
+        self.__ingestion_server_check_url = self.__ingestion_server_base_url + "check/"
 
     def set_identity_server_url_host_port(self, identity_server_url_host_port):
         self.logger.debug("set_identity_server_url_host_port: %s", identity_server_url_host_port)
