@@ -281,6 +281,14 @@ class ServerUrls(object):
         pass
 
     @property
+    def ingestion_server_check_url(self):
+        return self.__ingestion_server_check_url
+
+    @ingestion_server_check_url.setter
+    def ingestion_server_check_url(self, value):
+        pass
+
+    @property
     def ingestion_server_base_url(self):
         return self.__ingestion_server_base_url
 
