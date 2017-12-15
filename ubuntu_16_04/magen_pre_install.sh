@@ -14,6 +14,10 @@ sudo apt-get install -y libssl-dev
 sudo apt-get install -y libffi-dev
 sudo apt-get install -y openssl
 sudo apt-get install -y net-tools
+sudo apt-get install -y apt-transport-https
+sudo apt-get install -y ca-certificates
+sudo apt-get install -y curl
+sudo apt-get install -y software-properties-common
 
 sudo add-apt-repository -y ppa:jonathonf/python-3.6
 sudo apt-get -qq update
@@ -30,9 +34,8 @@ sudo -H apt-get install -y awscli
 
 ## Install Mongo
 ## https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
-
-sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 0C49F3730359A14518585931BC711F9BA15703C6
-echo "deb [ arch=amd64,arm64 ] http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.4 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.4.list
+sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
+echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu precise/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
 sudo apt-get update
 sudo apt-get -y install -y mongodb-org
 sudo chown -R mongodb:mongodb /var/lib/mongodb
@@ -40,25 +43,29 @@ sudo chown -R mongodb:mongodb /var/lib/mongodb
 sudo sed -i.bak '/bindIp/d' /etc/mongod.conf
 sudo service mongod start
 
-## In order to run Docker automation you need to install Docker as descried here.
+## In order to run Docker automation you need to install Docker as described here.
 ## https://docs.docker.com/engine/installation/linux/ubuntulinux/
 
-sudo apt-get -y install apt-transport-https ca-certificates
-sudo apt-key adv \
-               --keyserver hkp://ha.pool.sks-keyservers.net:80 \
-               --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
-echo "deb https://apt.dockerproject.org/repo ubuntu-xenial main" | sudo tee /etc/apt/sources.list.d/docker.list
-sudo apt-get -qq update
-sudo apt-get -y install linux-image-extra-$(uname -r) linux-image-extra-virtual
-apt-cache policy docker-engine
-sudo apt-get -y --allow-unauthenticated install docker-engine
-sudo service docker start
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update
+sudo apt-get install -y docker-ce
 sudo docker run hello-world
+sudo groupadd docker
+sudo usermod -aG docker $USER
+docker run hello-world
+sudo systemctl enable docker
 
+## Docker compose
 
-sudo curl -o /usr/local/bin/docker-compose -L "https://github.com/docker/compose/releases/download/1.11.2/docker-compose-$(uname -s)-$(uname -m)"
+sudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
-docker-compose -v
+docker-compose --version
+
 
 ## upload code with Pycharm  important
 ## sudo –H make clean
