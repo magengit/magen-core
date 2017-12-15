@@ -27,7 +27,7 @@ sudo apt-get -y install python3.6-dev
 sudo apt-get -y install python3-pip
 sudo -H pip3 install -U pip setuptools
 
-#echo "alias python=python3" >> ~/.bashrc
+echo "alias python3=python3.6" >> ~/.bashrc
 
 sudo -H pip install --upgrade --user awscli
 sudo -H apt-get install -y awscli
