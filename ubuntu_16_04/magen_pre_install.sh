@@ -27,6 +27,8 @@ sudo apt-get -y install python3.6-dev
 sudo apt-get -y install python3-pip
 sudo -H pip3 install -U pip setuptools
 
+pip install --upgrade pip
+
 echo "alias python3=python3.6" >> ~/.bashrc
 echo "alias python=python3.6" >> ~/.bashrc
 
@@ -45,6 +47,7 @@ sudo apt-get -y install -y mongodb-org
 sudo chown -R mongodb:mongodb /var/lib/mongodb
 # Allowing connections to other interfaces besides loopback
 sudo sed -i.bak '/bindIp/d' /etc/mongod.conf
+sudo systemctl enable mongod
 sudo service mongod start
 
 ## In order to run Docker automation you need to install Docker as described here.
