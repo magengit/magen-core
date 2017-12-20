@@ -44,11 +44,12 @@ sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF50
 echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu precise/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
 sudo apt-get update
 sudo apt-get -y install -y mongodb-org
-sudo chown -R mongodb:mongodb /var/lib/mongodb
+#sudo chown -R mongodb:mongodb /var/lib/mongodb
 # Allowing connections to other interfaces besides loopback
 sudo sed -i.bak '/bindIp/d' /etc/mongod.conf
-sudo systemctl enable mongod
 sudo service mongod start
+sudo systemctl enable mongod.service
+mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "3.6" } )'
 
 ## In order to run Docker automation you need to install Docker as described here.
 ## https://docs.docker.com/engine/installation/linux/ubuntulinux/
@@ -72,6 +73,10 @@ sudo systemctl enable docker
 sudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
+
+# REBOOT
+
+sudo reboot
 
 
 ## upload code with Pycharm  important
