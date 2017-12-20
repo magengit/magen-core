@@ -33,29 +33,32 @@ sudo -H apt-get install -y awscli
 ## Install Mongo
 ## https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/
 sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
-echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu precise/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
+echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
 sudo apt-get update
 sudo apt-get -y install -y mongodb-org
 #sudo chown -R mongodb:mongodb /var/lib/mongodb
 # Allowing connections to other interfaces besides loopback
 
-FILE="/etc/systemd/system/mongodb.service"
-/bin/cat <<EOM >$FILE
-[Unit]
-Description=High-performance, schema-free document-oriented database
-After=network.target
+#FILE="/etc/systemd/system/mongodb.service"
+#/bin/cat <<EOM >$FILE
+#[Unit]
+#Description=High-performance, schema-free document-oriented database
+#After=network.target
+#
+#[Service]
+#User=mongodb
+#ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
+#
+#[Install]
+#WantedBy=multi-user.target
+#EOM
 
-[Service]
-User=mongodb
-ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
+#sudo service mongod start
+#sudo service mongod status
 
-[Install]
-WantedBy=multi-user.target
-EOM
-
-sudo systemctl start mongodb
-sudo systemctl enable mongodb
-sudo systemctl status mongodb
+#sudo systemctl start mongodb
+#sudo systemctl enable mongodb
+#sudo systemctl status mongodb
 mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "3.4" } )'
 mongo --eval 'db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } )'
 
@@ -71,7 +74,6 @@ sudo add-apt-repository \
 
 sudo apt-get update
 sudo apt-get install -y docker-ce
-sudo docker run hello-world
 sudo groupadd docker
 sudo usermod -aG docker $USER
 docker run hello-world
