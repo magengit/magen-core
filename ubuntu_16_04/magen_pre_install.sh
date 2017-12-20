@@ -26,6 +26,7 @@ sudo apt-get -y install python3.6-dev
 
 sudo apt-get -y install python3-pip
 sudo pip3 install --upgrade pip setuptools
+sudo apt-get -y install python3.6-gdbm
 
 sudo -H pip install --upgrade --user awscli
 sudo -H apt-get install -y awscli
@@ -75,7 +76,8 @@ sudo add-apt-repository \
 sudo apt-get update
 sudo apt-get install -y docker-ce
 sudo groupadd docker
-sudo usermod -aG docker $USER
+ACTUAL_USER=$(whoami | awk '{print $1}')
+sudo usermod -aG docker ${ACTUAL_USER}
 docker run hello-world
 sudo systemctl enable docker
 
