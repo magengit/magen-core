@@ -56,7 +56,9 @@ EOM
 sudo systemctl start mongodb
 sudo systemctl enable mongodb
 sudo systemctl status mongodb
-mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "3.6" } )'
+mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "3.4" } )'
+mongo --eval 'db.adminCommand( { getParameter: 1, featureCompatibilityVersion: 1 } )'
+
 
 ## In order to run Docker automation you need to install Docker as described here.
 ## https://docs.docker.com/engine/installation/linux/ubuntulinux/
