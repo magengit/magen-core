@@ -20,7 +20,6 @@ setup(
     # packages=['container_test', 'ingestion_apis',
     #          'ingestion_server'],
     install_requires=[
-        'consulate>=0.6.0',
         'coverage>=4.4.1',
         'flake8>=3.3.0',
         'Flask>=0.12.2',

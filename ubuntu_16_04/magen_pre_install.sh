@@ -25,15 +25,7 @@ sudo apt-get -y install python3.6
 sudo apt-get -y install python3.6-dev
 
 sudo apt-get -y install python3-pip
-sudo -H pip3 install -U pip setuptools
-
-pip install --upgrade pip
-
-echo "alias python3=python3.6" >> ~/.bashrc
-echo "alias python=python3.6" >> ~/.bashrc
-
-sudo update-alternatives --install /usr/bin/python3 python /usr/bin/python3.6 1
-sudo update-alternatives --list python
+sudo pip3 install --upgrade pip setuptools
 
 sudo -H pip install --upgrade --user awscli
 sudo -H apt-get install -y awscli
@@ -46,9 +38,24 @@ sudo apt-get update
 sudo apt-get -y install -y mongodb-org
 #sudo chown -R mongodb:mongodb /var/lib/mongodb
 # Allowing connections to other interfaces besides loopback
-sudo sed -i.bak '/bindIp/d' /etc/mongod.conf
-sudo service mongod start
-sudo systemctl enable mongod.service
+
+FILE="/etc/systemd/system/mongodb.service"
+/bin/cat <<EOM >$FILE
+[Unit]
+Description=High-performance, schema-free document-oriented database
+After=network.target
+
+[Service]
+User=mongodb
+ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
+
+[Install]
+WantedBy=multi-user.target
+EOM
+
+sudo systemctl start mongodb
+sudo systemctl enable mongodb
+sudo systemctl status mongodb
 mongo --eval 'db.adminCommand( { setFeatureCompatibilityVersion: "3.6" } )'
 
 ## In order to run Docker automation you need to install Docker as described here.
@@ -73,6 +80,20 @@ sudo systemctl enable docker
 sudo curl -L https://github.com/docker/compose/releases/download/1.17.0/docker-compose-`uname -s`-`uname -m` -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 docker-compose --version
+
+# Set Python default
+
+#echo "alias python3=python3.6" >> ~/.bashrc
+echo "alias python=python3.6" >> ~/.bashrc
+
+sudo update-alternatives --install /usr/bin/python3 python /usr/bin/python3.6 1
+sudo update-alternatives --install /usr/bin/python3 python /usr/bin/python3.5 2
+sudo update-alternatives --list python
+sudo update-alternatives --set python /usr/bin/python3.6
+
+curl -o get-pip.py https://bootstrap.pypa.io/get-pip.py
+sudo python3 get-pip.py
+# sudo pip3 install --upgrade pip setuptools
 
 # REBOOT
 
