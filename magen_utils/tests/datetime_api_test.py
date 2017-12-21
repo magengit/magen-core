@@ -6,8 +6,9 @@ from pytz import timezone
 from magen_utils_apis import datetime_api
 
 import os
-
+import aniso8601
 import magen_core_test_env
+
 
 __author__ = "Alena Lifar"
 __copyright__ = "Copyright(c) 2017, Cisco Systems, Inc."
@@ -22,16 +23,25 @@ class TestDatetimeApi(unittest.TestCase):
     Execute 'make test' from magen_core directory
     """
     def test_datetime_utc_parse(self):
-    	self.fmt = "%Y-%m-%d'T'%H:%M:%S %Z%z"
-    	str_timedate = datetime.now(timezone('UTC'))
-    	now_utc = str_timedate.strftime(self.fmt)
-    	timestamp = datetime_api.datetime_utc_parse(now_utc)
-    	self.assertEquals(timestamp, '')
+        self.fmt = "%Y-%m-%dT%H:%M:%SZ"
+        str_timedate = datetime.now(timezone('UTC'))
+        now_utc = str_timedate.strftime(self.fmt)
+        timestamp = datetime_api.datetime_utc_parse(now_utc)
+        aniso_date = aniso8601.parse_datetime(now_utc)
+        self.assertEquals(timestamp, aniso_date)
+
+    def test_datetime_utc_parse_1(self):
+        self.fmt = "%Y-%m-%d %H:%M:%SZ"
+        str_timedate = datetime.now(timezone('UTC'))
+        now_utc = str_timedate.strftime(self.fmt)
+        timestamp = datetime_api.datetime_utc_parse(now_utc)
+        aniso_date = aniso8601.parse_datetime(now_utc, delimiter=" ")
+        self.assertEquals(timestamp, aniso_date)
 
     def test_datetime_parse_iso8601_string_to_utc(self):
-    	self.fmt = "%Y-%m-%d'T'%H:%M:%S %Z%z"
-    	str_timedate = datetime.now(timezone('UTC'))
-    	now_utc = str_timedate.strftime(self.fmt)
-    	timestamp = datetime_api.datetime_parse_iso8601_string_to_utc(now_utc)
-        print (tim)
-    	self.assertEquals(timestamp, '')
+        fmt = "%Y-%m-%dT%H:%M:%SZ"
+        str_time_date = datetime.now()
+        to_utc = str_time_date.strftime(fmt)
+        timestamp = datetime_api.datetime_parse_iso8601_string_to_utc(to_utc)
+        self.assertEquals(timestamp.strftime(fmt), datetime.now(timezone("UTC")).strftime(fmt))
+

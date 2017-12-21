@@ -54,16 +54,11 @@ class TestDomainResolver(unittest.TestCase):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_staging_domain_file_path)
         self.assertEquals(test_domain, 'staging.magen.io')
 
-    def test_mongo_locator(self):
-        test_mongo_ip = domain_resolver.mongo_locator()
-        print (test_mongo_ip)
-        self.assertEquals(test_mongo_ip, '')
-
-    def test_mongo_host_port(self):
+     def test_mongo_host_port(self):
         magen_mongo, mongo_port = domain_resolver.mongo_host_port()
-        print (magen_mongo, mongo_port)
-        self.assertEquals(magen_mongo, '')
-        self.assertEquals(mongo_port, '')
+        self.assertEquals(magen_mongo, '127.0.0.1')
+        self.assertEquals(mongo_port, 27017)
 
-
-
+    def test_mongo_locator(self):
+        test_mongo = domain_resolver.mongo_locator()
+        self.assertEquals(test_mongo, '127.0.0.1:27017')
