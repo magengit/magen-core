@@ -145,11 +145,13 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_post_and_check_success(url, json_req, check_util=None, timeout=2.0, verify=True):
+    def http_post_and_check_success(url, json_req, check_util=None, timeout=2.0, verify=True, location=True):
         """
         This function performs a POST request and returns the json body to the caller
         for any further processing or validation
 
+        :param location: Verify is location header is present in the response
+        :param verify: Should we verify certificates?
         :param timeout: Request timeout
         :param json_req: JSON to send to server
         :param url: URL used by the POST request
@@ -169,18 +171,18 @@ class RestClientApis(object):
 
         post_resp.raise_for_status()
         # When an resource is created we need the Location header properly returned
-        if 'Location' in post_resp.headers:
+        if location and 'Location' not in post_resp.headers:
+            success = False
+            post_resp_json = None
+            message = HTTPStatus.INTERNAL_SERVER_ERROR.phrase
+            return_code = HTTPStatus.INTERNAL_SERVER_ERROR
+        else:
             if post_resp.status_code != HTTPStatus.NO_CONTENT and post_resp.text:
                 post_resp_json = post_resp.json()
             else:
                 post_resp_json = None
 
             success, message, return_code = success_message_code(post_resp, check_util)
-        else:
-            success = False
-            post_resp_json = None
-            message = HTTPStatus.INTERNAL_SERVER_ERROR.phrase
-            return_code = HTTPStatus.INTERNAL_SERVER_ERROR
 
         rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
                                      json_body=post_resp_json,
@@ -194,6 +196,8 @@ class RestClientApis(object):
         This function performs a PUT request and returns the json body to the caller
         for any further processing or validation
 
+        :param verify:
+        :param my_function:
         :param json_req: JSON to send to server
         :param url: URL used by the POST request
         :param check_util: An optional function that performs specific application level checks. The function
