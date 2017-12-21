@@ -18,7 +18,7 @@ __email__ = "alifar@cisco.com"
 __data__ = "04/05/2017"
 
 class TestDatetimeApi(unittest.TestCase):
-	"""
+    """
     Tests for datetime_api.py
     Execute 'make test' from magen_core directory
     """
@@ -44,4 +44,3 @@ class TestDatetimeApi(unittest.TestCase):
         to_utc = str_time_date.strftime(fmt)
         timestamp = datetime_api.datetime_parse_iso8601_string_to_utc(to_utc)
         self.assertEquals(timestamp.strftime(fmt), datetime.now(timezone("UTC")).strftime(fmt))
-
