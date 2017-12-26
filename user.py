@@ -3,7 +3,6 @@
 User blah blah
 """
 
-from pymongo import MongoClient
 from flask import Flask, Blueprint, request, render_template, flash, url_for, redirect
 from flask_login import LoginManager, login_required, login_user
 from flask_wtf import FlaskForm
@@ -13,10 +12,10 @@ from itsdangerous import URLSafeTimedSerializer
 from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 
+from user_model import UsersDb
+
 # connecting to DB
-m_client = MongoClient()
-db = m_client.get_database('test_reg_users')
-users = db.get_collection('users')
+users_db = UsersDb()  # dev db by default
 
 # creating blueprints
 users_bp = Blueprint('users_bp', __name__)
@@ -36,18 +35,6 @@ login_manager.login_view = 'users_bp.login'
 # configuring application with Bcrypt to provide hashing utilities for application
 # like generating hash for password and check hash
 bcrypt = Bcrypt(app)
-
-
-def insert(user_data: dict):
-    """insert user into db"""
-    result = users.insert_one(user_data.copy())
-    return result.acknowledged and result.inserted_id
-
-
-def select_user_by_email(email: str):
-    """select a user by email"""
-    result = users.find_one(dict(email=email), {'_id': False})
-    return result
 
 
 class RegistrationForm(FlaskForm):
@@ -72,8 +59,8 @@ class RegistrationForm(FlaskForm):
         initial_validation = super(RegistrationForm, self).validate()
         if not initial_validation:
             return False
-        found = select_user_by_email(self.email.data)
-        if found:
+        found = users_db.select_user_by_email(self.email.data)
+        if found.count:
             self.email.errors.append("Email already registered")
             return False
         return True
@@ -113,7 +100,7 @@ def register():
             password=form.password.data,
             confirmed=False
         )
-        insert(user_dict)
+        users_db.insert(user_dict)
         token = generate_confirmation_token(user_dict['email'])
 
         flash('A confirmation email has been sent via email.', 'success')
@@ -125,14 +112,16 @@ def register():
 
 @users_bp.route('/login', methods=['GET', 'POST'])
 def login():
+    """ Login for the user by email and password provided to Login Form """
     form = LoginForm(request.form)
     if form.validate_on_submit():
-        user = select_user_by_email(email=form.email.data)
-        if user and bcrypt.check_password_hash(
-                user['password'], request.form['password']):
-            login_user(user)
-            flash('Welcome.', 'success')
-            return redirect(url_for('main_bp.home'))
+        result = users_db.select_user_by_email(email=form.email.data)
+        if result.count:
+            user = result.documents[0]
+            if bcrypt.check_password_hash(user['password'], request.form['password']):
+                login_user(user)
+                flash('Welcome.', 'success')
+                return redirect(url_for('main_bp.home'))
         else:
             flash('Invalid email and/or password.', 'danger')
             # TODO: create a login.html template and change index.html to login.html
@@ -156,5 +145,5 @@ if __name__ == "__main__":
     app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'
     app.register_blueprint(users_bp)
     app.register_blueprint(main_bp)
-    app.run('0.0.0.0', port=5000)
+    app.run('0.0.0.0', port=5005)
 
