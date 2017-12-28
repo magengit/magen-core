@@ -12,10 +12,9 @@ from itsdangerous import URLSafeTimedSerializer
 from flask_wtf import CSRFProtect
 from flask_bcrypt import Bcrypt
 
-from user_model import UsersDb
-
-# connecting to DB
-users_db = UsersDb()  # dev db by default
+import db
+from user_model import UserModel
+from config import DEV_DB_NAME, EXISTING_EMAIL_CODE_ERR
 
 # creating blueprints
 users_bp = Blueprint('users_bp', __name__)
@@ -59,9 +58,11 @@ class RegistrationForm(FlaskForm):
         initial_validation = super(RegistrationForm, self).validate()
         if not initial_validation:
             return False
-        found = users_db.select_user_by_email(self.email.data)
-        if found.count:
-            self.email.errors.append("Email already registered")
+        with db.connect(DEV_DB_NAME) as db_instance:
+            result = UserModel.select_by_email(db_instance, self.email.data)
+        if not result.success:
+            if result.code == EXISTING_EMAIL_CODE_ERR:
+                self.email.errors.append("Email already registered")
             return False
         return True
 
@@ -95,38 +96,44 @@ def register():
     """Registration of a user"""
     form = RegistrationForm(request.form)
     if form.validate_on_submit():
-        user_dict = dict(
-            email=form.email.data,
-            password=form.password.data,
+        email = str(form.email.data)
+        password = str(bcrypt.generate_password_hash(form.password.data))
+        user_details = dict(
             confirmed=False
         )
-        users_db.insert(user_dict)
-        token = generate_confirmation_token(user_dict['email'])
+        with db.connect(DEV_DB_NAME) as db_instance:
+            user = UserModel(db_instance, email, password, **user_details)
+            user.submit()
+        # TODO: email generation
+        token = generate_confirmation_token(email)
 
         flash('A confirmation email has been sent via email.', 'success')
         return redirect(url_for('main_bp.home'))
 
     print('password incorrect')
-    return render_template('base.html', form=form)
+    return render_template('registration.html', form=form)
 
 
-@users_bp.route('/login', methods=['GET', 'POST'])
+@users_bp.route('/login/', methods=['GET', 'POST'])
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(request.form)
     if form.validate_on_submit():
-        result = users_db.select_user_by_email(email=form.email.data)
+        with db.connect(DEV_DB_NAME) as db_instance:
+            result = UserModel.select_by_email(db_instance, str(form.email.data))
+
         if result.count:
-            user = result.documents[0]
-            if bcrypt.check_password_hash(user['password'], request.form['password']):
+            user = result.documents
+            # FIXME (Alena): correct hashing and verifying
+            if bcrypt.check_password_hash(user.password, request.form['password']):
                 login_user(user)
                 flash('Welcome.', 'success')
                 return redirect(url_for('main_bp.home'))
         else:
             flash('Invalid email and/or password.', 'danger')
             # TODO: create a login.html template and change index.html to login.html
-            return render_template('index.html', form=form)
-    return render_template('index.html', form=form)
+            return render_template('login.html', form=form)
+    return render_template('login.html', form=form)
 
 
 @main_bp.route('/')
