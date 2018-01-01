@@ -53,26 +53,26 @@ class UserModel(object):
         self.db_ctx = db_ctx
         self.email = email
         self.password = password
-        self.is_authenticated = is_authenticated
-        self.is_anonymous = False
-        self.is_active = True
+        self._is_authenticated = is_authenticated
+        self._is_anonymous = False
+        self._is_active = True
         self.details = kwargs
 
-    # def is_active(self):
-    #     """True, as all users are active for now."""
-    #     return True
-    #
+    def is_active(self):
+        """True, as all users are active for now."""
+        return self._is_active
+
     def get_id(self):
         """ Return the email address to satisfy Flask-Login's requirements. """
         return self.email
-    #
-    # def is_authenticated(self):
-    #     """Return True if the user is authenticated."""
-    #     return self.authenticated
-    #
-    # def is_anonymous(self):
-    #     """False, as anonymous users aren't supported."""
-    #     return False
+
+    def is_authenticated(self):
+        """Return True if the user is authenticated."""
+        return self._is_authenticated
+
+    def is_anonymous(self):
+        """False, as anonymous users aren't supported."""
+        return self._is_anonymous
 
     def _to_dict(self):
         """
@@ -97,7 +97,7 @@ class UserModel(object):
         :return: Return Object
         :rtype: Object
         """
-        # TODO (Lohita): submit method should be able to do both insert and update
+        # TODO [CM-]: submit method should be able to do both insert and update
         # TODO: look at magen-core.magen_mongo.magen_mongo_apis.concrete_dao.py
         # TODO: and join current implementation of submit with update_one() from concrete_dao.py
         user_collection = self.db_ctx.get_collection(USER_COLLECTION_NAME)
@@ -147,7 +147,8 @@ class UserModel(object):
             mongo_return.success = True
             if len(result):
                 mongo_return.documents = cls(db_instance, **result[0])  # email is unique index
-                mongo_return.documents.is_authenticated = True
+                # TODO: [CM-] is_authenticated property must be updated outside this function and should be justified
+                mongo_return.documents._is_authenticated = True
             mongo_return.count = len(result)
             return mongo_return
         except pymongo.errors.PyMongoError as error:

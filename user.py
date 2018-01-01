@@ -37,7 +37,7 @@ bcrypt = Bcrypt(app)
 
 
 class RegistrationForm(FlaskForm):
-    """Class represents Registration Form for user"""
+    """ Class represents Registration Form for user """
     email = StringField(
         'email',
         validators=[DataRequired(), Email(message=None), Length(min=6, max=40)])
@@ -54,7 +54,7 @@ class RegistrationForm(FlaskForm):
     )
 
     def validate(self):
-        """Validate that user has unique email"""
+        """ Validate that user has unique email """
         initial_validation = super(RegistrationForm, self).validate()
         if not initial_validation:
             return False
@@ -68,17 +68,17 @@ class RegistrationForm(FlaskForm):
 
 
 class LoginForm(FlaskForm):
-    """Class represents Login Form for user"""
+    """ Class represents Login Form for user """
     email = StringField('email', validators=[DataRequired(), Email()])
     password = PasswordField('password', validators=[DataRequired()])
 
 
-def generate_confirmation_token(email):
+def generate_confirmation_token(email):  # skip in tests for now
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     return serializer.dumps(email, salt=app.config['SECURITY_PASSWORD_SALT'])
 
 
-def confirm_token(token, expiration=3600):
+def confirm_token(token, expiration=3600):  # skip in tests for now
     serializer = URLSafeTimedSerializer(app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
@@ -96,16 +96,16 @@ def register():
     """Registration of a user"""
     form = RegistrationForm(request.form)
     if form.validate_on_submit():
-        email = str(form.email.data)
-        password = str(bcrypt.generate_password_hash(form.password.data))
+        email = form.email.data
+        password = bcrypt.generate_password_hash(form.password.data.encode())
         user_details = dict(
             confirmed=False
         )
         with db.connect(DEV_DB_NAME) as db_instance:
             user = UserModel(db_instance, email, password, **user_details)
             user.submit()
-        # TODO: email generation
-        token = generate_confirmation_token(email)
+        # TODO (for Alena): email generation
+        # token = generate_confirmation_token(email)
 
         flash('A confirmation email has been sent via email.', 'success')
         return redirect(url_for('main_bp.home'))
@@ -124,14 +124,13 @@ def login():
 
         if result.count:
             user = result.documents
-            # FIXME (Alena): correct hashing and verifying
-            if bcrypt.check_password_hash(user.password, request.form['password']):
+            # FIXME (for Alena): correct hashing and verifying
+            if bcrypt.check_password_hash(user.password, form.password.data.encode()):
                 login_user(user)
                 flash('Welcome.', 'success')
                 return redirect(url_for('main_bp.home'))
         else:
             flash('Invalid email and/or password.', 'danger')
-            # TODO: create a login.html template and change index.html to login.html
             return render_template('login.html', form=form)
     return render_template('login.html', form=form)
 
@@ -148,7 +147,7 @@ if __name__ == "__main__":
     # TODO: Configuration should be provided through ENV
     app.config['WTF_CSRF_ENABLED'] = True
     # app.config['WTF_CSRF_SECRET_KEY'] = 'test'
-    app.config['SECRETE_KEY'] = 'test_key'
+    app.config['SECRET_KEY'] = 'test_key'
     app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'
     app.register_blueprint(users_bp)
     app.register_blueprint(main_bp)
