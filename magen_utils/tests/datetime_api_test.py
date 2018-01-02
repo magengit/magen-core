@@ -3,6 +3,7 @@
 import unittest
 from datetime import datetime
 from pytz import timezone
+from dateutil import tz
 from magen_utils_apis import datetime_api
 
 import os
@@ -39,8 +40,8 @@ class TestDatetimeApi(unittest.TestCase):
         self.assertEquals(timestamp, aniso_date)
 
     def test_datetime_parse_iso8601_string_to_utc(self):
-        fmt = "%Y-%m-%dT%H:%M:%SZ"
-        str_time_date = datetime.now()
+        fmt = "%Y-%m-%dT%H:%M:%S%z"
+        str_time_date = datetime.now(tz.tzlocal())
         to_utc = str_time_date.strftime(fmt)
         timestamp = datetime_api.datetime_parse_iso8601_string_to_utc(to_utc)
         self.assertEquals(timestamp.strftime(fmt), datetime.now(timezone("UTC")).strftime(fmt))
