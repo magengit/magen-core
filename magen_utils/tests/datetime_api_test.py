@@ -3,6 +3,7 @@
 import unittest
 from datetime import datetime
 from pytz import timezone
+from dateutil import tz
 from magen_utils_apis import datetime_api
 
 import os
@@ -28,7 +29,7 @@ class TestDatetimeApi(unittest.TestCase):
         now_utc = str_timedate.strftime(self.fmt)
         timestamp = datetime_api.datetime_utc_parse(now_utc)
         aniso_date = aniso8601.parse_datetime(now_utc)
-        self.assertEquals(timestamp, aniso_date)
+        self.assertEqual(timestamp, aniso_date)
 
     def test_datetime_utc_parse_1(self):
         self.fmt = "%Y-%m-%d %H:%M:%SZ"
@@ -36,11 +37,11 @@ class TestDatetimeApi(unittest.TestCase):
         now_utc = str_timedate.strftime(self.fmt)
         timestamp = datetime_api.datetime_utc_parse(now_utc)
         aniso_date = aniso8601.parse_datetime(now_utc, delimiter=" ")
-        self.assertEquals(timestamp, aniso_date)
+        self.assertEqual(timestamp, aniso_date)
 
     def test_datetime_parse_iso8601_string_to_utc(self):
-        fmt = "%Y-%m-%dT%H:%M:%SZ"
-        str_time_date = datetime.now()
+        fmt = "%Y-%m-%dT%H:%M:%S%z"
+        str_time_date = datetime.now(tz.tzlocal())
         to_utc = str_time_date.strftime(fmt)
         timestamp = datetime_api.datetime_parse_iso8601_string_to_utc(to_utc)
-        self.assertEquals(timestamp.strftime(fmt), datetime.now(timezone("UTC")).strftime(fmt))
+        self.assertEqual(timestamp.strftime(fmt), datetime.now(timezone("UTC")).strftime(fmt))
