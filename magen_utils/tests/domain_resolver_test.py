@@ -26,39 +26,46 @@ class TestDomainResolver(unittest.TestCase):
 
     def test_NoMagenDomainFile(self):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_no_magen_domain_file_path)
-        self.assertEquals(test_domain, 'localhost')
+        self.assertEqual(test_domain, 'localhost')
 
     def test_DevDomainFile(self):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_dev_domain_file_path)
-        self.assertEquals(test_domain, 'dev.magen.io')
+        self.assertEqual(test_domain, 'dev.magen.io')
 
     def test_StagingDomainFile(self):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_staging_domain_file_path)
-        self.assertEquals(test_domain, 'staging.magen.io')
+        self.assertEqual(test_domain, 'staging.magen.io')
 
     def test_FileDoesNotExist(self):
         test_domain = domain_resolver.parse_resolv("file_not_exist")
-        self.assertEquals(test_domain, 'localhost')
+        self.assertEqual(test_domain, 'localhost')
 
     def test_NoDomainFile(self):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_no_domain_file_path)
-        self.assertEquals(test_domain, 'localhost')
+        self.assertEqual(test_domain, 'localhost')
 
     def test_DomainLineAltStart(self):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_domain_line_alt_start_file)
-        self.assertEquals(test_domain, 'localhost')
+        self.assertEqual(test_domain, 'localhost')
 
     def test_DynamicDomainUpdate(self):
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_dev_domain_file_path)
-        self.assertEquals(test_domain, 'dev.magen.io')
+        self.assertEqual(test_domain, 'dev.magen.io')
         test_domain = domain_resolver.parse_resolv(TestDomainResolver.test_staging_domain_file_path)
-        self.assertEquals(test_domain, 'staging.magen.io')
+        self.assertEqual(test_domain, 'staging.magen.io')
 
     def test_mongo_host_port(self):
         magen_mongo, mongo_port = domain_resolver.mongo_host_port()
-        self.assertEquals(magen_mongo, '127.0.0.1')
-        self.assertEquals(mongo_port, 27017)
+        if not domain_resolver.inside_docker():
+            self.assertEqual(magen_mongo, '127.0.0.1')
+            self.assertEqual(mongo_port, 27017)
+        else:
+            self.assertEqual(magen_mongo, 'magen_mongo')
+            self.assertEqual(mongo_port, 27017)
 
     def test_mongo_locator(self):
         test_mongo = domain_resolver.mongo_locator()
-        self.assertEquals(test_mongo, '127.0.0.1:27017')
+        if not domain_resolver.inside_docker():
+            self.assertEqual(test_mongo, '127.0.0.1:27017')
+        else:
+            self.assertEqual(test_mongo, 'magen_mongo:27017')
