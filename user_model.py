@@ -208,7 +208,6 @@ class TestUserDB(unittest.TestCase):
         with db.connect(TEST_DB_NAME) as db_instance:
             user_obj = UserModel(db_instance, test_email, test_password, **user_details)
             result_obj = user_obj.submit()
-
         self.assertTrue(result_obj.success)
         self.assertEqual(result_obj.matched_count, 1)
 
