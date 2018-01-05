@@ -29,28 +29,43 @@ class TestUser(unittest.TestCase):
         with db.connect(DEV_DB_NAME) as db_instance:
             db_instance.drop_collection(USER_COLLECTION_NAME)
 
-    def test_register(self):
+    def test_register_EqualPasswords(self):
         # Register user
         data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
-        response = self.test_app.post(
+        self.test_app.post(
             '/register/',
             data=data
         )
-        #test Db, bad request, insert into db test
+        # Same password and confirm password
+        self.assertIs(data['password'], data['confirm'])
         with db.connect(DEV_DB_NAME) as db_instance:
             result = UserModel.select_by_email(db_instance, data['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
             self.assertTrue(self.bcrypt.check_password_hash(user.password, data['password'].encode()))
-            # not found not needed here
-            self.assertEqual(response.status_code, http.HTTPStatus.FOUND)
+
+    def test_register_NotEqualPasswords(self):
+        # Register user
+        data2 = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testfail'}
+        self.test_app.post(
+            '/register/',
+            data=data2
+        )
+        self.assertIsNot(data2['password'],  data2['confirm'])
 
     def test_login(self):
         # Register user
+        data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
         self.test_app.post(
             '/register/',
-            data={'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
+            data=data
         )
+
+        # User registered not logged in
+        with db.connect(DEV_DB_NAME) as db_instance:
+            user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
+            result_data = user_collection.find_one({"email": data['email']})
+            self.assertEqual(result_data['_is_authenticated'], False)
 
         # Login user
         post_data = {'email': 'test@test.com', 'password': 'testtest1'}
@@ -58,17 +73,39 @@ class TestUser(unittest.TestCase):
             '/login/',
             data=post_data
         )
-        # tet Db to be used
-        # insert first and log in nd test
+        """ tet Db to be used
+        insert first and log in nd test"""
+        # Existing user login with authentication
         with db.connect(DEV_DB_NAME) as db_instance:
             result = UserModel.select_by_email(db_instance, post_data['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
             self.assertTrue(self.bcrypt.check_password_hash(user.password, post_data['password'].encode()))
             user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-            result_data = user_collection.find({"email": post_data['email']})
-            for i in result_data:
-                auth = i['_is_authenticated']
-            self.assertEqual(auth, True)
+            result_data = user_collection.find_one({"email": post_data['email']})
+            self.assertEqual(result_data['_is_authenticated'], True)
             self.assertEqual(resp.status_code, http.HTTPStatus.FOUND)
 
+        # Non-existing user login
+        post_data2 = {'email': 'fail@test.com', 'password': 'testtest1'}
+        resp = self.test_app.post(
+            '/login/',
+            data=post_data2
+        )
+        with db.connect(DEV_DB_NAME) as db_instance:
+            result = UserModel.select_by_email(db_instance, post_data2['email'])
+            self.assertEqual(result.count, 0)
+            self.assertNotEqual(resp.status_code, http.HTTPStatus.FOUND)
+
+        # Existing user wrong password login:
+        post_data3 = {'email': 'test@test.com', 'password': 'failtest1'}
+        resp = self.test_app.post(
+            '/login/',
+            data=post_data3
+        )
+        with db.connect(DEV_DB_NAME) as db_instance:
+            result = UserModel.select_by_email(db_instance, post_data3['email'])
+            self.assertEqual(result.count, 1)
+            user = result.documents
+            self.assertFalse(self.bcrypt.check_password_hash(user.password, post_data3['password'].encode()))
+            self.assertNotEqual(resp.status_code, http.HTTPStatus.FOUND)

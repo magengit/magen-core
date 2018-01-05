@@ -130,14 +130,8 @@ def login():
                 flash('Welcome.', 'success')
                 with db.connect(DEV_DB_NAME) as db_instance:
                     user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-                    return_obj = MongoReturn()
-                    result = user_collection.update_one({'email': str(form.email.data)},
-                                                        {"$set": {'_is_authenticated': True}})
-                    if result.acknowledged and result.modified_count:
-                        return_obj.success = True
-                    else:
-                        return_obj.success = False
-                        #makes chaneges for return
+                    user_collection.update_one({'email': str(form.email.data)},
+                                               {"$set": {'_is_authenticated': True}})
                 return redirect(url_for('main_bp.home'))
         else:
             flash('Invalid email and/or password.', 'danger')
@@ -156,11 +150,8 @@ def home():
 def load_user(user_id):
     with db.connect(DEV_DB_NAME) as db_instance:
         user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-        u = user_collection.find({"email": user_id})
-        for i in u:
-            email = i['email']
-            password = i['password']
-        return UserModel(db_instance, email, password)
+        u = user_collection.find_one({"email": user_id})
+    return UserModel(db_instance, u['email'], u['password'])
 
 
 if __name__ == "__main__":
