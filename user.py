@@ -15,7 +15,6 @@ from flask_bcrypt import Bcrypt
 import db
 from user_model import UserModel
 from config import DEV_DB_NAME, EXISTING_EMAIL_CODE_ERR,USER_COLLECTION_NAME
-from magen_mongo.magen_mongo_apis.mongo_return import MongoReturn
 
 # creating blueprints
 users_bp = Blueprint('users_bp', __name__)
@@ -123,23 +122,24 @@ def register():
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(request.form)
-    if form.validate_on_submit():
-        with db.connect(DEV_DB_NAME) as db_instance:
-            result = UserModel.select_by_email(db_instance, str(form.email.data))
-        if result.count:
-            user = result.documents
-            # FIXME (for Alena): correct hashing and verifying
-            if bcrypt.check_password_hash(user.password, form.password.data.encode()):
-                login_user(user)
-                flash('Welcome.', 'success')
-                with db.connect(DEV_DB_NAME) as db_instance:
-                    user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-                    user_collection.update_one({'email': str(form.email.data)},
-                                               {"$set": {'_is_authenticated': True}})
-                return redirect(url_for('main_bp.home'))
-        else:
-            flash('Invalid email and/or password.', 'danger')
-            return render_template('login.html', form=form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            with db.connect(DEV_DB_NAME) as db_instance:
+                result = UserModel.select_by_email(db_instance, str(form.email.data))
+            if result.count:
+                user = result.documents
+                # FIXME (for Alena): correct hashing and verifying
+                if bcrypt.check_password_hash(user.password, form.password.data.encode()):
+                    login_user(user)
+                    flash('Welcome.', 'success')
+                    with db.connect(DEV_DB_NAME) as db_instance:
+                        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
+                        user_collection.update_one({'email': str(form.email.data)},
+                                                   {"$set": {'_is_authenticated': True}})
+                    return redirect(url_for('main_bp.home'))
+            else:
+                flash('Invalid email and/or password.', 'danger')
+                return render_template('login.html', form=form)
     return render_template('login.html', form=form)
 
 

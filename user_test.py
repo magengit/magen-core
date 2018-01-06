@@ -79,7 +79,7 @@ class TestUser(unittest.TestCase):
         with db.connect(DEV_DB_NAME) as db_instance:
             user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
             result_data = user_collection.find_one({"email": post_data['email']})
-            self.assertTrue(self.bcrypt.check_password_hash(user.password, post_data['password'].encode()))
+            self.assertTrue(self.bcrypt.check_password_hash(result_data['password'], post_data['password'].encode()))
             
             self.assertEqual(result_data['_is_authenticated'], True)
             self.assertEqual(resp.status_code, http.HTTPStatus.FOUND)
@@ -93,7 +93,7 @@ class TestUser(unittest.TestCase):
         with db.connect(DEV_DB_NAME) as db_instance:
             result = UserModel.select_by_email(db_instance, post_data2['email'])
             self.assertEqual(result.count, 0)
-            self.assertNotEqual(resp.status_code, http.HTTPStatus.OK)
+            self.assertEqual(resp.status_code, http.HTTPStatus.OK)
 
         # Existing user wrong password login:
         post_data3 = {'email': 'test@test.com', 'password': 'failtest1'}
@@ -106,4 +106,4 @@ class TestUser(unittest.TestCase):
             self.assertEqual(result.count, 1)
             user = result.documents
             self.assertFalse(self.bcrypt.check_password_hash(user.password, post_data3['password'].encode()))
-            self.assertNotEqual(resp.status_code, http.HTTPStatus.OK)
+            self.assertEqual(resp.status_code, http.HTTPStatus.OK)
