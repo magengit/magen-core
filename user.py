@@ -157,7 +157,7 @@ def load_user(user_id):
         user = user_collection.find({"email": user_id})
     if user.count():
         for itr in user:
-            if 'email' and 'password' in user:
+            if 'email' and 'password' in itr:
                 email = itr['email']
                 password = itr['password']
                 return UserModel(db_instance, email, password)
