@@ -110,14 +110,11 @@ class UserModel(object):
                 return_obj.success = True
                 return_obj.count = 1
                 return_obj.message = 'Document inserted successfully'
-            elif result.acknowledged and result.modified_count:
+            else:
                 return_obj.success = True
                 return_obj.matched_count = 1
+                return_obj.count = 1
                 return_obj.message = 'Document updated successfully'
-            else:
-                return_obj.success = False
-                return_obj.count = 0
-                return_obj.message = "Failed to insert document"
             return return_obj
         except pymongo.errors.PyMongoError as error:
             return_obj.success = False
@@ -196,8 +193,9 @@ class TestUserDB(unittest.TestCase):
             user_obj = UserModel(db_instance, test_email, test_password, **user_details)
             result_obj = user_obj.submit()
 
-        self.assertFalse(result_obj.success)
-        self.assertEqual(result_obj.count, 0)
+        self.assertTrue(result_obj.success)
+        self.assertEqual(result_obj.matched_count, 1)
+        self.assertEqual(result_obj.count, 1)
 
         #update existing document
         test_password = 'testing_password'
@@ -210,6 +208,13 @@ class TestUserDB(unittest.TestCase):
             result_obj = user_obj.submit()
         self.assertTrue(result_obj.success)
         self.assertEqual(result_obj.matched_count, 1)
+        # comparing values with DB
+        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
+        user = user_collection.find_one({"email": test_email})
+
+        self.assertEqual(user['password'], test_password)
+        self.assertEqual(user['first_name'], user_details['first_name'])
+        self.assertEqual(user['last_name'], user_details['last_name'])
 
     def test_select_by_email(self):
         """

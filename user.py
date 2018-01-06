@@ -105,13 +105,17 @@ def register():
             )
             with db.connect(DEV_DB_NAME) as db_instance:
                 user = UserModel(db_instance, email, password, **user_details)
-                user.submit()
-            # TODO (for Alena): email generation
-            # token = generate_confirmation_token(email)
-
-            flash('A confirmation email has been sent via email.', 'success')
-            return redirect(url_for('main_bp.home'))
-        print('password incorrect')
+                result = user.submit()
+            if result.success:
+                # TODO (for Alena): email generation
+                # token = generate_confirmation_token(email)
+                flash('A confirmation email has been sent via email.', 'success')
+                return redirect(url_for('main_bp.home'))
+            else:
+                flash('Failed to insert document')
+                return render_template('registration.html', form=form)
+                  
+        flash('password incorrect')
     return render_template('registration.html', form=form)
 
 
@@ -150,8 +154,14 @@ def home():
 def load_user(user_id):
     with db.connect(DEV_DB_NAME) as db_instance:
         user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-        u = user_collection.find_one({"email": user_id})
-    return UserModel(db_instance, u['email'], u['password'])
+        user = user_collection.find({"email": user_id})
+    if user.count():
+        for itr in user:
+            if 'email' and 'password' in user:
+                email = itr['email']
+                password = itr['password']
+                return UserModel(db_instance, email, password)
+    return None
 
 
 if __name__ == "__main__":
