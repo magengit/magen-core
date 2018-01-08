@@ -110,11 +110,15 @@ class UserModel(object):
                 return_obj.success = True
                 return_obj.count = 1
                 return_obj.message = 'Document inserted successfully'
-            else:
+            elif reslt.acknowledged and result.modified_count:
                 return_obj.success = True
                 return_obj.matched_count = 1
                 return_obj.count = 1
                 return_obj.message = 'Document updated successfully'
+            else:
+                return_obj.success = False
+                return_obj.count = 0
+                return_obj.message = "Failed to insert document"
             return return_obj
         except pymongo.errors.PyMongoError as error:
             return_obj.success = False
