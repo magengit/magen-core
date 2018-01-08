@@ -24,6 +24,8 @@ class TestUser(unittest.TestCase):
         app.register_blueprint(main_bp)
 
         self.test_app = app.test_client()
+        with db.connect(DEV_DB_NAME) as db_instance:
+            db_instance.drop_collection(USER_COLLECTION_NAME)
 
     def tearDown(self):
         with db.connect(DEV_DB_NAME) as db_instance:
@@ -71,10 +73,9 @@ class TestUser(unittest.TestCase):
         post_data = {'email': 'test@test.com', 'password': 'testtest1'}
         resp = self.test_app.post(
             '/login/',
-            data=post_data
+            data=post_data, follow_redirects=True
         )
-        """ tet Db to be used
-        insert first and log in nd test"""
+
         # Existing user login with authentication
         with db.connect(DEV_DB_NAME) as db_instance:
             user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
@@ -82,28 +83,28 @@ class TestUser(unittest.TestCase):
             self.assertTrue(self.bcrypt.check_password_hash(result_data['password'], post_data['password'].encode()))
             
             self.assertEqual(result_data['_is_authenticated'], True)
-            self.assertEqual(resp.status_code, http.HTTPStatus.FOUND)
+            self.assertEqual(resp.status_code, http.HTTPStatus.OK)
 
         # Non-existing user login
         post_data2 = {'email': 'fail@test.com', 'password': 'testtest1'}
         resp = self.test_app.post(
             '/login/',
-            data=post_data2
+            data=post_data2, follow_redirects=True
         )
         with db.connect(DEV_DB_NAME) as db_instance:
             result = UserModel.select_by_email(db_instance, post_data2['email'])
             self.assertEqual(result.count, 0)
-            self.assertEqual(resp.status_code, http.HTTPStatus.OK)
+            self.assertEqual(resp.status_code, http.HTTPStatus.FORBIDDEN)
 
         # Existing user wrong password login:
         post_data3 = {'email': 'test@test.com', 'password': 'failtest1'}
         resp = self.test_app.post(
             '/login/',
-            data=post_data3
+            data=post_data3, follow_redirects=True
         )
         with db.connect(DEV_DB_NAME) as db_instance:
             result = UserModel.select_by_email(db_instance, post_data3['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
             self.assertFalse(self.bcrypt.check_password_hash(user.password, post_data3['password'].encode()))
-            self.assertEqual(resp.status_code, http.HTTPStatus.OK)
+            self.assertEqual(resp.status_code, http.HTTPStatus.FORBIDDEN)

@@ -136,10 +136,14 @@ def login():
                         user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
                         user_collection.update_one({'email': str(form.email.data)},
                                                    {"$set": {'_is_authenticated': True}})
+                        user._is_authenticated = True
                     return redirect(url_for('main_bp.home'))
+                else:
+                    flash('Invalid email and/or password.', 'danger')
+                    return render_template('login.html', form=form), 403
             else:
                 flash('Invalid email and/or password.', 'danger')
-                return render_template('login.html', form=form)
+                return render_template('login.html', form=form), 403
     return render_template('login.html', form=form)
 
 
