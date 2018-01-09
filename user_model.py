@@ -105,13 +105,19 @@ class UserModel(object):
             user_collection.create_index('email', unique=True)
         return_obj = MongoReturn()
         try:
-            result = user_collection.insert_one(self._to_dict())
-            if result.acknowledged and result.inserted_id:
+            result = user_collection.update_one({'email': self.email}, {"$set": self._to_dict()}, upsert=True)
+            if result.acknowledged and result.upserted_id:
                 return_obj.success = True
                 return_obj.count = 1
                 return_obj.message = 'Document inserted successfully'
+            elif result.acknowledged and (result.modified_count or result.matched_count):
+                return_obj.success = True
+                return_obj.matched_count = 1
+                return_obj.count = 1
+                return_obj.message = 'Document updated successfully'
             else:
                 return_obj.success = False
+                return_obj.count = 0
                 return_obj.message = "Failed to insert document"
             return return_obj
         except pymongo.errors.PyMongoError as error:
@@ -132,7 +138,7 @@ class UserModel(object):
         :type email: str
 
         :return: found users or empty list
-        :rtype: list
+        :rtype: MongoReturn
         """
         user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
 
@@ -148,7 +154,7 @@ class UserModel(object):
             if len(result):
                 mongo_return.documents = cls(db_instance, **result[0])  # email is unique index
                 # TODO: [CM-] is_authenticated property must be updated outside this function and should be justified
-                mongo_return.documents._is_authenticated = True
+                # mongo_return.documents._is_authenticated = True
             mongo_return.count = len(result)
             return mongo_return
         except pymongo.errors.PyMongoError as error:
@@ -163,11 +169,15 @@ class TestUserDB(unittest.TestCase):
     Test for Users DB
     """
 
+    def setUp(self):
+        with db.connect(TEST_DB_NAME) as db_instance:
+            db_instance.drop_collection(USER_COLLECTION_NAME)
+
     def tearDown(self):
         with db.connect(TEST_DB_NAME) as db_instance:
             db_instance.drop_collection(USER_COLLECTION_NAME)
 
-    def test_insert(self):
+    def test_upsert(self):
         """
         Insert User into Mongo DB Test
         """
@@ -191,9 +201,28 @@ class TestUserDB(unittest.TestCase):
             user_obj = UserModel(db_instance, test_email, test_password, **user_details)
             result_obj = user_obj.submit()
 
-        self.assertFalse(result_obj.success)
-        self.assertEqual(result_obj.count, 0)
-        self.assertEqual(result_obj.code, EXISTING_EMAIL_CODE_ERR)  # duplicate exception code
+        self.assertTrue(result_obj.success)
+        self.assertEqual(result_obj.matched_count, 1)
+        self.assertEqual(result_obj.count, 1)
+
+        # Update existing document
+        test_password = 'testing_password'
+        user_details = dict(
+            first_name='John',
+            last_name='Doe'
+        )
+        with db.connect(TEST_DB_NAME) as db_instance:
+            user_obj = UserModel(db_instance, test_email, test_password, **user_details)
+            result_obj = user_obj.submit()
+        self.assertTrue(result_obj.success)
+        self.assertEqual(result_obj.matched_count, 1)
+        # comparing values with DB
+        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
+        user = user_collection.find_one({"email": test_email})
+
+        self.assertEqual(user['password'], test_password)
+        self.assertEqual(user['first_name'], user_details['first_name'])
+        self.assertEqual(user['last_name'], user_details['last_name'])
 
     def test_select_by_email(self):
         """

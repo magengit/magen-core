@@ -14,7 +14,7 @@ from flask_bcrypt import Bcrypt
 
 import db
 from user_model import UserModel
-from config import DEV_DB_NAME, EXISTING_EMAIL_CODE_ERR
+from config import DEV_DB_NAME, EXISTING_EMAIL_CODE_ERR,USER_COLLECTION_NAME
 
 # creating blueprints
 users_bp = Blueprint('users_bp', __name__)
@@ -95,22 +95,26 @@ def confirm_token(token, expiration=3600):  # skip in tests for now
 def register():
     """Registration of a user"""
     form = RegistrationForm(request.form)
-    if form.validate_on_submit():
-        email = form.email.data
-        password = bcrypt.generate_password_hash(form.password.data.encode())
-        user_details = dict(
-            confirmed=False
-        )
-        with db.connect(DEV_DB_NAME) as db_instance:
-            user = UserModel(db_instance, email, password, **user_details)
-            user.submit()
-        # TODO (for Alena): email generation
-        # token = generate_confirmation_token(email)
-
-        flash('A confirmation email has been sent via email.', 'success')
-        return redirect(url_for('main_bp.home'))
-
-    print('password incorrect')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            email = form.email.data
+            password = bcrypt.generate_password_hash(form.password.data.encode())
+            user_details = dict(
+                confirmed=False
+            )
+            with db.connect(DEV_DB_NAME) as db_instance:
+                user = UserModel(db_instance, email, password, **user_details)
+                result = user.submit()
+            if result.success:
+                # TODO (for Alena): email generation
+                # token = generate_confirmation_token(email)
+                flash('A confirmation email has been sent via email.', 'success')
+                return redirect(url_for('main_bp.home'))
+            else:
+                flash('Failed to insert document')
+                return render_template('registration.html', form=form)
+                  
+        flash('password incorrect')
     return render_template('registration.html', form=form)
 
 
@@ -118,20 +122,28 @@ def register():
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(request.form)
-    if form.validate_on_submit():
-        with db.connect(DEV_DB_NAME) as db_instance:
-            result = UserModel.select_by_email(db_instance, str(form.email.data))
-
-        if result.count:
-            user = result.documents
-            # FIXME (for Alena): correct hashing and verifying
-            if bcrypt.check_password_hash(user.password, form.password.data.encode()):
-                login_user(user)
-                flash('Welcome.', 'success')
-                return redirect(url_for('main_bp.home'))
-        else:
-            flash('Invalid email and/or password.', 'danger')
-            return render_template('login.html', form=form)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            with db.connect(DEV_DB_NAME) as db_instance:
+                result = UserModel.select_by_email(db_instance, str(form.email.data))
+            if result.count:
+                user = result.documents
+                # FIXME (for Alena): correct hashing and verifying
+                if bcrypt.check_password_hash(user.password, form.password.data.encode()):
+                    login_user(user)
+                    flash('Welcome.', 'success')
+                    with db.connect(DEV_DB_NAME) as db_instance:
+                        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
+                        user_collection.update_one({'email': str(form.email.data)},
+                                                   {"$set": {'_is_authenticated': True}})
+                        user._is_authenticated = True
+                    return redirect(url_for('main_bp.home'))
+                else:
+                    flash('Invalid email and/or password.', 'danger')
+                    return render_template('login.html', form=form), 403
+            else:
+                flash('Invalid email and/or password.', 'danger')
+                return render_template('login.html', form=form), 403
     return render_template('login.html', form=form)
 
 
@@ -140,6 +152,20 @@ def login():
 def home():
     """Index page"""
     return render_template('index.html')
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    with db.connect(DEV_DB_NAME) as db_instance:
+        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
+        user = user_collection.find({"email": user_id})
+    if user.count():
+        for itr in user:
+            if 'email' and 'password' in itr:
+                email = itr['email']
+                password = itr['password']
+                return UserModel(db_instance, email, password)
+    return None
 
 
 if __name__ == "__main__":
