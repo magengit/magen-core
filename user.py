@@ -10,7 +10,7 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 from itsdangerous import URLSafeTimedSerializer
 from flask_wtf import CSRFProtect
-from flask_bcrypt import Bcrypt
+from werkzeug.security import generate_password_hash, check_password_hash
 
 import db
 from user_model import UserModel
@@ -33,7 +33,7 @@ login_manager.login_view = 'users_bp.login'
 
 # configuring application with Bcrypt to provide hashing utilities for application
 # like generating hash for password and check hash
-bcrypt = Bcrypt(app)
+#bcrypt = Bcrypt(app)
 
 
 class RegistrationForm(FlaskForm):
@@ -98,7 +98,7 @@ def register():
     if request.method == 'POST':
         if form.validate_on_submit():
             email = form.email.data
-            password = bcrypt.generate_password_hash(form.password.data.encode())
+            password = generate_password_hash(form.password.data, 'pbkdf2:sha512:100000')
             user_details = dict(
                 confirmed=False
             )
@@ -129,7 +129,7 @@ def login():
             if result.count:
                 user = result.documents
                 # FIXME (for Alena): correct hashing and verifying
-                if bcrypt.check_password_hash(user.password, form.password.data.encode()):
+                if check_password_hash(user.password, form.password.data):
                     login_user(user)
                     flash('Welcome.', 'success')
                     with db.connect(DEV_DB_NAME) as db_instance:
@@ -175,6 +175,7 @@ if __name__ == "__main__":
     # app.config['WTF_CSRF_SECRET_KEY'] = 'test'
     app.config['SECRET_KEY'] = 'test_key'
     app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'
+    app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
     app.register_blueprint(users_bp)
     app.register_blueprint(main_bp)
     app.run('0.0.0.0', port=5005)
