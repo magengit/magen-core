@@ -10,11 +10,11 @@ from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 from itsdangerous import URLSafeTimedSerializer
 from flask_wtf import CSRFProtect
-from werkzeug.security import generate_password_hash, check_password_hash
+import hashlib
 
 import db
-from user_model import UserModel
-from config import DEV_DB_NAME, EXISTING_EMAIL_CODE_ERR,USER_COLLECTION_NAME
+from user_model import UserModel, generate_salt
+from config import DEV_DB_NAME, EXISTING_EMAIL_CODE_ERR, USER_COLLECTION_NAME
 
 # creating blueprints
 users_bp = Blueprint('users_bp', __name__)
@@ -31,9 +31,9 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'users_bp.login'
 
-# configuring application with Bcrypt to provide hashing utilities for application
-# like generating hash for password and check hash
-#bcrypt = Bcrypt(app)
+# Initializing hash function and iterations for Pbkdf2 hashing
+HASH_FUNCTION = 'sha256'
+ITERATIONS = 100000
 
 
 class RegistrationForm(FlaskForm):
@@ -91,6 +91,13 @@ def confirm_token(token, expiration=3600):  # skip in tests for now
     return email
 
 
+def check_password_hash(pw_hash, salt, password):
+    password_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password, salt.encode('utf-8'), ITERATIONS).hex()
+    if pw_hash == password_hash:
+        return True
+    return False
+
+
 @users_bp.route('/register/', methods=['GET', 'POST'])
 def register():
     """Registration of a user"""
@@ -98,12 +105,14 @@ def register():
     if request.method == 'POST':
         if form.validate_on_submit():
             email = form.email.data
-            password = generate_password_hash(form.password.data, 'pbkdf2:sha512:100000')
+            salt = generate_salt()
+            password = hashlib.pbkdf2_hmac(HASH_FUNCTION, form.password.data.encode('utf-8'),
+                                           salt.encode('utf-8'), ITERATIONS).hex()
             user_details = dict(
                 confirmed=False
             )
             with db.connect(DEV_DB_NAME) as db_instance:
-                user = UserModel(db_instance, email, password, **user_details)
+                user = UserModel(db_instance, email, password, salt, **user_details)
                 result = user.submit()
             if result.success:
                 # TODO (for Alena): email generation
@@ -129,7 +138,7 @@ def login():
             if result.count:
                 user = result.documents
                 # FIXME (for Alena): correct hashing and verifying
-                if check_password_hash(user.password, form.password.data):
+                if check_password_hash(user.password, user.salt, form.password.data.encode('utf-8')):
                     login_user(user)
                     flash('Welcome.', 'success')
                     with db.connect(DEV_DB_NAME) as db_instance:
@@ -164,7 +173,8 @@ def load_user(user_id):
             if 'email' and 'password' in itr:
                 email = itr['email']
                 password = itr['password']
-                return UserModel(db_instance, email, password)
+                salt = itr['salt']
+                return UserModel(db_instance, email, password, salt)
     return None
 
 
@@ -175,7 +185,6 @@ if __name__ == "__main__":
     # app.config['WTF_CSRF_SECRET_KEY'] = 'test'
     app.config['SECRET_KEY'] = 'test_key'
     app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'
-    app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
     app.register_blueprint(users_bp)
     app.register_blueprint(main_bp)
     app.run('0.0.0.0', port=5005)

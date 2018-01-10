@@ -5,10 +5,9 @@ import http
 import unittest
 
 import db
-from user import main_bp, users_bp, app
+from user import main_bp, users_bp, app, check_password_hash
 from config import DEV_DB_NAME, USER_COLLECTION_NAME
 from user_model import UserModel
-from werkzeug.security import check_password_hash
 
 
 class TestUser(unittest.TestCase):
@@ -18,7 +17,6 @@ class TestUser(unittest.TestCase):
 
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
-        app.config['SECURITY_PASSWORD_HASH'] = 'pbkdf2_sha512'
         app.config['SECRET_KEY'] = 'test_key'
         app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'
         app.register_blueprint(users_bp)
@@ -47,7 +45,7 @@ class TestUser(unittest.TestCase):
             result = UserModel.select_by_email(db_instance, data['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
-            self.assertTrue(check_password_hash(user.password, data['password']))
+            self.assertTrue(check_password_hash(user.password, user.salt, data['password'].encode('utf-8')))
 
     def test_register_NotEqualPasswords(self):
         # Register user
@@ -83,7 +81,8 @@ class TestUser(unittest.TestCase):
         with db.connect(DEV_DB_NAME) as db_instance:
             user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
             result_data = user_collection.find_one({"email": post_data['email']})
-            self.assertTrue(check_password_hash(result_data['password'], post_data['password']))
+            self.assertTrue(check_password_hash(result_data['password'], result_data['salt'],
+                                                post_data['password'].encode('utf-8')))
             
             self.assertEqual(result_data['_is_authenticated'], True)
             self.assertEqual(resp.status_code, http.HTTPStatus.OK)
@@ -109,5 +108,5 @@ class TestUser(unittest.TestCase):
             result = UserModel.select_by_email(db_instance, post_data3['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
-            self.assertFalse(check_password_hash(user.password, post_data3['password']))
+            self.assertFalse(check_password_hash(user.password, user.salt, post_data3['password'].encode('utf-8')))
             self.assertEqual(resp.status_code, http.HTTPStatus.FORBIDDEN)

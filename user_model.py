@@ -10,7 +10,14 @@ from magen_utils_apis.datetime_api import SimpleUtc
 from magen_mongo_apis.mongo_return import MongoReturn
 
 import db
+import uuid
 from config import TEST_DB_NAME, USER_COLLECTION_NAME, EXISTING_EMAIL_CODE_ERR
+
+
+def generate_salt():
+    """ Returns generated salt value"""
+    salt = uuid.uuid4().hex
+    return salt
 
 
 def _cursor_helper(cursor):
@@ -30,7 +37,7 @@ class UserModel(object):
     """
     created_index = False
 
-    def __init__(self, db_ctx, email, password, is_authenticated=False, **kwargs):
+    def __init__(self, db_ctx, email, password, salt, is_authenticated=False, **kwargs):
         """
         User Model constructor
 
@@ -40,6 +47,8 @@ class UserModel(object):
         :type email: str
         :param password: User's secret hash
         :type password: str
+        :param salt: Random value
+        :type salt: str
         :param is_authenticated: Authentication flag
         :type is_authenticated: bool
         :param kwargs: user's details
@@ -53,6 +62,7 @@ class UserModel(object):
         self.db_ctx = db_ctx
         self.email = email
         self.password = password
+        self.salt = salt
         self._is_authenticated = is_authenticated
         self._is_anonymous = False
         self._is_active = True
@@ -183,6 +193,7 @@ class TestUserDB(unittest.TestCase):
         """
         test_email = 'test@test.com'
         test_password = 'test_password'
+        test_salt = generate_salt()
         user_details = dict(
             first_name='Joe',
             last_name='Dow'
@@ -190,7 +201,7 @@ class TestUserDB(unittest.TestCase):
 
         # Insert new document
         with db.connect(TEST_DB_NAME) as db_instance:
-            user_obj = UserModel(db_instance, test_email, test_password, **user_details)
+            user_obj = UserModel(db_instance, test_email, test_password, test_salt, **user_details)
             result_obj = user_obj.submit()
 
         self.assertTrue(result_obj.success)
@@ -198,7 +209,7 @@ class TestUserDB(unittest.TestCase):
 
         # Insert same document
         with db.connect(TEST_DB_NAME) as db_instance:
-            user_obj = UserModel(db_instance, test_email, test_password, **user_details)
+            user_obj = UserModel(db_instance, test_email, test_password, test_salt, **user_details)
             result_obj = user_obj.submit()
 
         self.assertTrue(result_obj.success)
@@ -212,7 +223,7 @@ class TestUserDB(unittest.TestCase):
             last_name='Doe'
         )
         with db.connect(TEST_DB_NAME) as db_instance:
-            user_obj = UserModel(db_instance, test_email, test_password, **user_details)
+            user_obj = UserModel(db_instance, test_email, test_password, test_salt, **user_details)
             result_obj = user_obj.submit()
         self.assertTrue(result_obj.success)
         self.assertEqual(result_obj.matched_count, 1)
@@ -230,6 +241,7 @@ class TestUserDB(unittest.TestCase):
         """
         test_email = 'test@test.com'
         test_password = 'test_password'
+        test_salt = generate_salt()
         user_details = dict(
             first_name='Joe',
             last_name='Dow'
@@ -243,7 +255,7 @@ class TestUserDB(unittest.TestCase):
 
         # Insert new document
         with db.connect(TEST_DB_NAME) as db_instance:
-            user_obj = UserModel(db_instance, test_email, test_password, **user_details)
+            user_obj = UserModel(db_instance, test_email, test_password, test_salt, **user_details)
             result_obj = user_obj.submit()
 
         self.assertTrue(result_obj.success)
