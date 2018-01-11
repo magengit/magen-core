@@ -21,10 +21,16 @@ class TestGmailClient(unittest.TestCase):
         }
 
     def tearDown(self):
-        os.rmdir(self.test_creds_dir) if os.path.exists(self.test_creds_dir) else None
+        if os.path.exists(self.test_creds_dir):
+            for filename in os.listdir(self.test_creds_dir):
+                os.remove(os.path.join(self.test_creds_dir, filename))
+            os.rmdir(self.test_creds_dir)
 
     def test_get_credentials_json(self):
-        """ Test Generation of Credentials for Gmail API based on Environment """
+        """
+        Test Generation of Credentials for Gmail API based on Environment
+        - gmail_client.get_credentials_env() method
+        """
         # Generated data with correct environments
         with mock.patch('os.environ', self.env_mock_data):
             credentials_data = gmail_client.get_credentials_env()
@@ -36,7 +42,7 @@ class TestGmailClient(unittest.TestCase):
             self.assertRaises(KeyError, gmail_client.get_credentials_env)
 
     def test_credentials_user_path(self):
-        """ Test Generation of directory and correct path creation """
+        """ Test Generation of directory and correct path creation - gmail_client.credentials_user_path() method """
         with mock.patch('os.path.expanduser') as home_dir_mock:
             home_dir_mock.return_value = os.getcwd()+'/'  # mocking home_dir to tests dir
             # Verify directory does not exists
@@ -55,7 +61,7 @@ class TestGmailClient(unittest.TestCase):
     @mock.patch('oauth2client.client.OAuth2WebServerFlow')
     @mock.patch('oauth2client.file.Storage')
     def test_gmail_credentials(self, store_mock, oauth_mock, run_flow_mock, os_home_dir_mock):
-        """ Test Gmail oAuth Credentials generation """
+        """ Test Gmail oAuth Credentials generation - gmail_client.gmail_credentials() method """
         os_home_dir_mock.return_value = os.getcwd() + '/'  # mocking home_dir to tests dir
         # mocking `credentials.invalid` of Gmail API
         store_mock.return_value = mock.Mock()
@@ -77,6 +83,27 @@ class TestGmailClient(unittest.TestCase):
         # KeyError should be thrown
         with mock.patch('os.environ', new={}):
             self.assertIsNone(gmail_client.gmail_credentials())  # on KeyError returns None
+
+    @mock.patch('os.path.expanduser')
+    def test_cleanup_cache(self, home_dir_mock):
+        """ Test cleanup cache data - gmail_client.cleanup_cache() method """
+        test_filenames = ['magen-gmail_test', 'test', 'test.json', 'gmail.test']
+        home_dir_mock.return_value = os.getcwd() + '/'  # mocking home_dir to tests dir
+        creds_path = os.path.dirname(gmail_client.credentials_user_path())  # creating folder
+
+        # add some tests file to the test directory
+        for filename in test_filenames:
+            with open(os.path.join(creds_path, filename), '+w') as new_file:
+                new_file.write('test')  # write some test data
+
+        gmail_client.cleanup_cache()
+
+        # Assertions
+        home_dir_mock.assert_called()
+        self.assertTrue(os.path.exists(creds_path))
+        self.assertNotIn(config.GMAIL_FILES_PREFIX, os.listdir(creds_path))
+        self.assertEqual(len(os.listdir(creds_path)), 3)
+
 
 if __name__ == '__main__':
     unittest.main()

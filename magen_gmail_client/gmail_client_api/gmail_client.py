@@ -50,10 +50,10 @@ def credentials_user_path():
     :rtype: str
     """
     home_dir = os.path.expanduser('~')
-    credential_dir = os.path.join(home_dir, '.credentials')
+    credential_dir = os.path.join(home_dir, config.SECRETS_USER_FOLDER)
     if not os.path.exists(credential_dir):
         os.makedirs(credential_dir)
-    credential_path = os.path.join(credential_dir, 'gmail-python.json')
+    credential_path = os.path.join(credential_dir, config.GMAIL_FILES_PREFIX+'-python.json')
     return credential_path
 
 
@@ -86,8 +86,29 @@ def gmail_credentials():
     return credentials
 
 
+def cleanup_cache():
+    """
+    Clean Up Gmail API cache data from the user space
+    :return: None
+    """
+    home_dir = os.path.expanduser('~')
+    credential_dir = os.path.join(home_dir, config.SECRETS_USER_FOLDER)
+    if not os.path.exists(credential_dir):
+        return
+    # gmail cached files to be deleted
+    filenames = [_ for _ in os.listdir(credential_dir) if config.GMAIL_FILES_PREFIX in _]
+    for filename in filenames:
+        os.remove(os.path.join(credential_dir, filename))
+    try:
+        os.rmdir(credential_dir)
+    except OSError:
+        print('{} is not empty'.format(credential_dir))
+        pass
+
+
 if __name__ == '__main__':
     print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     print(os.environ)
     print(get_credentials_env())
     print(gmail_credentials())
+    cleanup_cache()
