@@ -93,7 +93,9 @@ def confirm_token(token, expiration=3600):  # skip in tests for now
 
 def check_password_hash(pw_hash, salt, password):
     password_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password, salt.encode('utf-8'), ITERATIONS).hex()
-    if pw_hash == password_hash:
+    password_double_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password_hash.encode('utf-8'),
+                                               salt.encode('utf-8'), ITERATIONS).hex()
+    if pw_hash == password_double_hash:
         return True
     return False
 
@@ -106,7 +108,9 @@ def register():
         if form.validate_on_submit():
             email = form.email.data
             salt = generate_salt()
-            password = hashlib.pbkdf2_hmac(HASH_FUNCTION, form.password.data.encode('utf-8'),
+            hash_password = hashlib.pbkdf2_hmac(HASH_FUNCTION, form.password.data.encode('utf-8'),
+                                                salt.encode('utf-8'), ITERATIONS).hex()
+            password = hashlib.pbkdf2_hmac(HASH_FUNCTION, hash_password.encode('utf-8'),
                                            salt.encode('utf-8'), ITERATIONS).hex()
             user_details = dict(
                 confirmed=False
