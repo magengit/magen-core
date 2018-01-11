@@ -5,9 +5,8 @@ import http
 import unittest
 
 import db
-from user import main_bp, users_bp, app
+from user import main_bp, users_bp, app, check_password_hash
 from config import DEV_DB_NAME, USER_COLLECTION_NAME
-from flask_bcrypt import Bcrypt
 from user_model import UserModel
 
 
@@ -15,7 +14,7 @@ class TestUser(unittest.TestCase):
 
     def setUp(self):
         # flask_app = Flask(__name__)
-        self.bcrypt = Bcrypt(app)
+
         app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['SECRET_KEY'] = 'test_key'
@@ -40,11 +39,13 @@ class TestUser(unittest.TestCase):
         )
         # Same password and confirm password
         self.assertIs(data['password'], data['confirm'])
+
+        # Checking password hashing
         with db.connect(DEV_DB_NAME) as db_instance:
             result = UserModel.select_by_email(db_instance, data['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
-            self.assertTrue(self.bcrypt.check_password_hash(user.password, data['password'].encode()))
+            self.assertTrue(check_password_hash(user.password, user.salt, data['password'].encode('utf-8')))
 
     def test_register_NotEqualPasswords(self):
         # Register user
@@ -80,7 +81,8 @@ class TestUser(unittest.TestCase):
         with db.connect(DEV_DB_NAME) as db_instance:
             user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
             result_data = user_collection.find_one({"email": post_data['email']})
-            self.assertTrue(self.bcrypt.check_password_hash(result_data['password'], post_data['password'].encode()))
+            self.assertTrue(check_password_hash(result_data['password'], result_data['salt'],
+                                                post_data['password'].encode('utf-8')))
             
             self.assertEqual(result_data['_is_authenticated'], True)
             self.assertEqual(resp.status_code, http.HTTPStatus.OK)
@@ -106,5 +108,5 @@ class TestUser(unittest.TestCase):
             result = UserModel.select_by_email(db_instance, post_data3['email'])
             self.assertEqual(result.count, 1)
             user = result.documents
-            self.assertFalse(self.bcrypt.check_password_hash(user.password, post_data3['password'].encode()))
+            self.assertFalse(check_password_hash(user.password, user.salt, post_data3['password'].encode('utf-8')))
             self.assertEqual(resp.status_code, http.HTTPStatus.FORBIDDEN)
