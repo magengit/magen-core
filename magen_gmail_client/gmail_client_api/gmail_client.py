@@ -11,7 +11,7 @@ import json
 from apiclient import discovery
 from oauth2client import client
 from oauth2client import tools
-from oauth2client.file import Storage
+from oauth2client import file
 
 import config
 
@@ -21,6 +21,7 @@ PACKAGE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def get_credentials_env():
     """
     Get Credentials from Environment and return credential data
+
     :return: Credential Data
     :rtype: JSON
     """
@@ -41,6 +42,13 @@ def get_credentials_env():
 
 
 def credentials_user_path():
+    """
+    After oAuth flow is run once, credentials file is created and stored in user home_dir
+    This allows to refer to this hidden file after logged in for the first time.
+
+    :return: path to credentials file
+    :rtype: str
+    """
     home_dir = os.path.expanduser('~')
     credential_dir = os.path.join(home_dir, '.credentials')
     if not os.path.exists(credential_dir):
@@ -50,7 +58,15 @@ def credentials_user_path():
 
 
 def gmail_credentials():
-    store = Storage(credentials_user_path())
+    """
+    oAuth flow for Gmail API client.
+    If credentials don't exist generates them out of Environment
+    Stores updated or generated credentials in user home_dir.
+
+    :return: credentials
+    :rtype: object
+    """
+    store = file.Storage(credentials_user_path())
     credentials = store.get()
     if not credentials or credentials.invalid:
         try:
