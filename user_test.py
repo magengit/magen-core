@@ -66,9 +66,9 @@ class TestUser(unittest.TestCase):
 
         # User registered not logged in
         with db.connect(DEV_DB_NAME) as db_instance:
-            user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-            result_data = user_collection.find_one({"email": data['email']})
-            self.assertEqual(result_data['_is_authenticated'], False)
+            result = UserModel.select_by_email(db_instance, data['email'])
+            user = result.documents
+            self.assertEqual(user._is_authenticated, False)
 
         # Login user
         post_data = {'email': 'test@test.com', 'password': 'testtest1'}
@@ -79,12 +79,12 @@ class TestUser(unittest.TestCase):
 
         # Existing user login with authentication
         with db.connect(DEV_DB_NAME) as db_instance:
-            user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-            result_data = user_collection.find_one({"email": post_data['email']})
-            self.assertTrue(check_password_hash(result_data['password'], result_data['salt'],
+            result = UserModel.select_by_email(db_instance, post_data['email'])
+            user = result.documents
+            self.assertTrue(check_password_hash(user.password, user.salt,
                                                 post_data['password'].encode('utf-8')))
             
-            self.assertEqual(result_data['_is_authenticated'], True)
+            self.assertEqual(user._is_authenticated, True)
             self.assertEqual(resp.status_code, http.HTTPStatus.OK)
 
         # Non-existing user login

@@ -37,7 +37,7 @@ class UserModel(object):
     """
     created_index = False
 
-    def __init__(self, db_ctx, email, password, salt, is_authenticated=False, **kwargs):
+    def __init__(self, db_ctx, email, password, salt, _is_authenticated=False, **kwargs):
         """
         User Model constructor
 
@@ -63,7 +63,7 @@ class UserModel(object):
         self.email = email
         self.password = password
         self.salt = salt
-        self._is_authenticated = is_authenticated
+        self._is_authenticated = _is_authenticated
         self._is_anonymous = False
         self._is_active = True
         self.details = kwargs
