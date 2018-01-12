@@ -159,10 +159,6 @@ def send_message(service, user_id, message):
     except errors.HttpError as error:
         print('An error occurred: %s' % error)
 
-if __name__ == '__main__':
-    print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    print(os.environ)
-    print(get_credentials_env())
 
 @contextmanager
 def connect(cleanup=False):
@@ -181,3 +177,22 @@ def connect(cleanup=False):
         # TODO: some additional cleanup (?)
         if cleanup:
             cleanup_cache()
+
+
+if __name__ == '__main__':
+    # print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # print(os.environ)
+    # print(get_credentials_env())
+    # credentials = gmail_credentials()
+    # http = credentials.authorize(httplib2.Http())
+    # service = discovery.build('gmail', 'v1', http=http)
+
+    with open('msg_confirmation_style_inline.html') as f:
+        msg_text = f.read()
+
+    # print(msg_text)
+    msg = create_message('no-reply@magen.io', 'alifar@cisco.com', 'E-mail Confirmation', text_part='Test',
+                         html_part=msg_text)
+
+    with connect() as service:
+        send_message(service, 'me', msg)
