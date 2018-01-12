@@ -92,8 +92,8 @@ def confirm_token(token, expiration=3600):  # skip in tests for now
 
 
 def check_password_hash(pw_hash, salt, password):
-    password_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password, salt.encode('utf-8'), ITERATIONS).hex()
-    password_double_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password_hash.encode('utf-8'),
+    password_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password, salt.encode('utf-8'), ITERATIONS)
+    password_double_hash = hashlib.pbkdf2_hmac(HASH_FUNCTION, password_hash,
                                                salt.encode('utf-8'), ITERATIONS).hex()
     if pw_hash == password_double_hash:
         return True
@@ -109,8 +109,8 @@ def register():
             email = form.email.data
             salt = generate_salt()
             hash_password = hashlib.pbkdf2_hmac(HASH_FUNCTION, form.password.data.encode('utf-8'),
-                                                salt.encode('utf-8'), ITERATIONS).hex()
-            password = hashlib.pbkdf2_hmac(HASH_FUNCTION, hash_password.encode('utf-8'),
+                                                salt.encode('utf-8'), ITERATIONS)
+            password = hashlib.pbkdf2_hmac(HASH_FUNCTION, hash_password,
                                            salt.encode('utf-8'), ITERATIONS).hex()
             user_details = dict(
                 confirmed=False
@@ -135,6 +135,7 @@ def register():
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(request.form)
+    # user = dict()
     if request.method == 'POST':
         if form.validate_on_submit():
             with db.connect(DEV_DB_NAME) as db_instance:
@@ -145,11 +146,8 @@ def login():
                 if check_password_hash(user.password, user.salt, form.password.data.encode('utf-8')):
                     login_user(user)
                     flash('Welcome.', 'success')
-                    with db.connect(DEV_DB_NAME) as db_instance:
-                        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-                        user_collection.update_one({'email': str(form.email.data)},
-                                                   {"$set": {'_is_authenticated': True}})
-                        user._is_authenticated = True
+                    user._is_authenticated = True
+                    user.submit()
                     return redirect(url_for('main_bp.home'))
                 else:
                     flash('Invalid email and/or password.', 'danger')
@@ -170,15 +168,10 @@ def home():
 @login_manager.user_loader
 def load_user(user_id):
     with db.connect(DEV_DB_NAME) as db_instance:
-        user_collection = db_instance.get_collection(USER_COLLECTION_NAME)
-        user = user_collection.find({"email": user_id})
-    if user.count():
-        for itr in user:
-            if 'email' and 'password' in itr:
-                email = itr['email']
-                password = itr['password']
-                salt = itr['salt']
-                return UserModel(db_instance, email, password, salt)
+        result = UserModel.select_by_email(db_instance, user_id)
+    if result.count:
+        user = result.documents
+        return user
     return None
 
 
