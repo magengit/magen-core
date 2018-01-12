@@ -69,8 +69,8 @@ def gmail_credentials():
     :rtype: object
     """
     store = file.Storage(credentials_user_path())
-    credentials = store.get()
-    if not credentials or credentials.invalid:
+    api_credentials = store.get()
+    if not api_credentials or api_credentials.invalid:
         try:
             cred_data = get_credentials_env()
         except KeyError as err:
@@ -84,8 +84,8 @@ def gmail_credentials():
         print(cred_data_parsed)
         print(oauth_flow)
         oauth_flow.user_agent = config.APPLICATION_NAME
-        credentials = tools.run_flow(oauth_flow, store)
-    return credentials
+        api_credentials = tools.run_flow(oauth_flow, store)
+    return api_credentials
 
 
 def cleanup_cache():
@@ -152,5 +152,4 @@ if __name__ == '__main__':
     print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     print(os.environ)
     print(get_credentials_env())
-    print(gmail_credentials())
-    cleanup_cache()
+

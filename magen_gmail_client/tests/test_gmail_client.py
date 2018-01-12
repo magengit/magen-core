@@ -8,7 +8,7 @@ import unittest
 from unittest import mock
 
 import config
-from ..gmail_client_api import gmail_client
+from ..magen_gmail_client_api import gmail_client
 
 
 class TestGmailClient(unittest.TestCase):
