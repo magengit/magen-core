@@ -1,5 +1,10 @@
+# coding=utf-8
+"""
+Magen Core magen-utils package setup
+"""
 from setuptools import setup, find_packages
-import sys, os
+import sys
+import os
 import pip
 
 with open(os.path.join(os.path.dirname(__file__), '__init__.py')) as version_file:
@@ -27,7 +32,8 @@ setup(
         'pytest>=3.1.3',
         'Sphinx>=1.6.3',
         'wheel>=0.30.0a0',
-        'datadog>=0.16.0'
+        'datadog>=0.16.0',
+        'python-dateutil>=2.6'
       ],
     include_package_data=True,
     package_data={
