@@ -4,6 +4,9 @@
 """
 import base64
 from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+from contextlib import contextmanager
 
 import httplib2
 import os
@@ -108,7 +111,7 @@ def cleanup_cache():
         pass
 
 
-def create_message(sender, to, subject, message_text):
+def create_message(sender, to, subject, text_part, html_part=None):
     """Create a message for an email.
 
     Args:
@@ -120,7 +123,15 @@ def create_message(sender, to, subject, message_text):
     Returns:
     An object containing a base64url encoded email object.
     """
-    message = MIMEText(message_text)
+    # message = MIMEText(message_text) if not html else MIMEText(message_text, 'html')
+    if html_part:
+        message = MIMEMultipart('alternative')
+        msg_txt_part = MIMEText(text_part)
+        msg_html_part = MIMEText(html_part, 'html')
+        message.attach(msg_txt_part)
+        message.attach(msg_html_part)
+    else:
+        message = MIMEText(text_part)
     message['to'] = to
     message['from'] = sender
     message['subject'] = subject
@@ -153,3 +164,20 @@ if __name__ == '__main__':
     print(os.environ)
     print(get_credentials_env())
 
+@contextmanager
+def connect(cleanup=False):
+    """
+    Context Manager for Gmail API connection
+    :param cleanup: flag to require credentials cleanup after the operation
+    :type cleanup: bool
+    :return: generator with Gmail Service object
+    """
+    try:
+        credentials = gmail_credentials()
+        http = credentials.authorize(httplib2.Http())
+        service = discovery.build('gmail', 'v1', http=http)
+        yield service
+    finally:
+        # TODO: some additional cleanup (?)
+        if cleanup:
+            cleanup_cache()
