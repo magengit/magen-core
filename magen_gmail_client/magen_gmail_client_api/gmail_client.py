@@ -1,6 +1,6 @@
 # coding=utf-8
 """
-
+Gmail Client for Magen. Obtain Gmail credentials, connection and send messages
 """
 import base64
 from email.mime.text import MIMEText
@@ -18,7 +18,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client import file
 
-import config
+from magen_gmail_client_api import config
 
 PACKAGE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -114,16 +114,16 @@ def cleanup_cache():
 def create_message(sender, to, subject, text_part, html_part=None):
     """Create a message for an email.
 
-    Args:
-    sender: Email address of the sender.
-    to: Email address of the receiver.
-    subject: The subject of the email message.
-    message_text: The text of the email message.
+    :param sender: Email address of the sender.
+    :param to: Email address of the receiver.
+    :param subject: The subject of the email message.
+    :param text_part: The text of the email message.
+    :param html_part: The html content of the email message if any.
 
-    Returns:
-    An object containing a base64url encoded email object.
+    :return: An object containing a base64url encoded email object.
+
+    Note: for emails embedded html both test_part and html_part is frequently required by mailing clients.
     """
-    # message = MIMEText(message_text) if not html else MIMEText(message_text, 'html')
     if html_part:
         message = MIMEMultipart('alternative')
         msg_txt_part = MIMEText(text_part)
@@ -139,24 +139,22 @@ def create_message(sender, to, subject, text_part, html_part=None):
     return {'raw': encoded_msg.decode('utf-8')}
 
 
-def send_message(service, user_id, message):
+def send_message(service, message, user_id='me'):
     """Send an email message.
 
-    Args:
-    service: Authorized Gmail API service instance.
-    user_id: User's email address. The special value "me"
+    :param service: Authorized Gmail API service instance.
+    :param message: Message to be sent.
+    :param user_id: User's email address. The special value "me"
     can be used to indicate the authenticated user.
-    message: Message to be sent.
 
-    Returns:
-    Sent Message.
+    :return: Sent Message.
     """
     try:
         message = (service.users().messages().send(userId=user_id, body=message)
                    .execute())
         print('Message Id: %s' % message['id'])
         return message
-    except errors.HttpError as error:
+    except errors.HttpError as error: # pragma: no cover
         print('An error occurred: %s' % error)
 
 
@@ -171,28 +169,9 @@ def connect(cleanup=False):
     try:
         credentials = gmail_credentials()
         http = credentials.authorize(httplib2.Http())
-        service = discovery.build('gmail', 'v1', http=http)
-        yield service
+        gmail_service = discovery.build('gmail', 'v1', http=http)
+        yield gmail_service
     finally:
         # TODO: some additional cleanup (?)
         if cleanup:
             cleanup_cache()
-
-
-if __name__ == '__main__':
-    # print(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # print(os.environ)
-    # print(get_credentials_env())
-    # credentials = gmail_credentials()
-    # http = credentials.authorize(httplib2.Http())
-    # service = discovery.build('gmail', 'v1', http=http)
-
-    with open('msg_confirmation_style_inline.html') as f:
-        msg_text = f.read()
-
-    # print(msg_text)
-    msg = create_message('no-reply@magen.io', 'alifar@cisco.com', 'E-mail Confirmation', text_part='Test',
-                         html_part=msg_text)
-
-    with connect() as service:
-        send_message(service, 'me', msg)
