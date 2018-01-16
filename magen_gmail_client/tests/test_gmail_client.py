@@ -4,11 +4,12 @@ Test Suit for gmail_client.py module
 """
 
 import os
+import base64
 import unittest
 from unittest import mock
 
-import config
 from ..magen_gmail_client_api import gmail_client
+from ..magen_gmail_client_api import config
 
 
 class TestGmailClient(unittest.TestCase):
@@ -89,6 +90,10 @@ class TestGmailClient(unittest.TestCase):
         """ Test cleanup cache data - gmail_client.cleanup_cache() method """
         test_filenames = ['magen-gmail_test', 'test', 'test.json', 'gmail.test']
         home_dir_mock.return_value = os.getcwd() + '/'  # mocking home_dir to tests dir
+
+        # if folder does not exist - plain return
+        gmail_client.cleanup_cache()
+
         creds_path = os.path.dirname(gmail_client.credentials_user_path())  # creating folder
 
         # add some tests file to the test directory
@@ -103,6 +108,67 @@ class TestGmailClient(unittest.TestCase):
         self.assertTrue(os.path.exists(creds_path))
         self.assertNotIn(config.GMAIL_FILES_PREFIX, os.listdir(creds_path))
         self.assertEqual(len(os.listdir(creds_path)), 3)
+
+    def test_create_message(self):
+        """ Test message create - gmail_client.create_messsage() method """
+        # Prepare
+        test_html_content = '''<p>Welcome! Thanks for signing up. Please follow this link to activate your account:</p>
+                          <p><a href="some_url">some_url</a></p>
+                          <br>
+                          <p>Cheers!</p>'''
+        test_text_content = 'Please Confirm your email'
+        test_sender = 'sender@test.test'
+        test_to = 'to@test.test'
+        test_subject = 'test'
+
+        # creating email from plain text only
+        result_msg = gmail_client.create_message(
+            sender=test_sender,
+            to=test_to,
+            subject=test_subject,
+            text_part=test_text_content
+        )
+
+        # format required by gmail API
+        self.assertIn('raw', result_msg)
+
+        msg_bytes = result_msg['raw'].encode()
+        msg_string = base64.urlsafe_b64decode(msg_bytes).decode('utf-8')
+
+        self.assertIn(test_sender, msg_string)
+        self.assertIn(test_to, msg_string)
+        self.assertIn(test_subject, msg_string)
+        self.assertIn(test_text_content, msg_string)
+
+        # creating email from plain text and html content
+        result_msg = gmail_client.create_message(
+            sender=test_sender,
+            to=test_to,
+            subject=test_subject,
+            text_part=test_text_content,
+            html_part=test_html_content
+        )
+
+        # format required by gmail API
+        self.assertIn('raw', result_msg)
+
+        msg_bytes = result_msg['raw'].encode()
+        msg_string = base64.urlsafe_b64decode(msg_bytes).decode('utf-8')
+
+        self.assertIn(test_sender, msg_string)
+        self.assertIn(test_to, msg_string)
+        self.assertIn(test_subject, msg_string)
+        self.assertIn(test_text_content, msg_string)
+        self.assertIn(test_html_content, msg_string)
+
+    def test_send_message(self):
+        """ Test sending of a message using gmail API """
+        test_message = dict(id='test_id')
+        gmail_service = mock.Mock()
+        gmail_service.users.return_value.messages.return_value.send.return_value.execute.return_value = test_message
+
+        result = gmail_client.send_message(gmail_service, 'here goes email object')
+        self.assertIn('id', result)
 
 
 if __name__ == '__main__':
