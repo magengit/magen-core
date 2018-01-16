@@ -63,11 +63,11 @@ class UserModel(object):
         self.email = email
         self.password = password
         self.salt = salt
-        self._is_authenticated = _is_authenticated
-        self._is_anonymous = False
-        self._is_active = True
-        self.confirmed = False
-        self.confirmed_on = None
+        self._is_authenticated = kwargs.pop('_is_authenticated', _is_authenticated)
+        self._is_anonymous = kwargs.pop('_is_anonymous', False)
+        self._is_active = kwargs.pop('_is_active', True)
+        self.confirmed = kwargs.pop('confirmed', False)
+        self.confirmed_on = kwargs.pop('confirmed_on', None)
         self.details = kwargs
 
     def is_active(self):

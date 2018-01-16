@@ -147,3 +147,42 @@ class TestUser(unittest.TestCase):
             with config.app.app_context():
                 user_api.send_confirmation(test_user_email)
         template_mock.assert_called_once_with('email_confirmation.html', confirm_url='test_url', user_email=test_user_email)
+
+    def test_confirm_email(self):
+        """ Test confirmation of a user's email. /confirm/<token> route """
+        test_user_email = 'test@test.test'
+        test_password = 'testtest1'
+
+        # Register user
+        data = {'email': test_user_email, 'password': test_password, 'confirm': test_password}
+        with mock.patch('user_api.send_confirmation'):
+            self.test_app.post(
+                '/register/',
+                data=data
+            )
+
+        # invalid token provided
+        resp = self.test_app.get('/confirm/'+'invalid_token', follow_redirects=True)
+        self.assertEqual(resp.status_code, http.HTTPStatus.OK)
+
+        # redirected to login page
+        self.assertIn('password', resp.data.decode('utf-8'))
+        self.assertIn('email', resp.data.decode('utf-8'))
+
+        with db.connect(config.TEST_DB_NAME) as db_instance:
+            user = UserModel.select_by_email(db_instance, test_user_email).documents
+        self.assertFalse(user.confirmed)
+        self.assertFalse(user._is_authenticated)
+
+        correct_token = user_api.generate_confirmation_token(email=test_user_email)
+        resp = self.test_app.get('/confirm/' + correct_token, follow_redirects=True)
+        self.assertEqual(resp.status_code, http.HTTPStatus.OK)
+
+        # redirected to login page
+        self.assertIn('password', resp.data.decode('utf-8'))
+        self.assertIn('email', resp.data.decode('utf-8'))
+
+        with db.connect(config.TEST_DB_NAME) as db_instance:
+            user = UserModel.select_by_email(db_instance, test_user_email).documents
+        self.assertTrue(user.confirmed)
+        self.assertTrue(user._is_authenticated)

@@ -224,6 +224,7 @@ def confirm_email(token):
         user.confirmed = True
         user.confirmed_on = datetime.datetime.now()
         user.submit()
+        login_user(user)
         flask.flash('You have confirmed your account. Thanks!', 'success')
     return flask.redirect(flask.url_for('main_bp.home'))
 
