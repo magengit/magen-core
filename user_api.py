@@ -1,6 +1,6 @@
 # coding=utf-8
 """
-User blah blah
+User API module for Registration and Login
 """
 import datetime
 import flask
