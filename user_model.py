@@ -11,7 +11,7 @@ from magen_mongo_apis.mongo_return import MongoReturn
 
 import db
 import uuid
-from config import TEST_DB_NAME, USER_COLLECTION_NAME, EXISTING_EMAIL_CODE_ERR
+from config import TEST_DB_NAME, USER_COLLECTION_NAME
 
 
 def generate_salt():
@@ -63,9 +63,11 @@ class UserModel(object):
         self.email = email
         self.password = password
         self.salt = salt
-        self._is_authenticated = _is_authenticated
-        self._is_anonymous = False
-        self._is_active = True
+        self._is_authenticated = kwargs.pop('_is_authenticated', _is_authenticated)
+        self._is_anonymous = kwargs.pop('_is_anonymous', False)
+        self._is_active = kwargs.pop('_is_active', True)
+        self.confirmed = kwargs.pop('confirmed', False)
+        self.confirmed_on = kwargs.pop('confirmed_on', None)
         self.details = kwargs
 
     def is_active(self):
@@ -107,9 +109,6 @@ class UserModel(object):
         :return: Return Object
         :rtype: Object
         """
-        # TODO [CM-]: submit method should be able to do both insert and update
-        # TODO: look at magen-core.magen_mongo.magen_mongo_apis.concrete_dao.py
-        # TODO: and join current implementation of submit with update_one() from concrete_dao.py
         user_collection = self.db_ctx.get_collection(USER_COLLECTION_NAME)
         if not type(self).created_index:
             user_collection.create_index('email', unique=True)
@@ -163,8 +162,6 @@ class UserModel(object):
             mongo_return.success = True
             if len(result):
                 mongo_return.documents = cls(db_instance, **result[0])  # email is unique index
-                # TODO: [CM-] is_authenticated property must be updated outside this function and should be justified
-                # mongo_return.documents._is_authenticated = True
             mongo_return.count = len(result)
             return mongo_return
         except pymongo.errors.PyMongoError as error:
