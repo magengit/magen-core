@@ -46,7 +46,7 @@ setup(
     },
     test_suite='tests',
     url='http://www.cisco.com',
-    license='Proprietary License',
+    license='Apache 2',
     author='Alena Lifar',
     author_email='alifar@cisco.com',
     description='Magen Gmail Client Package',
@@ -69,6 +69,6 @@ setup(
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
     ],
 )
