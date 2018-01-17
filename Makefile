@@ -4,7 +4,7 @@ export DOCKER_SRC_TAG=magen_base:17.02
 export DOCKER_IMAGE=magen-core
 DOCKER_DIR=base_docker_image
 
-PACKAGES = magen_id_client magen_logaru magen_utils magen_rest magen_stats magen_datastore magen_mongo magen_gmail_client
+PACKAGES = magen_id_client magen_logaru magen_utils magen_rest magen_stats magen_datastore magen_mongo magen_gmail_client magen_user
 
 MAGEN_HELPER=lib/magen_helper
 
@@ -51,6 +51,7 @@ doc:
 	$(MAKE) -C magen_test_utils doc
 	$(MAKE) -C magen_id_client doc
 	$(MAKE) -C magen_gmail_client doc
+	$(MAKE) -C magen_user doc
 
 test: start_mongo
 	$(MAKE) mongo_running
@@ -60,6 +61,7 @@ test: start_mongo
 	$(MAKE) -C magen_utils test
 	$(MAKE) -C magen_id_client test
 	$(MAKE) -C magen_gmail_client test
+	$(MAKE) -C magen_user test
 
 upload:
 	$(foreach module, $(PACKAGES), $(MAKE) -C $(module) upload;)

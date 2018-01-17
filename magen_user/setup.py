@@ -20,7 +20,6 @@ if pip_version < 901:
 setup(
     name='magen_user',
     version=__version__,
-    packages=find_packages(exclude=['tests*']),
     install_requires=[
         'aniso8601>=1.2.1',
         'coverage>=4.4.1',
@@ -37,10 +36,13 @@ setup(
         'WTForms>=2.1',
         'pymongo>=3.4'
       ],
+    scripts=['magen_user_api/user_api.py'],
+    package_dir={'': '.'},
+    packages={'magen_user_api', 'magen_user_api.templates'},
     include_package_data=True,
     package_data={
-        # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.rst']
+        # If any package contains *.txt, *.rst or *.html  files, include them:
+        '': ['*.txt', '*.rst', '*.html']
     },
     test_suite='tests',
     url='http://www.cisco.com',

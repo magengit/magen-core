@@ -9,12 +9,12 @@ cd ${MAGEN}
 
 requirements_filename=magen_requirements.txt
 
-number_of_packages=8
+number_of_packages=9
 
 # names of folders where magen packages are stored
-folders=(magen_logaru magen_utils magen_datastore magen_rest magen_stats magen_mongo magen_id_client magen_gmail_client)
+folders=(magen_logaru magen_utils magen_datastore magen_rest magen_stats magen_mongo magen_id_client magen_gmail_client magen_user)
 # names of magen packages
-packages=(magen_logger magen_utils magen_datastore magen_rest_service magen_statistics_service magen_mongo magen_id_client magen_gmail_client)
+packages=(magen_logger magen_utils magen_datastore magen_rest_service magen_statistics_service magen_mongo magen_id_client magen_gmail_client magen_user)
 
 for ((i=0; i<${number_of_packages}; i++))
 do

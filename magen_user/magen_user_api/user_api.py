@@ -13,9 +13,9 @@ from magen_gmail_client_api import gmail_client
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
 
-import magen_user.magen_user_api.config as config
-from magen_user.magen_user_api import db
-from magen_user.magen_user_api.user_model import UserModel, generate_salt
+import magen_user_api.config as config
+from magen_user_api import db
+from magen_user_api.user_model import UserModel, generate_salt
 
 __copyright__ = "Copyright(c) 2018, Cisco Systems, Inc."
 __status__ = "alpha"
