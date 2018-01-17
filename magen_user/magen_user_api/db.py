@@ -6,6 +6,9 @@ Db Connection Configuration and Context Manager
 import pymongo
 from contextlib import contextmanager
 
+__copyright__ = "Copyright(c) 2018, Cisco Systems, Inc."
+__status__ = "alpha"
+
 
 @contextmanager
 def connect(db_name, host='localhost', port=27017, **kwargs):

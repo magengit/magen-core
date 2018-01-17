@@ -7,6 +7,9 @@ from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager
 
+__copyright__ = "Copyright(c) 2018, Cisco Systems, Inc."
+__status__ = "alpha"
+
 TEST_DB_NAME = 'test_magen_demo'
 DEV_DB_NAME = 'dev_magen_demo'
 PROD_DB_NAME = 'magen_demo'

@@ -13,6 +13,9 @@ from magen_utils_apis.datetime_api import SimpleUtc
 from magen_user.magen_user_api.config import TEST_DB_NAME, USER_COLLECTION_NAME
 from magen_user.magen_user_api import db
 
+__copyright__ = "Copyright(c) 2018, Cisco Systems, Inc."
+__status__ = "alpha"
+
 
 def generate_salt():
     """ Returns generated salt value"""
@@ -21,7 +24,7 @@ def generate_salt():
 
 
 def _cursor_helper(cursor):
-    """ Returns processed list"""
+    """ Returns processed list """
     result = list()
     for cur in cursor:
         if cur.get("creation_timestamp"):
