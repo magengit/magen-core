@@ -5,9 +5,9 @@ import http
 import unittest
 from unittest import mock
 
-import config
-from magen_user import db, user_api
-from magen_user.user_model import UserModel
+from ..magen_user_api import config
+from ..magen_user_api import db, user_api
+from ..magen_user_api.user_model import UserModel
 
 
 class TestUser(unittest.TestCase):
@@ -33,7 +33,7 @@ class TestUser(unittest.TestCase):
     def test_register_EqualPasswords(self):
         data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
         # Register user
-        with mock.patch('user_api.send_confirmation'):
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
             self.test_app.post(
                 '/register/',
                 data=data
@@ -51,7 +51,7 @@ class TestUser(unittest.TestCase):
     def test_register_NotEqualPasswords(self):
         # Register user
         data2 = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testfail'}
-        with mock.patch('user_api.send_confirmation'):
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
             self.test_app.post(
                 '/register/',
                 data=data2
@@ -61,7 +61,7 @@ class TestUser(unittest.TestCase):
     def test_login(self):
         # Register user
         data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
-        with mock.patch('user_api.send_confirmation'):
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
             self.test_app.post(
                 '/register/',
                 data=data
@@ -155,7 +155,7 @@ class TestUser(unittest.TestCase):
 
         # Register user
         data = {'email': test_user_email, 'password': test_password, 'confirm': test_password}
-        with mock.patch('user_api.send_confirmation'):
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
             self.test_app.post(
                 '/register/',
                 data=data

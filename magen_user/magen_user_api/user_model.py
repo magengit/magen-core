@@ -10,8 +10,8 @@ import pymongo
 from magen_mongo_apis.mongo_return import MongoReturn
 from magen_utils_apis.datetime_api import SimpleUtc
 
-from config import TEST_DB_NAME, USER_COLLECTION_NAME
-from magen_user import db
+from magen_user.magen_user_api.config import TEST_DB_NAME, USER_COLLECTION_NAME
+from magen_user.magen_user_api import db
 
 
 def generate_salt():
