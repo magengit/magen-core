@@ -16,7 +16,6 @@ magen_files
 _build
 *.orig
 
-
 # Distribution / packaging
 .Python
 env/
@@ -105,8 +104,6 @@ ENV/
 
 build
 htmlcov
-
-*.egg-info
 
 dist
 _static/
