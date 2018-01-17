@@ -1,8 +1,8 @@
 wheel_version := $(shell python3 -c 'import __init__ as version; print(version.__version__)')
-PACKAGE_NAME = magen_mongo
+PACKAGE_NAME = magen_user
 WHEEL := $(PACKAGE_NAME)-$(wheel_version)-py3-none-any.whl
-SPHINX_DIR=docs
+SPHINX_DIR = docs
 
-DOC_PACKAGES = magen_mongo_apis tests
+DOC_PACKAGES = magen_user_api
 
 include ../common.mk
