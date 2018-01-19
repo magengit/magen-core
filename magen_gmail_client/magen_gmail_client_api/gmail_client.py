@@ -20,7 +20,7 @@ from oauth2client import file
 
 from magen_gmail_client_api import config
 
-PACKAGE_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PACKAGE_PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_credentials_env():

@@ -20,7 +20,6 @@ if pip_version < 901:
 setup(
     name='magen_gmail_client',
     version=__version__,
-    packages=find_packages(exclude=['tests*']),
     install_requires=[
         'aniso8601>=1.2.1',
         'coverage>=4.4.1',
@@ -31,10 +30,11 @@ setup(
         'google-api-python-client==1.6.4',
         'httplib2>=0.10'
       ],
+    packages={'magen_gmail_client_api', 'magen_gmail_client_api.credentials'},
     include_package_data=True,
     package_data={
         # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.rst']
+        '': ['*.txt', '*.rst', '*.json']
     },
     test_suite='tests',
     url='http://www.cisco.com',
