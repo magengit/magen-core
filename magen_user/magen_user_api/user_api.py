@@ -4,6 +4,7 @@ User API module for Registration and Login
 """
 import datetime
 import hashlib
+from http import HTTPStatus
 
 import flask
 import itsdangerous
@@ -138,10 +139,14 @@ def send_confirmation(user_email):
         text_part='Please confirm your e-mail address',
         html_part=html
     )
-
-    with gmail_client.connect() as gmail_service:
-        gmail_client.send_message(gmail_service, msg)
-    return msg
+    # For now we will ignore email confirmation errors
+    try:
+        with gmail_client.connect() as gmail_service:
+            gmail_client.send_message(gmail_service, msg)
+    except FileNotFoundError as err:
+        print(err.args[0])
+    finally:
+        return msg
 
 
 @users_bp.route('/register/', methods=['GET', 'POST'])
@@ -168,7 +173,6 @@ def register():
             else:
                 flask.flash('Failed to insert document')
                 return flask.render_template('registration.html', form=form)
-                flask.flash('password incorrect')
     return flask.render_template('registration.html', form=form)
 
 
@@ -190,10 +194,10 @@ def login():
                     return flask.redirect(flask.url_for('main_bp.home'))
                 else:
                     flask.flash('Invalid email and/or password.', 'danger')
-                    return flask.render_template('login.html', form=form), 403
+                    return flask.render_template('login.html', form=form), HTTPStatus.FORBIDDEN
             else:
                 flask.flash('Invalid email and/or password.', 'danger')
-                return flask.render_template('login.html', form=form), 403
+                return flask.render_template('login.html', form=form), HTTPStatus.FORBIDDEN
     return flask.render_template('login.html', form=form)
 
 
