@@ -8,7 +8,7 @@ from http import HTTPStatus
 
 import flask
 import itsdangerous
-from flask_login import login_required, login_user
+from flask_login import login_required, login_user, current_user
 from flask_wtf import FlaskForm
 from magen_gmail_client_api import gmail_client
 from wtforms import StringField, PasswordField
@@ -105,10 +105,10 @@ def confirm_token(token, expiration=3600):
 def check_password_hash(pw_hash, salt, password):
     """
 
-    :param pw_hash:
-    :param salt:
-    :param password:
-    :return:
+    :param pw_hash: User's password hash from DB
+    :param salt: Random value from DB
+    :param password: User entered password from form
+    :return: True/False
     """
     password_hash = hashlib.pbkdf2_hmac(config.HASH_FUNCTION, password, salt.encode('utf-8'), config.ITERATIONS)
     password_double_hash = hashlib.pbkdf2_hmac(config.HASH_FUNCTION, password_hash,
@@ -153,6 +153,12 @@ def send_confirmation(user_email):
 def register():
     """ Registration of a user """
     form = RegistrationForm(flask.request.form)
+
+    # If user is already logged in, user cannot register again
+    if current_user.is_authenticated:
+        flask.flash('User is already logged in, please logout to register ')
+        return flask.redirect(flask.url_for('main_bp.home'))
+    
     if flask.request.method == 'POST':
         if form.validate_on_submit():
             email = form.email.data
