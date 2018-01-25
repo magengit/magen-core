@@ -180,6 +180,7 @@ def register():
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(flask.request.form)
+    next_page = flask.request.args.get('next')
     if flask.request.method == 'POST':
         if form.validate_on_submit():
             with db.connect(config.DEV_DB_NAME) as db_instance:
@@ -191,6 +192,8 @@ def login():
                     flask.flash('Welcome.', 'success')
                     user._is_authenticated = True
                     user.submit()
+                    if next_page:
+                        return flask.redirect(next_page)
                     return flask.redirect(flask.url_for('main_bp.home'))
                 else:
                     flask.flash('Invalid email and/or password.', 'danger')
@@ -198,7 +201,7 @@ def login():
             else:
                 flask.flash('Invalid email and/or password.', 'danger')
                 return flask.render_template('login.html', form=form), HTTPStatus.FORBIDDEN
-    return flask.render_template('login.html', form=form)
+    return flask.render_template('login.html', form=form, next=next_page)
 
 
 @main_bp.route('/')
