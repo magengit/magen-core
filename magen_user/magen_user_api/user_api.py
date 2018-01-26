@@ -149,6 +149,11 @@ def send_confirmation(user_email):
         return msg
 
 
+def drop_user_collection():
+    with db.connect(config.DEV_DB_NAME) as db_instance:
+        db_instance.drop_collection(config.USER_COLLECTION_NAME)
+
+
 @users_bp.route('/register/', methods=['GET', 'POST'])
 def register():
     """ Registration of a user """
