@@ -30,7 +30,7 @@
   </div>
 </body>
 
-<form method="POST" action="/login/">
+<form method="POST" action="{{ url_for('users_bp.login', next=next) }}">
     {{ form.csrf_token }}
     {{ form.email.label }} {{ form.email(size=20) }}
     {{ form.password.label }} {{ form.password(size=20) }}

@@ -8,7 +8,7 @@ from http import HTTPStatus
 
 import flask
 import itsdangerous
-from flask_login import login_required, login_user
+from flask_login import login_required, login_user, current_user
 from flask_wtf import FlaskForm
 from magen_gmail_client_api import gmail_client
 from wtforms import StringField, PasswordField
@@ -105,10 +105,10 @@ def confirm_token(token, expiration=3600):
 def check_password_hash(pw_hash, salt, password):
     """
 
-    :param pw_hash:
-    :param salt:
-    :param password:
-    :return:
+    :param pw_hash: User's password hash from DB
+    :param salt: Random value from DB
+    :param password: User entered password from form
+    :return: True/False
     """
     password_hash = hashlib.pbkdf2_hmac(config.HASH_FUNCTION, password, salt.encode('utf-8'), config.ITERATIONS)
     password_double_hash = hashlib.pbkdf2_hmac(config.HASH_FUNCTION, password_hash,
@@ -158,6 +158,12 @@ def drop_user_collection():
 def register():
     """ Registration of a user """
     form = RegistrationForm(flask.request.form)
+
+    # If user is already logged in, user cannot register again
+    if current_user.is_authenticated:
+        flask.flash('User is already logged in, please logout to register ')
+        return flask.redirect(flask.url_for('main_bp.home'))
+    
     if flask.request.method == 'POST':
         if form.validate_on_submit():
             email = form.email.data
@@ -185,6 +191,7 @@ def register():
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(flask.request.form)
+    next_page = flask.request.args.get('next')
     if flask.request.method == 'POST':
         if form.validate_on_submit():
             with db.connect(config.DEV_DB_NAME) as db_instance:
@@ -196,6 +203,8 @@ def login():
                     flask.flash('Welcome.', 'success')
                     user._is_authenticated = True
                     user.submit()
+                    if next_page:
+                        return flask.redirect(next_page)
                     return flask.redirect(flask.url_for('main_bp.home'))
                 else:
                     flask.flash('Invalid email and/or password.', 'danger')
@@ -203,7 +212,7 @@ def login():
             else:
                 flask.flash('Invalid email and/or password.', 'danger')
                 return flask.render_template('login.html', form=form), HTTPStatus.FORBIDDEN
-    return flask.render_template('login.html', form=form)
+    return flask.render_template('login.html', form=form, next=next_page)
 
 
 @main_bp.route('/')
