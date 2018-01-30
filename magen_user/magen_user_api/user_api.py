@@ -8,7 +8,7 @@ from http import HTTPStatus
 
 import flask
 import itsdangerous
-from flask_login import login_required, login_user, current_user
+from flask_login import login_required, login_user, current_user, logout_user
 from flask_wtf import FlaskForm
 from magen_gmail_client_api import gmail_client
 from wtforms import StringField, PasswordField
@@ -161,7 +161,7 @@ def register():
 
     # If user is already logged in, user cannot register again
     if current_user.is_authenticated:
-        flask.flash('User is already logged in, please logout to register ')
+        flask.flash('User is already logged in, please logout to register again! ')
         return flask.redirect(flask.url_for('main_bp.home'))
     
     if flask.request.method == 'POST':
@@ -191,6 +191,12 @@ def register():
 def login():
     """ Login for the user by email and password provided to Login Form """
     form = LoginForm(flask.request.form)
+
+    # If user is already logged in, user cannot login again
+    if current_user.is_authenticated:
+        flask.flash('User is already logged in, please logout to proceed! ')
+        return flask.redirect(flask.url_for('main_bp.home'))
+
     next_page = flask.request.args.get('next')
     if flask.request.method == 'POST':
         if form.validate_on_submit():
@@ -262,6 +268,13 @@ def load_user(user_id):
         user = result.documents
         return user
     return None
+
+
+@users_bp.route('/logout/')
+@login_required
+def logout():
+    logout_user()
+    return flask.render_template('logout.html')
 
 
 if __name__ == "__main__":
