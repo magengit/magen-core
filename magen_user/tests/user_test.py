@@ -4,6 +4,7 @@
 import http
 import unittest
 from unittest import mock
+from flask_login import current_user, LoginManager
 
 from magen_user_api import config
 from ..magen_user_api import db, user_api
@@ -20,6 +21,8 @@ class TestUser(unittest.TestCase):
         config.app.config['SERVER_NAME'] = 'app'
         config.app.register_blueprint(user_api.users_bp)
         config.app.register_blueprint(user_api.main_bp)
+        # login_manager = LoginManager()
+        # login_manager.init_app(config.app)
 
         self.test_app = config.app.test_client()
         with db.connect(config.TEST_DB_NAME) as db_instance:
@@ -186,3 +189,44 @@ class TestUser(unittest.TestCase):
             user = UserModel.select_by_email(db_instance, test_user_email).documents
         self.assertTrue(user.confirmed)
         self.assertTrue(user._is_authenticated)
+
+    def test_logout(self):
+        # Register user
+        data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
+            self.test_app.post(
+                '/register/',
+                data=data
+            )
+        data2 = {'email': 'test2@test.com', 'password': 'testtest2', 'confirm': 'testtest2'}
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
+            self.test_app.post(
+                '/register/',
+                data=data2
+            )
+
+        # Login user
+        post_data = {'email': 'test@test.com', 'password': 'testtest1'}
+        self.test_app.post(
+            '/login/',
+            data=post_data, follow_redirects=True
+        )
+        with db.connect(config.TEST_DB_NAME) as db_instance:
+            user = UserModel.select_by_email(db_instance, post_data['email']).documents
+            self.assertEqual(user._is_authenticated, True)
+
+        # Logout user
+        response = self.test_app.get('/logout/', follow_redirects=True)
+        self.assertEqual(response.status_code, http.HTTPStatus.OK)
+        self.assertIn('logout', response.data.decode('utf-8'))
+
+        # User can Login again after logging out
+        post_data2 = {'email': 'test2@test.com', 'password': 'testtest2'}
+        resp2 = self.test_app.post(
+            '/login/',
+            data=post_data2, follow_redirects=True
+        )
+        self.assertEqual(resp2.status_code, http.HTTPStatus.OK)
+        with db.connect(config.TEST_DB_NAME) as db_instance:
+            user = UserModel.select_by_email(db_instance, post_data2['email']).documents
+            self.assertEqual(user._is_authenticated, True)
