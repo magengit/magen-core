@@ -5,10 +5,11 @@ import http
 import unittest
 from unittest import mock
 from flask_login import current_user, LoginManager
+from flask import session
 
 from magen_user_api import config
-from ..magen_user_api import db, user_api
-from ..magen_user_api.user_model import UserModel
+from magen_user.magen_user_api import db, user_api
+from magen_user.magen_user_api.user_model import UserModel
 
 
 class TestUser(unittest.TestCase):
@@ -229,4 +230,35 @@ class TestUser(unittest.TestCase):
         self.assertEqual(resp2.status_code, http.HTTPStatus.OK)
         with db.connect(config.TEST_DB_NAME) as db_instance:
             user = UserModel.select_by_email(db_instance, post_data2['email']).documents
+            self.assertEqual(user._is_authenticated, True)
+
+    def test_login_again(self):
+        # Register user
+        data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
+        with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
+            self.test_app.post(
+                '/register/',
+                data=data
+            )
+
+        # Login user
+        post_data = {'email': 'test@test.com', 'password': 'testtest1','remember':True}
+        with self.test_app as cp:
+            resp = cp.post(
+                '/login/',
+                data=post_data,
+                follow_redirects=False
+            )
+            head = resp.headers
+
+            with cp.session_transaction()as sess:
+                sess['user_id'] = current_user.get_id()
+                sess['_fresh'] = True
+
+            response = cp.get(
+                        '/login/', headers=head,
+                    )
+            print(response.data)
+        with db.connect(config.TEST_DB_NAME) as db_instance:
+            user = UserModel.select_by_email(db_instance, post_data['email']).documents
             self.assertEqual(user._is_authenticated, True)
