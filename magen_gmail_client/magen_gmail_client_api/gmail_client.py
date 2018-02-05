@@ -18,7 +18,7 @@ from oauth2client import client
 from oauth2client import tools
 from oauth2client import file
 
-from magen_gmail_client_api import config
+from magen_gmail_client.magen_gmail_client_api import config
 
 PACKAGE_PATH = os.path.dirname(os.path.abspath(__file__))
 

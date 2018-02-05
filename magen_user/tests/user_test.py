@@ -6,8 +6,9 @@ import unittest
 from unittest import mock
 
 from magen_user_api import config
-from ..magen_user_api import db, user_api
-from ..magen_user_api.user_model import UserModel
+from magen_user_api.user_model import UserModel
+
+from magen_user.magen_user_api import db, user_api
 
 
 class TestUser(unittest.TestCase):
