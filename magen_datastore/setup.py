@@ -32,9 +32,9 @@ setup(
     },
     test_suite='tests',
     url='http://www.cisco.com',
-    license='Proprietary License',
+    license='Apache',
     author='Reinaldo Penno',
-    author_email='repenno@cisco.com',
+    author_email='repenno@gmail.com',
     description='Ingestion MicroService Package',
     classifiers=[
         # How mature is this project? Common values are
@@ -52,7 +52,7 @@ setup(
         'Topic :: Security',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: Other/Proprietary License',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: Unix',
         'Operating System :: MacOS',
 

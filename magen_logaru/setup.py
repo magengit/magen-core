@@ -32,7 +32,7 @@ setup(
     },
     test_suite='tests',
     url='http://www.cisco.com',
-    license='Proprietary License',
+    license='Apache',
     author='Alena Lifar',
     author_email='alifar@cisco.com',
     description='Magen Logging Package',
@@ -51,7 +51,7 @@ setup(
         'Topic :: Security',
 
         # Pick your license as you wish (should match "license" above)
-        'License :: Other/Proprietary License',
+        'License :: OSI Approved :: Apache Software License',
 
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.

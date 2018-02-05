@@ -46,7 +46,7 @@ setup(
     },
     test_suite='tests',
     url='http://www.cisco.com',
-    license='Apache 2',
+    license='Apache',
     author='Alena Lifar',
     author_email='alifar@cisco.com',
     description='Magen Gmail Client Package',
