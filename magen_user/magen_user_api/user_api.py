@@ -222,6 +222,7 @@ def login():
 
 
 @main_bp.route('/')
+@main_bp.route('/index.html')
 @login_required
 def home():
     """ Index page """
