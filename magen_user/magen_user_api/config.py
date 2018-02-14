@@ -7,6 +7,7 @@ from secrets import token_hex
 from flask import Flask
 from flask_wtf import CSRFProtect
 from flask_login import LoginManager
+from flask_recaptcha import ReCaptcha
 
 __copyright__ = "Copyright(c) 2018, Cisco Systems, Inc."
 __status__ = "alpha"
@@ -27,6 +28,8 @@ app.secret_key = token_hex(16)
 # app.config['WTF_CSRF_ENABLED'] = False
 # app.config['WTF_CSRF_SECRET_KEY'] = 'test' # must be secured
 # app.config['SECRET_KEY'] = 'test_key'  # must be secured
+app.config['RECAPTCHA_SITE_KEY'] = '6LdsXUYUAAAAAFDz0G292jFYZfGym8Nm2tOt0uAh'
+app.config['RECAPTCHA_SECRET_KEY'] = '6LdsXUYUAAAAAK_Sf71TVAuFkOkocNZRu5bnXixm'
 app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
 # configuring application with CSRF protection for form security
 # CSRFProtect(app)
@@ -35,6 +38,9 @@ app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'users_bp.login'
+
+# initiate recaptcha
+recaptcha = ReCaptcha(app=app)
 
 # Initializing hash function and iterations for Pbkdf2 hashing
 HASH_FUNCTION = 'sha256'
