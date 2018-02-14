@@ -28,10 +28,10 @@ setup(
         'Sphinx>=1.6.3',
         'wheel>=0.30.0a0',
         'httplib2>=0.10',
-        'Flask>=0.12',
+        'Flask>=0.12.2',
         'Flask-Cors>=3.0',
-        'Flask-Login>=0.2',
-        'Flask-WTF>=0.14',
+        'Flask-Login>=0.4.1',
+        'Flask-WTF>=0.14.2',
         'itsdangerous>=0.24',
         'WTForms>=2.1',
         'pymongo>=3.4'
