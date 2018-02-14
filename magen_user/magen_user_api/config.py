@@ -27,7 +27,7 @@ app.secret_key = token_hex(16)
 # app.config['WTF_CSRF_ENABLED'] = False
 # app.config['WTF_CSRF_SECRET_KEY'] = 'test' # must be secured
 # app.config['SECRET_KEY'] = 'test_key'  # must be secured
-# app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
+app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
 # configuring application with CSRF protection for form security
 # CSRFProtect(app)
 
