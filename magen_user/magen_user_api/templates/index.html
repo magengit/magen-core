@@ -17,6 +17,12 @@
 <body>
   <div class="container">
 
+      <div align="right">
+          <form action="/logout/">
+              <input type="submit" value="Logout">
+          </form>
+      </div>
+
     <div>
       <h3 class="text-muted">WELCOME TO MAGEN WEB SERVICES</h3>
     </div>
@@ -35,6 +41,12 @@
                 </ul>
             {% endif %}
         {% endwith %}
+        <ul>
+            <li> <a href="/magen/ingestion/v2/file_upload/"><b>Upload a File</b></a> </li>
+            <li> <a href="/magen/ingestion/v2/file_share/"><b>Share a File</b></a> </li>
+            <li> <a href="/magen/ingestion/v2/manage_files/"><b>Manage Files</b></a> </li>
+        </ul>
+
     </p>
   </div>
 </body>

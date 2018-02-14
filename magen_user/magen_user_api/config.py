@@ -2,6 +2,7 @@
 """
 Config file. Global constants
 """
+from secrets import token_hex
 
 from flask import Flask
 from flask_wtf import CSRFProtect
@@ -22,13 +23,13 @@ EXISTING_EMAIL_CODE_ERR = 11000
 # creating flask App
 app = Flask(__name__)
 app.template_folder = 'templates'  # providing path to template folder
-app.secret_key = 'test_key'
-app.config['WTF_CSRF_ENABLED'] = True
+app.secret_key = token_hex(16)
+# app.config['WTF_CSRF_ENABLED'] = False
 # app.config['WTF_CSRF_SECRET_KEY'] = 'test' # must be secured
-app.config['SECRET_KEY'] = 'test_key'  # must be secured
-app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
+# app.config['SECRET_KEY'] = 'test_key'  # must be secured
+# app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
 # configuring application with CSRF protection for form security
-CSRFProtect(app)
+# CSRFProtect(app)
 
 # configuring application with LoginManger for @login_required and handling login requests
 login_manager = LoginManager()
