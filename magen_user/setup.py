@@ -28,10 +28,10 @@ setup(
         'Sphinx>=1.6.3',
         'wheel>=0.30.0a0',
         'httplib2>=0.10',
-        'Flask>=0.12',
+        'Flask>=0.12.2',
         'Flask-Cors>=3.0',
-        'Flask-Login>=0.2',
-        'Flask-WTF>=0.14',
+        'Flask-Login>=0.4.1',
+        'Flask-WTF>=0.14.2',
         'Flask-ReCaptcha>=0.4'
         'itsdangerous>=0.24',
         'WTForms>=2.1',
@@ -39,11 +39,11 @@ setup(
       ],
     scripts=['magen_user_api/user_api.py'],
     package_dir={'': '.'},
-    packages={'magen_user_api', 'magen_user_api.templates'},
+    packages={'magen_user_api', 'magen_user_api.templates', 'magen_user_api.static', 'magen_user_api.static.css', 'magen_user_api.static.images'},
     include_package_data=True,
     package_data={
         # If any package contains *.txt, *.rst or *.html  files, include them:
-        '': ['*.txt', '*.rst', '*.html']
+        '': ['*.txt', '*.rst', '*.html', '*.css', '*.png']
     },
     test_suite='tests',
     url='http://www.cisco.com',
