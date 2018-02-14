@@ -38,11 +38,11 @@ setup(
       ],
     scripts=['magen_user_api/user_api.py'],
     package_dir={'': '.'},
-    packages={'magen_user_api', 'magen_user_api.templates', 'magen_user_api.static', 'magen_user_api.static.css'},
+    packages={'magen_user_api', 'magen_user_api.templates', 'magen_user_api.static', 'magen_user_api.static.css', 'magen_user_api.static.images'},
     include_package_data=True,
     package_data={
         # If any package contains *.txt, *.rst or *.html  files, include them:
-        '': ['*.txt', '*.rst', '*.html', '*.css']
+        '': ['*.txt', '*.rst', '*.html', '*.css', '*.png']
     },
     test_suite='tests',
     url='http://www.cisco.com',
