@@ -2,10 +2,11 @@
 """
 Config file. Global constants
 """
+import os
 from secrets import token_hex
 
 from flask import Flask
-from flask_wtf import CSRFProtect
+# from flask_wtf import CSRFProtect
 from flask_login import LoginManager
 from flask_recaptcha import ReCaptcha
 
@@ -21,6 +22,9 @@ USER_COLLECTION_NAME = 'users'
 
 EXISTING_EMAIL_CODE_ERR = 11000
 
+RECAPTCHA_SITE_KEY = 'RECAPTCHA_SITE_KEY'
+RECAPTCHA_SECRET_KEY = 'RECAPTCHA_SECRET_KEY'
+
 # creating flask App
 app = Flask(__name__)
 app.template_folder = 'templates'  # providing path to template folder
@@ -28,8 +32,6 @@ app.secret_key = token_hex(16)
 # app.config['WTF_CSRF_ENABLED'] = False
 # app.config['WTF_CSRF_SECRET_KEY'] = 'test' # must be secured
 # app.config['SECRET_KEY'] = 'test_key'  # must be secured
-app.config['RECAPTCHA_SITE_KEY'] = '6LdsXUYUAAAAAFDz0G292jFYZfGym8Nm2tOt0uAh'
-app.config['RECAPTCHA_SECRET_KEY'] = '6LdsXUYUAAAAAK_Sf71TVAuFkOkocNZRu5bnXixm'
 app.config['SECURITY_PASSWORD_SALT'] = 'test_salt'  # must be secured
 # configuring application with CSRF protection for form security
 # CSRFProtect(app)
@@ -39,8 +41,28 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'users_bp.login'
 
+
 # initiate recaptcha
-recaptcha = ReCaptcha(app=app)
+def init_recaptcha_with_creds(application):
+    """
+    Get Credentials from Environment and add them to application configuration
+
+    :rtype: void
+    """
+    try:
+        recaptcha_site_key = os.environ[RECAPTCHA_SITE_KEY]
+        recaptcha_secret_key = os.environ[RECAPTCHA_SECRET_KEY]
+    except KeyError:
+        print('[error] Required Environment Variables are not set: {}, {}'.format(
+            RECAPTCHA_SITE_KEY, RECAPTCHA_SITE_KEY))
+        recaptcha_site_key = None
+        recaptcha_secret_key = None
+        application.config['RECAPTCHA_ENABLED'] = False
+        pass
+    application.config[RECAPTCHA_SITE_KEY] = recaptcha_site_key
+    application.config[RECAPTCHA_SECRET_KEY] = recaptcha_secret_key
+
+    return ReCaptcha(app=application)
 
 # Initializing hash function and iterations for Pbkdf2 hashing
 HASH_FUNCTION = 'sha256'

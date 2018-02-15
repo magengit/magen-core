@@ -10,7 +10,6 @@ import flask
 import itsdangerous
 from flask_login import login_required, login_user, current_user, logout_user
 from flask_wtf import FlaskForm
-from flask_recaptcha import ReCaptcha
 from magen_gmail_client_api import gmail_client
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
@@ -25,6 +24,8 @@ __status__ = "alpha"
 # creating blueprints
 users_bp = flask.Blueprint('users_bp', __name__)
 main_bp = flask.Blueprint('main_bp', __name__)
+
+recaptcha = config.init_recaptcha_with_creds(config.app)
 
 
 class RegistrationForm(FlaskForm):
@@ -161,12 +162,12 @@ def register():
     form = RegistrationForm(flask.request.form)
 
     # If user is already logged in, user cannot register again
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         flask.flash('User is already logged in, please logout to register again! ')
         return flask.redirect(flask.url_for('main_bp.home'))
     
     if flask.request.method == 'POST':
-        if not config.recaptcha.verify():
+        if not recaptcha.verify():
             flask.flash('ReCaptcha is not valid.', 'danger')
             return flask.render_template('registration.html', form=form)
 
@@ -198,13 +199,13 @@ def login():
     form = LoginForm(flask.request.form)
 
     # If user is already logged in, user cannot login again
-    if current_user.is_authenticated():
+    if current_user.is_authenticated:
         flask.flash('User is already logged in, please logout to proceed! ')
         return flask.redirect(flask.url_for('main_bp.home'))
 
     next_page = flask.request.args.get('next')
     if flask.request.method == 'POST':
-        if not config.recaptcha.verify():
+        if not recaptcha.verify():
             flask.flash('ReCaptcha is not valid.', 'danger')
             return flask.render_template('login.html', form=form), HTTPStatus.FORBIDDEN
         if form.validate_on_submit():
