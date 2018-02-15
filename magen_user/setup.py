@@ -10,8 +10,8 @@ import pip
 with open(os.path.join(os.path.dirname(__file__), '__init__.py')) as version_file:
     exec(version_file.read())
 
-if sys.version_info < (3, 5, 2):
-    sys.exit("Sorry, you need Python 3.5.2+")
+if sys.version_info < (3, 6, 3):
+    sys.exit("Sorry, you need Python 3.6.3+")
 
 pip_version = int(pip.__version__.replace(".", ""))
 if pip_version < 901:
