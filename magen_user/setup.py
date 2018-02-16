@@ -32,6 +32,7 @@ setup(
         'Flask-Cors>=3.0',
         'Flask-Login>=0.4.1',
         'Flask-WTF>=0.14.2',
+        'Flask-ReCaptcha>=0.4'
         'itsdangerous>=0.24',
         'WTForms>=2.1',
         'pymongo>=3.4'

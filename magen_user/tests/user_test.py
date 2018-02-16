@@ -31,7 +31,8 @@ class TestUser(unittest.TestCase):
         with db.connect(config.TEST_DB_NAME) as db_instance:
             db_instance.drop_collection(config.USER_COLLECTION_NAME)
 
-    def test_register_EqualPasswords(self):
+    @mock.patch('flask_recaptcha.ReCaptcha.verify')
+    def test_register_EqualPasswords(self, recaptcha_mock):
         data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
         # Register user
         with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
@@ -59,7 +60,8 @@ class TestUser(unittest.TestCase):
             )
         self.assertIsNot(data2['password'],  data2['confirm'])
 
-    def test_login(self):
+    @mock.patch('flask_recaptcha.ReCaptcha.verify')
+    def test_login(self, recaptcha_mock):
         # Register user
         data = {'email': 'test@test.com', 'password': 'testtest1', 'confirm': 'testtest1'}
         with mock.patch('magen_user.magen_user_api.user_api.send_confirmation'):
@@ -149,7 +151,8 @@ class TestUser(unittest.TestCase):
                 user_api.send_confirmation(test_user_email)
         template_mock.assert_called_once_with('email_confirmation.html', confirm_url='test_url', user_email=test_user_email)
 
-    def test_confirm_email(self):
+    @mock.patch('flask_recaptcha.ReCaptcha.verify')
+    def test_confirm_email(self, recaptcha_mock):
         """ Test confirmation of a user's email. /confirm/<token> route """
         test_user_email = 'test@test.test'
         test_password = 'testtest1'
