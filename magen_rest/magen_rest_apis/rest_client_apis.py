@@ -145,11 +145,14 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_post_and_check_success(url, json_req, check_util=None, timeout=2.0, verify=True, location=True):
+    def http_post_and_check_success(url, json_req, check_util=None, timeout=2.0, verify=True, location=True,
+                                    auth=None, headers=put_json_headers):
         """
         This function performs a POST request and returns the json body to the caller
         for any further processing or validation
 
+        :param headers: HTTP headers to add to request
+        :param auth: Basic HTTP auth
         :param location: Verify is location header is present in the response
         :param verify: Should we verify certificates?
         :param timeout: Request timeout
@@ -165,9 +168,10 @@ class RestClientApis(object):
             url,
             verify=verify,
             data=json_req,
-            headers=RestClientApis.put_json_headers,
+            headers=headers,
             stream=False,
-            timeout=timeout)
+            timeout=timeout,
+            auth=auth)
 
         post_resp.raise_for_status()
         # When an resource is created we need the Location header properly returned
@@ -452,3 +456,47 @@ class RestClientApis(object):
             return rest_return_obj
         # PUT failed
         return put_resp_obj
+
+    @staticmethod
+    @known_exceptions
+    def http_patch_and_check_success(url, json_req, check_util=None, timeout=2.0, verify=True,
+                                    auth=None, headers=put_json_headers):
+        """
+        This function performs a POST request and returns the json body to the caller
+        for any further processing or validation
+
+        :param headers: HTTP headers to add to request
+        :param auth: Basic HTTP auth
+        :param location: Verify is location header is present in the response
+        :param verify: Should we verify certificates?
+        :param timeout: Request timeout
+        :param json_req: JSON to send to server
+        :param url: URL used by the POST request
+        :param check_util: An optional function that performs specific application level checks. The function
+            must return boolean and take response object as an argument
+
+        :return: Rest Respond Object
+        """
+        session = requests.Session()
+        post_resp = session.patch(
+            url,
+            verify=verify,
+            data=json_req,
+            headers=headers,
+            stream=False,
+            timeout=timeout,
+            auth=auth)
+
+        post_resp.raise_for_status()
+
+        if post_resp.status_code != HTTPStatus.NO_CONTENT and post_resp.text:
+            post_resp_json = post_resp.json()
+        else:
+            post_resp_json = None
+
+        success, message, return_code = success_message_code(post_resp, check_util)
+
+        rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
+                                     json_body=post_resp_json,
+                                     response_object=post_resp)
+        return rest_return_obj
