@@ -25,6 +25,8 @@ __status__ = "alpha"
 users_bp = flask.Blueprint('users_bp', __name__)
 main_bp = flask.Blueprint('main_bp', __name__)
 
+recaptcha = config.init_recaptcha_with_creds(config.app)
+
 
 class RegistrationForm(FlaskForm):
     """ Class represents Registration Form for user """
@@ -165,6 +167,10 @@ def register():
         return flask.redirect(flask.url_for('main_bp.home'))
     
     if flask.request.method == 'POST':
+        if not recaptcha.verify():
+            flask.flash('ReCaptcha is not valid.', 'danger')
+            return flask.render_template('registration.html', form=form)
+
         if form.validate_on_submit():
             email = form.email.data
             salt = generate_salt()
@@ -199,6 +205,9 @@ def login():
 
     next_page = flask.request.args.get('next')
     if flask.request.method == 'POST':
+        if not recaptcha.verify():
+            flask.flash('ReCaptcha is not valid.', 'danger')
+            return flask.render_template('login.html', form=form), HTTPStatus.FORBIDDEN
         if form.validate_on_submit():
             with db.connect(config.DEV_DB_NAME) as db_instance:
                 result = UserModel.select_by_email(db_instance, str(form.email.data))

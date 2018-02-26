@@ -32,9 +32,10 @@
         Log in to Magen Web Services
       </div>
       <form method="POST" action="{{ url_for('users_bp.login', next=next) }}">
-    {{ form.csrf_token }}
+          {{ form.csrf_token }}
     <br>{{ form.email.label }} {{ form.email(size=20) }}<br>
     <br>{{ form.password.label }} {{ form.password(size=20) }}<br>
+                <div class="recaptcha-container">{{ recaptcha }}</div>
     <div class="registerbutton">
     <input type="submit" value="Login">
   </div>

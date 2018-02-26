@@ -2,4 +2,5 @@
 """
 Magen Core magen_user package init
 """
-__version__ = '0.0a7'
+
+__version__ = '0.1a0'
