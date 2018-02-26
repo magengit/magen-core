@@ -82,7 +82,7 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_get_and_check_success(url, check_util=None, verify=True, stream=False):
+    def http_get_and_check_success(url, check_util=None, verify=True, stream=False, auth=None):
         """
         This function will send a GET request and check if the response is OK.
 
@@ -99,7 +99,7 @@ class RestClientApis(object):
         :return: Rest Respond Object
         """
         session = requests.Session()
-        get_response = session.get(url, verify=verify, stream=stream, timeout=2.0)
+        get_response = session.get(url, verify=verify, stream=stream, timeout=2.0, auth=auth)
         get_response.raise_for_status()
         if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
             get_resp_json = get_response.json()
@@ -114,7 +114,7 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_delete_and_check_success(url, check_util=None, verify=True):
+    def http_delete_and_check_success(url, check_util=None, verify=True, auth=None):
         """
         This function performs a DELETE request
 
@@ -129,7 +129,8 @@ class RestClientApis(object):
             url,
             verify=verify,
             stream=False,
-            timeout=2.0)
+            timeout=2.0,
+            auth=auth)
         delete_resp.raise_for_status()
         if delete_resp.status_code != HTTPStatus.NO_CONTENT and delete_resp.text:
             delete_resp_json = delete_resp.json()
