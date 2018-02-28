@@ -86,6 +86,7 @@ class RestClientApis(object):
         """
         This function will send a GET request and check if the response is OK.
 
+        :param auth: Basic HTTP auth
         :param stream: Whether to keep connection open in order to stream large files
         :param verify: Verify certs
         :param url: HTTP URL
@@ -98,19 +99,19 @@ class RestClientApis(object):
 
         :return: Rest Respond Object
         """
-        session = requests.Session()
-        get_response = session.get(url, verify=verify, stream=stream, timeout=2.0, auth=auth)
-        get_response.raise_for_status()
-        if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
-            get_resp_json = get_response.json()
-        else:
-            get_resp_json = None
-        success, message, return_code = success_message_code(get_response, check_util)
+        with requests.Session() as session:
+            get_response = session.get(url, verify=verify, stream=stream, timeout=2.0, auth=auth)
+            get_response.raise_for_status()
+            if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
+                get_resp_json = get_response.json()
+            else:
+                get_resp_json = None
+            success, message, return_code = success_message_code(get_response, check_util)
 
-        rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
-                                     json_body=get_resp_json,
-                                     response_object=get_response)
-        return rest_return_obj
+            rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
+                                         json_body=get_resp_json,
+                                         response_object=get_response)
+            return rest_return_obj
 
     @staticmethod
     @known_exceptions
@@ -118,31 +119,32 @@ class RestClientApis(object):
         """
         This function performs a DELETE request
 
+        :param auth: Basic HTTP auth
         :param check_util: An optional function that performs specific application level checks. The function
             must return boolean and take response object as an argument
 
         :param url: URL used by the POST request
         :return: Rest Respond Object
         """
-        session = requests.Session()
-        delete_resp = session.delete(
-            url,
-            verify=verify,
-            stream=False,
-            timeout=2.0,
-            auth=auth)
-        delete_resp.raise_for_status()
-        if delete_resp.status_code != HTTPStatus.NO_CONTENT and delete_resp.text:
-            delete_resp_json = delete_resp.json()
-        else:
-            delete_resp_json = None
+        with requests.Session() as session:
+            delete_resp = session.delete(
+                url,
+                verify=verify,
+                stream=False,
+                timeout=2.0,
+                auth=auth)
+            delete_resp.raise_for_status()
+            if delete_resp.status_code != HTTPStatus.NO_CONTENT and delete_resp.text:
+                delete_resp_json = delete_resp.json()
+            else:
+                delete_resp_json = None
 
-        success, message, return_code = success_message_code(delete_resp, check_util)
+            success, message, return_code = success_message_code(delete_resp, check_util)
 
-        rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
-                                     json_body=delete_resp_json,
-                                     response_object=delete_resp)
-        return rest_return_obj
+            rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
+                                         json_body=delete_resp_json,
+                                         response_object=delete_resp)
+            return rest_return_obj
 
     @staticmethod
     @known_exceptions
@@ -164,35 +166,35 @@ class RestClientApis(object):
 
         :return: Rest Respond Object
         """
-        session = requests.Session()
-        post_resp = session.post(
-            url,
-            verify=verify,
-            data=json_req,
-            headers=headers,
-            stream=False,
-            timeout=timeout,
-            auth=auth)
+        with requests.Session() as session:
+            post_resp = session.post(
+                url,
+                verify=verify,
+                data=json_req,
+                headers=headers,
+                stream=False,
+                timeout=timeout,
+                auth=auth)
 
-        post_resp.raise_for_status()
-        # When an resource is created we need the Location header properly returned
-        if location and 'Location' not in post_resp.headers:
-            success = False
-            post_resp_json = None
-            message = HTTPStatus.INTERNAL_SERVER_ERROR.phrase
-            return_code = HTTPStatus.INTERNAL_SERVER_ERROR
-        else:
-            if post_resp.status_code != HTTPStatus.NO_CONTENT and post_resp.text:
-                post_resp_json = post_resp.json()
-            else:
+            post_resp.raise_for_status()
+            # When an resource is created we need the Location header properly returned
+            if location and 'Location' not in post_resp.headers:
+                success = False
                 post_resp_json = None
+                message = HTTPStatus.INTERNAL_SERVER_ERROR.phrase
+                return_code = HTTPStatus.INTERNAL_SERVER_ERROR
+            else:
+                if post_resp.status_code != HTTPStatus.NO_CONTENT and post_resp.text:
+                    post_resp_json = post_resp.json()
+                else:
+                    post_resp_json = None
 
-            success, message, return_code = success_message_code(post_resp, check_util)
+                success, message, return_code = success_message_code(post_resp, check_util)
 
-        rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
-                                     json_body=post_resp_json,
-                                     response_object=post_resp)
-        return rest_return_obj
+            rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
+                                         json_body=post_resp_json,
+                                         response_object=post_resp)
+            return rest_return_obj
 
     @staticmethod
     @known_exceptions
@@ -210,28 +212,28 @@ class RestClientApis(object):
 
         :return: Rest Respond Object
         """
-        session = requests.Session()
-        put_resp = session.put(
-            url,
-            verify=verify,
-            data=json_req,
-            headers=RestClientApis.put_json_headers,
-            stream=False,
-            timeout=2.0)
+        with requests.Session() as session:
+            put_resp = session.put(
+                url,
+                verify=verify,
+                data=json_req,
+                headers=RestClientApis.put_json_headers,
+                stream=False,
+                timeout=2.0)
 
-        put_resp.raise_for_status()
-        post_resp_json = put_resp.json() if put_resp.status_code != HTTPStatus.NO_CONTENT and put_resp.text \
-            else None
-        if my_function:
-            success, message, return_code = my_function(put_resp)
-        else:
-            success = True
-            message = put_resp.reason
-            return_code = put_resp.status_code
-        rest_return_obj = RestReturn(success=success,
-                                     http_status=return_code,
-                                     message=message, json_body=post_resp_json)
-        return rest_return_obj
+            put_resp.raise_for_status()
+            post_resp_json = put_resp.json() if put_resp.status_code != HTTPStatus.NO_CONTENT and put_resp.text \
+                else None
+            if my_function:
+                success, message, return_code = my_function(put_resp)
+            else:
+                success = True
+                message = put_resp.reason
+                return_code = put_resp.status_code
+            rest_return_obj = RestReturn(success=success,
+                                         http_status=return_code,
+                                         message=message, json_body=post_resp_json)
+            return rest_return_obj
 
     # The remaining methods in this class are for testing purposes.
     @staticmethod
@@ -478,26 +480,26 @@ class RestClientApis(object):
 
         :return: Rest Respond Object
         """
-        session = requests.Session()
-        post_resp = session.patch(
-            url,
-            verify=verify,
-            data=json_req,
-            headers=headers,
-            stream=False,
-            timeout=timeout,
-            auth=auth)
+        with requests.Session() as session:
+            post_resp = session.patch(
+                url,
+                verify=verify,
+                data=json_req,
+                headers=headers,
+                stream=False,
+                timeout=timeout,
+                auth=auth)
 
-        post_resp.raise_for_status()
+            post_resp.raise_for_status()
 
-        if post_resp.status_code != HTTPStatus.NO_CONTENT and post_resp.text:
-            post_resp_json = post_resp.json()
-        else:
-            post_resp_json = None
+            if post_resp.status_code != HTTPStatus.NO_CONTENT and post_resp.text:
+                post_resp_json = post_resp.json()
+            else:
+                post_resp_json = None
 
-        success, message, return_code = success_message_code(post_resp, check_util)
+            success, message, return_code = success_message_code(post_resp, check_util)
 
-        rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
-                                     json_body=post_resp_json,
-                                     response_object=post_resp)
-        return rest_return_obj
+            rest_return_obj = RestReturn(success=success, message=message, http_status=return_code,
+                                         json_body=post_resp_json,
+                                         response_object=post_resp)
+            return rest_return_obj
