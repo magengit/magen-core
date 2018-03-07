@@ -198,13 +198,16 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_put_and_check_success(url, json_req, my_function=None, verify=True):
+    def http_put_and_check_success(url, json_req, my_function=None, verify=True, headers=put_json_headers,
+                                   params=None):
         """
         This function performs a PUT request and returns the json body to the caller
         for any further processing or validation
 
         :param verify:
         :param my_function:
+        :param params: Query strings to add to request
+        :param headers: HTTP headers to add to request
         :param json_req: JSON to send to server
         :param url: URL used by the POST request
         :param check_util: An optional function that performs specific application level checks. The function
@@ -217,7 +220,8 @@ class RestClientApis(object):
                 url,
                 verify=verify,
                 data=json_req,
-                headers=RestClientApis.put_json_headers,
+                headers=headers,
+                params=params,
                 stream=False,
                 timeout=2.0)
 
