@@ -284,7 +284,8 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
-    return flask.render_template('logout.html')
+    flask.flash("User logged out successfully")
+    return flask.redirect(flask.url_for('users_bp.login'))
 
 
 if __name__ == "__main__":
