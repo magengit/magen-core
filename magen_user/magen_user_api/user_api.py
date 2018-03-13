@@ -215,7 +215,7 @@ def login():
                 user = result.documents
                 if check_password_hash(user.password, user.salt, form.password.data.encode('utf-8')):
                     login_user(user)
-                    flask.flash('Welcome.', 'success')
+                    # flask.flash('Welcome.', 'success')
                     user._is_authenticated = True
                     user.submit()
                     if next_page:
