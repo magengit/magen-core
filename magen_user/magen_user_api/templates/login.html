@@ -25,40 +25,40 @@
     <div class="logincenter">
     <div class="registercontent">
       <header class="titlecontent">
-        <img class="magenlogo img-fluid" src="{{ url_for('static',filename='images/magentitle.png') }}" alt="magenlogo" border="0"></img>
+        <img class="magenlogo img-fluid" src="{{ url_for('static',filename='images/magentitle.png') }}" alt="magenlogo"></img>
       </header>
     <div class="loginbox">
       <div class="loginboxtitle">
         Log in to Magen Web Services
       </div>
       <form method="POST" action="{{ url_for('users_bp.login', next=next) }}">
-          {{ form.csrf_token }}
+    {{ form.csrf_token }}
     <br>{{ form.email.label }} {{ form.email(size=20) }}<br>
     <br>{{ form.password.label }} {{ form.password(size=20) }}<br>
-                <div class="recaptcha-container">{{ recaptcha }}</div>
+          <div class="recaptcha-container">{{ recaptcha }}</div>
     <div class="registerbutton">
-    <input type="submit" value="Login">
+    <input class="loginbutton" type="submit" value="Login">
   </div>
+      <div class="registerinfo">
     {% with messages = get_flashed_messages() %}
         {% if messages %}
-            <ul class=flashes>
+            <p class=flashes>
                 {% for message in messages %}
-                    <li>{{ message }}</li>
+                  {{ message }}
                 {% endfor %}
-            </ul>
-        {% else %}
-        <div class="registerinfo">
-           Don't have an account? <a href="/register/">Register</a>
-         </div>
+            </p>
         {% endif %}
     {% endwith %}
+          Don't have an account? <a href="/register/">Register</a>
+  </div>
+
 </form>
 
 </div><!---Loginbox-->
   </div><!--registercontent-->
 
 </div><!--logincenter-->
-</div>
+
 
 
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>

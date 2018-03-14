@@ -1,53 +1,101 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-    <title>M-HWA Home</title>
-    <div>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://getbootstrap.com/docs/3.3/examples/jumbotron-narrow/jumbotron-narrow.css" rel="stylesheet">
-    </div>
-</head>
-<style>
-  dd {
-  margin-left: 0.5cm;
-  }
-</style>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../favicon.ico">
 
-<body>
-  <div class="container">
+    <title>Magen-io</title>
 
-      <div align="right">
-          <form action="/logout/">
-              <input type="submit" value="Logout">
-          </form>
+    <!-- Bootstrap core CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <!-- Custom styles for this template -->
+ <link href= "{{ url_for('static',filename='css/starter-template.css') }}" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Cabin:400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  </head>
+
+<script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+
+
+
+<body style="background-color: rgb(249,250,252);">
+  <div id="webwrapper">
+   <nav>
+     <a href="https://magengit.github.io/" target="_blank">
+      <img class="magenlogo1 img-fluid" src="{{ url_for('static',filename='images/magentitle.png') }}" alt="magenlogo"></img>
+    </a>
+    <ul>
+
+      <li><a class="navlink" href="/"><svg class="manageicon" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 391.43 391.43"><title>Home</title><path fill="#999" d="M368.2,349.05l138.39-129L645,349.05M368.2,349V558h91.18V455.16h94.41V558H645V349Zm235.11-92.28V178h-30V228.8l-66.72-62.19L310.87,349h38.62l157.1-146.43L663.68,349h38.63Z" transform="translate(-310.87 -166.61)"/></svg>Home</a></li>
+
+      <li><a class="navlink" href="/magen/ingestion/v2/file_upload/"><svg class="manageicon" id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 134.53 154"><title>Upload</title><path fill="#999" d="M447.05,337.63v.07H415.43L482.69,275,550,337.7H519.56v-.07Zm0,.07V429h72.51V337.7Z" transform="translate(-415.43 -275)"/></svg>Upload</a></li>
+
+
+      <li><a class="navlink" href="/magen/ingestion/v2/manage_files/"><svg class="manageicon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 339.16 346.7" "><title>Manage</title><path fill="#999" id="manage" d="M844.05,350.91H824.73a143.33,143.33,0,0,0-23.14-61.21,8.22,8.22,0,0,0,1.42-1l15.74-14.27a8,8,0,0,0,.55-11.23l-24-26.47a8,8,0,0,0-11.22-.55l-15.75,14.27a8,8,0,0,0-1.94,2.74,143.59,143.59,0,0,0-59.55-25.28,7.94,7.94,0,0,0,.61-3V203.59a8,8,0,0,0-8-8H663.77a8,8,0,0,0-7.95,8v21.25a8,8,0,0,0,.62,3.06,143.56,143.56,0,0,0-58.38,24.48,8,8,0,0,0-1.56-1.95l-15.74-14.27a8,8,0,0,0-11.23.55l-24,26.47a8,8,0,0,0,.55,11.23l15.75,14.27c.13.12.27.22.4.33a143.33,143.33,0,0,0-23.6,61.9H520.78a8,8,0,0,0-7.94,7.94v35.74a8,8,0,0,0,7.94,7.94h20.27a143.31,143.31,0,0,0,22.42,50.26,7.93,7.93,0,0,0-2.92,1.84l-15,15a8,8,0,0,0,0,11.23l25.27,25.27a8,8,0,0,0,11.23,0l15-15a7.93,7.93,0,0,0,1.84-2.92,143.5,143.5,0,0,0,54.81,23.39,7.81,7.81,0,0,0-.16,1.54V534.4a8,8,0,0,0,8,7.94h35.73a8,8,0,0,0,7.95-7.94V513.15a5.85,5.85,0,0,0,0-.73,143.56,143.56,0,0,0,60.54-25.06,7.88,7.88,0,0,0,2.1,3.78l15,15a8,8,0,0,0,11.24,0l25.27-25.27a8,8,0,0,0,0-11.23l-15-15a7.88,7.88,0,0,0-4.15-2.18,143.46,143.46,0,0,0,22.19-49.94l.48,0h21.25a8,8,0,0,0,8-7.94V358.85A8,8,0,0,0,844.05,350.91ZM682.42,454.58a84.57,84.57,0,0,1-85.31-85.31c.38-45.2,38.63-83.45,83.83-83.83a84.57,84.57,0,0,1,85.31,85.31C765.87,416,727.62,454.2,682.42,454.58Z" transform="translate(-512.84 -195.64)"/></svg>Manage</a></li>
+
+
+
+      <form>
+        <span class="logouticon">
+           <input type="submit" class="logoutbutton" formaction="/logout/" value="Logout">
+        </span>
+      </form>
+    </ul>
+  </nav>
+
+  <div class="content-wrapper">
+    <div class="container">
+        <div class="sharetitle">
+        Magen Home Page
+        </div>
+          <div class="shareinfo">
+            <p>File Upload widget with multiple file selection, drag&amp;drop support, progress bars, validation and preview images, audio and video for jQuery.<br>
+            Supports cross-domain, chunked and resumable file uploads and client-side image resizing.<br>
+            Works with any server-side platform (PHP, Python, Ruby on Rails, Java, Node.js, Go etc.) that supports standard HTML form file uploads.</p>
+          </div>
+<!--Create New Panels -->
+    <div class="row" style="margin-bottom:30px;">
+  <div class="col-sm-6">
+    <div class="card">
+        <h6 class="card-header">Title</h6>
+        <div class="card-body">
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
       </div>
-
-    <div>
-      <h3 class="text-muted">WELCOME TO MAGEN WEB SERVICES</h3>
     </div>
-    <p>
-      Magen Agent represent a native local Agent that performs Encryption and Decryption Data
-      that will be stored in a Cloud Application (Box, Dropbox, GoogleDrive).
-      Magen Agent showcases an ability to share an encrypted file between User1 and User2.
-      User2 receives an encrypted file and attempts to open it. If access is granted, file is decrypted.
-      If no decrypt operation performed, the User unable to open a file.
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class=flashes>
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        <ul>
-            <li> <a href="/magen/ingestion/v2/file_upload/"><b>Upload a File</b></a> </li>
-            <li> <a href="/magen/ingestion/v2/file_share/"><b>Share a File</b></a> </li>
-            <li> <a href="/magen/ingestion/v2/manage_files/"><b>Manage Files</b></a> </li>
-        </ul>
-
-    </p>
   </div>
+
+  <div class="col-sm-6">
+    <div class="card">
+        <h6 class="card-header">Title</h6>
+    <div class="card-body">
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      </div>
+    </div>
+  </div>
+ </div>
+
+  <div class="row">
+  <div class="col-sm-6">
+    <div class="card">
+        <h6 class="card-header">Title</h6>
+        <div class="card-body">
+        <p class="card-text">With supporting text below as a natural lead-in to additional content.With supporting text below as a natural lead-in to additional content.With supporting text below as a natural lead-in to additional content.With supporting text below as a natural lead-in to additional content.With supporting text below as a natural lead-in to additional content.</p>
+      </div>
+    </div>
+  </div>
+<!--Create New Panels -->
+
+</div>
+</div>
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
 </body>
 </html>
