@@ -82,10 +82,12 @@ class RestClientApis(object):
 
     @staticmethod
     @known_exceptions
-    def http_get_and_check_success(url, check_util=None, verify=True, stream=False, auth=None):
+    def http_get_and_check_success(url, check_util=None, verify=True, stream=False, auth=None, timeout=2.0, hooks=None):
         """
         This function will send a GET request and check if the response is OK.
 
+        :param hooks: Callback function to be called when a response is received.
+        :param timeout: Read timeout for HTTP requests
         :param auth: Basic HTTP auth
         :param stream: Whether to keep connection open in order to stream large files
         :param verify: Verify certs
@@ -100,9 +102,13 @@ class RestClientApis(object):
         :return: Rest Respond Object
         """
         with requests.Session() as session:
-            get_response = session.get(url, verify=verify, stream=stream, timeout=2.0, auth=auth)
+            chunked = False
+            get_response = session.get(url, verify=verify, stream=stream, timeout=timeout, auth=auth)
             get_response.raise_for_status()
-            if get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
+            headers = get_response.headers
+            if ("Transfer-Encoding", "chunked") in headers.items():
+                chunked = True
+            if not chunked and get_response.status_code != HTTPStatus.NO_CONTENT and get_response.text:
                 get_resp_json = get_response.json()
             else:
                 get_resp_json = None
