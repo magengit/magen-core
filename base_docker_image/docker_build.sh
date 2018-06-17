@@ -9,7 +9,7 @@ cd ${MAGEN}
 
 requirements_filename=magen_requirements.txt
 
-number_of_packages=9
+number_of_packages=7
 
 # names of folders where magen packages are stored
 folders=(magen_logaru magen_utils magen_datastore magen_rest magen_stats magen_mongo magen_id_client)
